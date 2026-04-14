@@ -8,14 +8,16 @@
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-    <div class="flex h-screen overflow-hidden">
-        <aside class="w-72 bg-[#1F2937] text-gray-300 flex-shrink-0 hidden md:flex flex-col">
-            <div class="p-8 border-b border-gray-700">
-                <div class="flex items-center space-x-3 mb-2">
-                    <div class="w-8 h-8 bg-gray-600 rounded flex items-center justify-center font-bold text-white">E</div>
-                    <h1 class="text-xl font-bold tracking-tight text-white">E-CONSULTING</h1>
+    <div class="flex h-screen overflow-hidden relative">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#1F2937] text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col">
+            <div class="p-8 border-b border-gray-700 flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-tight">E-CONSULTING</h1>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
                 </div>
-                <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-400">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
             </div>
             
             <nav class="flex-1 mt-6 px-4 space-y-1">
@@ -30,24 +32,23 @@
                 </a>
             </nav>
 
-            <div class="p-6 border-t border-gray-700">
-                <div class="bg-gray-800 p-4 rounded-lg">
-                    <p class="text-[10px] text-gray-500 uppercase mb-1">Pengembang</p>
-                    <p class="text-xs font-bold text-gray-300 uppercase tracking-tighter">Ananda Zoga Syahputra</p>
-                </div>
+            <div class="p-6 border-t border-gray-700 text-center">
+                <p class="text-[9px] text-gray-500 uppercase">Pengembang</p>
+                <p class="text-xs font-bold text-gray-300 uppercase tracking-tighter">Ananda Zoga Syahputra</p>
             </div>
         </aside>
 
+        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
         <main class="flex-1 flex flex-col overflow-y-auto">
             <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-8 h-20 flex-shrink-0">
-                <h2 class="text-lg font-bold text-gray-800 uppercase tracking-wide">Buat Konsultasi</h2>
-                <div class="flex items-center space-x-4">
-                    <div class="text-right">
-                        <p class="text-xs font-bold text-gray-700">Administrator</p>
-                        <p class="text-[10px] text-gray-400">Aktualisasi Latsar 2026</p>
-                    </div>
-                    <div class="w-10 h-10 bg-gray-100 rounded-full border border-gray-200 flex items-center justify-center text-xl shadow-inner">👤</div>
+                <div class="flex items-center">
+                    <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg text-gray-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    </button>
+                    <h2 class="text-lg font-bold text-gray-800 uppercase tracking-wide">Buat Konsultasi Baru</h2>
                 </div>
+                <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border text-xl shadow-inner">👤</div>
             </header>
 
             <div class="p-8 max-w-3xl mx-auto w-full">
@@ -56,48 +57,55 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Instansi / OPD</label>
-                                <input type="text" id="opdName" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" placeholder="Contoh: Dinas Kesehatan" required>
+                                <input type="text" id="opdName" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" placeholder="Nama Dinas/Kecamatan" required>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Jenis Konsultasi</label>
+                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Jenis/Kategori Konsultasi</label>
                                 <select id="consultType" onchange="toggleOtherInput()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" required>
                                     <option value="">-- Pilih Kategori --</option>
                                     <option value="Pengelolaan Keuangan">Pengelolaan Keuangan</option>
                                     <option value="Administrasi Pemerintahan">Administrasi Pemerintahan</option>
                                     <option value="Pengadaan Barang/Jasa">Pengadaan Barang/Jasa</option>
                                     <option value="Pelaksanaan Program/Kegiatan">Pelaksanaan Program/Kegiatan</option>
-                                    <option value="Lainnya">Lainnya</option>
+                                    <option value="Manajemen Aset/BMD">Manajemen Aset/BMD</option>
+                                    <option value="Administrasi Kepegawaian">Administrasi Kepegawaian</option>
+                                    <option value="Lainnya">Lainnya (Ketik Manual)</option>
                                 </select>
                             </div>
                         </div>
 
                         <div id="otherTypeContainer" class="hidden">
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 italic">Sebutkan Jenis Konsultasi</label>
-                            <input type="text" id="otherConsultType" class="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400 shadow-inner" placeholder="Ketik jenis konsultasi lainnya...">
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 italic">Sebutkan Kategori Lainnya</label>
+                            <input type="text" id="otherConsultType" class="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400 shadow-inner" placeholder="Ketik jenis konsultasi...">
                         </div>
 
                         <div>
                             <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Judul Permasalahan</label>
-                            <input type="text" id="subject" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" placeholder="Contoh: Kendala Input SIPD" required>
+                            <input type="text" id="subject" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" placeholder="Ringkasan topik" required>
                         </div>
 
                         <div>
                             <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Rincian Masalah</label>
-                            <textarea id="issue" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" rows="4" placeholder="Jelaskan detail permasalahan..." required></textarea>
+                            <textarea id="issue" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" rows="4" placeholder="Jelaskan detail kendala..." required></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Dasar Hukum / Referensi <span class="text-gray-300 font-normal italic">(Opsional)</span></label>
+                            <textarea id="reference" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" rows="2" placeholder="Sebutkan aturan terkait jika ada..."></textarea>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">WhatsApp</label>
-                                <input type="tel" id="whatsapp" placeholder="08123xxx" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-400" required>
+                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">WhatsApp Aktif</label>
+                                <input type="tel" id="whatsapp" placeholder="0812xxxx" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-400" required>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Email</label>
-                                <input type="email" id="email" placeholder="instansi@malangkab.go.id" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-400" required>
+                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Email Instansi</label>
+                                <input type="email" id="email" placeholder="contoh@malangkab.go.id" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-400" required>
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95">
+                        <button type="submit" class="w-full bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95 uppercase tracking-widest">
                             Kirim Pengajuan
                         </button>
                     </form>
@@ -107,47 +115,54 @@
     </div>
 
     <script>
+        // Logika Sidebar Mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // Logika Input 'Lainnya'
         function toggleOtherInput() {
             const selectVal = document.getElementById('consultType').value;
-            const otherContainer = document.getElementById('otherTypeContainer');
-            const otherInput = document.getElementById('otherConsultType');
-
+            const container = document.getElementById('otherTypeContainer');
+            const input = document.getElementById('otherConsultType');
+            
             if (selectVal === 'Lainnya') {
-                otherContainer.classList.remove('hidden');
-                otherInput.setAttribute('required', 'required');
+                container.classList.remove('hidden');
+                input.setAttribute('required', 'required');
             } else {
-                otherContainer.classList.add('hidden');
-                otherInput.removeAttribute('required');
+                container.classList.add('hidden');
+                input.removeAttribute('required');
             }
         }
 
+        // Simpan ke LocalStorage
         document.getElementById('consultForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
-            // Ambil data lama dari LocalStorage
             const data = JSON.parse(localStorage.getItem('consultations')) || [];
             
-            // Proses Jenis Konsultasi
             const selectedType = document.getElementById('consultType').value;
             const finalType = (selectedType === 'Lainnya') ? document.getElementById('otherConsultType').value : selectedType;
 
-            // Masukkan data baru
             data.push({
                 opd: document.getElementById('opdName').value,
                 type: finalType,
                 subject: document.getElementById('subject').value,
                 issue: document.getElementById('issue').value,
+                reference: document.getElementById('reference').value || '-',
                 whatsapp: document.getElementById('whatsapp').value,
                 email: document.getElementById('email').value,
                 status: 'Menunggu',
-                date: new Date().toLocaleDateString('id-ID')
+                date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
             });
 
-            // Simpan kembali
             localStorage.setItem('consultations', JSON.stringify(data));
             
-            alert('Konsultasi Berhasil Terkirim!');
-            window.location.href = "riwayat.html"; 
+            alert('Pengajuan Konsultasi Berhasil Disimpan!');
+            window.location.href = "riwayat.html";
         });
     </script>
 </body>
