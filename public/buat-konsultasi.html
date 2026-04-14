@@ -161,10 +161,10 @@
         body: JSON.stringify(formData)
     })
     .then(res => {
-        alert('Data berhasil dikirim ke Spreadsheet Inspektorat!');
+        alert('Data berhasil dikirim!');
         window.location.href = "riwayat.html";
     })
-    .catch(err => alert('Gagal kirim ke Spreadsheet, tapi tersimpan lokal.'));
+    .catch(err => alert('Gagal mengirim data.'));
 });
     </script>
 </body>
