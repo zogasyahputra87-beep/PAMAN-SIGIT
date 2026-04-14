@@ -14,32 +14,32 @@
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#1F2937] text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
             <div class="p-8 border-b border-gray-700 flex justify-between items-center">
                 <div>
-                    <h1 class="text-xl font-bold text-white tracking-tight">E-CONSULT</h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
-                </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white">
+                    <h1 class="text-xl font-bold tracking-tight text-white">E-CONSULTING</h1>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
+            </div>
+	    <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-            </div>
-            
-            <nav class="flex-1 mt-6 px-4 space-y-2">
-                <a href="#" class="nav-item active flex items-center p-3 rounded-lg text-sm transition-all duration-200">
+	    <div>
+
+            <nav class="flex-1 mt-6 px-4 space-y-1">
+                <a href="index.html" class="bg-gray-700 text-white w-full flex items-center p-3 rounded-lg text-sm font-bold border-r-4 border-gray-400">
                     <span class="mr-3"></span> Dashboard
                 </a>
-                <a href="#" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
+                <a href="buat-konsultasi.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
                     <span class="mr-3"></span> Buat Konsultasi
                 </a>
-                <a href="#" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
+                <a href="riwayat.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
                     <span class="mr-3"></span> Riwayat Konsultasi
                 </a>
             </nav>
 
             <div class="p-6 border-t border-gray-700">
-                <div class="bg-gray-800 p-4 rounded-xl text-center">
-                    <p class="text-[9px] text-gray-500 uppercase mb-1">Administrator</p>
-                    <p class="text-xs font-bold text-gray-300">Ananda Zoga Syahputra</p>
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <p class="text-[10px] text-gray-500 uppercase mb-1">Pengembang</p>
+                    <p class="text-xs font-bold text-gray-300 uppercase tracking-tighter">Ananda Zoga Syahputra</p>
                 </div>
             </div>
         </aside>
@@ -53,15 +53,81 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-                <h2 class="text-sm md:text-lg font-bold text-gray-800 uppercase tracking-wide">Ringkasan Sistem</h2>
-                <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border text-xl">👤</div>
+
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-8 h-20 flex-shrink-0">
+                <h2 class="text-lg font-bold text-gray-800 uppercase tracking-wide">DASHBOARD</h2>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+
+                        <p class="text-xs font-bold text-gray-700">Administrator</p>
+                        <p class="text-[10px] text-gray-400">Aktualisasi Latsar 2026</p>
+                    </div>
+                    <div class="w-10 h-10 bg-gray-100 rounded-full border border-gray-200 flex items-center justify-center text-xl shadow-inner">👤</div>
+                </div>
             </header>
 
-            <div id="content-area" class="p-8 max-w-6xl mx-auto w-full">
+            <div class="p-8 max-w-6xl mx-auto w-full">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Konsultasi</p>
+                        <h3 id="stat-total" class="text-4xl font-black text-gray-800">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Status: Menunggu</p>
+                        <h3 id="stat-pending" class="text-4xl font-black text-gray-500">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Status: Selesai</p>
+                        <h3 id="stat-done" class="text-4xl font-black text-gray-400">0</h3>
+                    </div>
                 </div>
+
+                <div class="bg-gray-800 text-white p-10 rounded-3xl shadow-xl relative overflow-hidden mb-8">
+                    <div class="relative z-10">
+                        <h3 class="text-2xl font-bold mb-2 italic">Selamat Datang di Layanan E-Consulting Kabupaten Malang.</h3>
+                        <p class="text-gray-400 text-sm max-w-lg leading-relaxed">
+                            Sistem E-Consulting ini dirancang untuk mempermudah koordinasi pembinaan dan pengawasan di Lingkungan Pemerintah Kabupaten Kabupaten Malang. Silakan gunakan menu di samping untuk mengelola pengajuan.
+                        </p>
+                        <div class="mt-6">
+                            <a href="buat-konsultasi.html" class="inline-block bg-white text-gray-900 px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:bg-gray-200 transition">Mulai Konsultasi Baru</a>
+                        </div>
+                    </div>
+                    <div class="absolute right-[-5px] bottom-[-5px] opacity-10 text-[50px] font-black italic select-none">ITDA KAB. MLG</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl">
+                        <h4 class="font-bold text-emerald-800 mb-1">Cara Input Data</h4>
+                        <p class="text-xs text-emerald-700">Masuk ke menu 'Buat Konsultasi', lengkapi formulir sesuai data OPD, lalu klik simpan.</p>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-100 p-6 rounded-2xl">
+                        <h4 class="font-bold text-blue-800 mb-1">Cek Laporan</h4>
+                        <p class="text-xs text-blue-700">Seluruh data yang telah masuk dapat dilihat secara rinci pada menu 'Riwayat Konsultasi'.</p>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        // Logika untuk menampilkan statistik dari LocalStorage
+        function loadDashboardStats() {
+            const data = JSON.parse(localStorage.getItem('consultations')) || [];
+            
+            // Hitung data
+            const total = data.length;
+            const pending = data.filter(item => item.status === 'Menunggu').length;
+            const done = data.filter(item => item.status === 'Selesai').length;
+
+            // Update ke layar
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-pending').innerText = pending;
+            document.getElementById('stat-done').innerText = done;
+        }
+
+        // Jalankan saat halaman dimuat
+        loadDashboardStats();
+    </script>
 </body>
 </html>
