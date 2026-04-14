@@ -1,18 +1,46 @@
-# Build and Release Folders
-bin-debug/
-bin-release/
-[Oo]bj/
-[Bb]in/
+// 1. Logika Sidebar (Mobile & Desktop)
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    
+    const isHidden = sidebar.classList.contains('-translate-x-full');
 
-# Other files and folders
-.settings/
+    if (isHidden) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+    } else {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    }
+}
 
-# Executables
-*.swf
-*.air
-*.ipa
-*.apk
+// 2. Fungsi untuk Menampilkan Konten Dashboard (Default)
+function renderDashboard() {
+    const data = JSON.parse(localStorage.getItem('consultations')) || [];
+    const contentArea = document.getElementById('content-area');
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+    contentArea.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-[11px] font-bold text-gray-400 uppercase mb-1">Total</p>
+                <h3 class="text-4xl font-black text-gray-800">${data.length}</h3>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-[11px] font-bold text-gray-400 uppercase mb-1">Menunggu</p>
+                <h3 class="text-4xl font-black text-gray-500">${data.filter(i => i.status === 'Menunggu').length}</h3>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <p class="text-[11px] font-bold text-gray-400 uppercase mb-1">Selesai</p>
+                <h3 class="text-4xl font-black text-gray-400">${data.filter(i => i.status === 'Selesai').length}</h3>
+            </div>
+        </div>
+        
+        <div class="bg-gray-800 text-white p-10 rounded-3xl shadow-xl">
+            <h3 class="text-2xl font-bold mb-2 italic">Dashboard E-Consulting</h3>
+            <p class="text-gray-400 text-sm leading-relaxed">Selamat datang di sistem informasi konsultasi Inspektorat Daerah Kabupaten Malang. Gunakan menu sidebar untuk navigasi.</p>
+        </div>
+    `;
+}
+
+// Jalankan saat pertama kali dibuka
+document.addEventListener('DOMContentLoaded', renderDashboard);
