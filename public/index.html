@@ -159,5 +159,16 @@
         // Jalankan fungsi saat halaman dibuka
         window.onload = updateStats;
     </script>
+  // Mendaftarkan Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('SW Registered'))
+        .catch(err => console.log('SW Failed', err));
+    });
+  }
+</script>
+
+<link rel="manifest" href="manifest.json">
 </body>
 </html>
