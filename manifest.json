@@ -1,0 +1,21 @@
+{
+  "name": "SiCODI Inspektorat Kab. Malang",
+  "short_name": "SiCODI",
+  "description": "Sistem Konsultasi Digital Inspektorat Daerah Kabupaten Malang",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#1F2937",
+  "theme_color": "#1F2937",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2942/2942544.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2942/2942544.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
