@@ -162,7 +162,7 @@ if (sessionStorage.getItem('isLoggedIn') !== 'true') {
     localStorage.setItem('consultations', JSON.stringify(localData));
 
     // 2. Kirim ke Spreadsheet (Otomatis)
-    fetch('https://script.google.com/macros/s/AKfycbz2bqv65r1aM502Kx7QPmO9DBXYvPaGnzHOLQ41j52lJxWv0PkifHdqNsLme-lYqoMq/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbxJyaJhjhhRZ7zKXwSAWPFuyRxbp93-bYJMfraU3Hn8v1FVD4AF64H1UgoskKyT9Q/exec', {
         method: 'POST',
         body: JSON.stringify(formData)
     })
