@@ -61,7 +61,6 @@
                                     <th class="p-5">Instansi</th>
                                     <th class="p-5">Judul & Kategori</th>
                                     <th class="p-5 text-center">Status</th>
-                                    <th class="p-5 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="consultList" class="divide-y divide-gray-50">
@@ -124,25 +123,6 @@
                     </td>
                 </tr>
             `).reverse().join(''); // Reverse agar data terbaru muncul di paling atas
-        }
-
-        // Fungsi Hapus
-        function deleteData(index) {
-            if(confirm('Hapus riwayat konsultasi ini?')) {
-                const data = JSON.parse(localStorage.getItem('consultations'));
-                data.splice(data.length - 1 - index, 1); // Penyesuaian index karena di-reverse
-                localStorage.setItem('consultations', JSON.stringify(data));
-                loadData();
-            }
-        }
-
-        // Fungsi Update Status (Selesai)
-        function updateStatus(index) {
-            const data = JSON.parse(localStorage.getItem('consultations'));
-            const actualIndex = data.length - 1 - index;
-            data[actualIndex].status = 'Selesai';
-            localStorage.setItem('consultations', JSON.stringify(data));
-            loadData();
         }
 
         // Jalankan saat halaman dibuka
