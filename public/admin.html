@@ -15,69 +15,112 @@
             </div>
             <nav class="flex-1 mt-6 px-4">
                 <div class="bg-blue-600/10 text-blue-400 p-3 rounded-lg text-sm font-bold border-l-4 border-blue-500">🛡️ Kelola Data</div>
+                <a href="index.html" class="block mt-2 p-3 text-gray-400 hover:text-white text-xs uppercase tracking-widest font-bold">← Dashboard Utama</a>
             </nav>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-y-auto">
             <header class="bg-white border-b p-4 px-8 h-20 flex justify-between items-center shadow-sm">
                 <h2 class="font-bold text-gray-800">MODERASI KONSULTASI</h2>
-                <button onclick="location.reload()" class="bg-gray-100 px-4 py-2 rounded text-xs font-bold hover:bg-gray-200">🔄 REFRESH</button>
+                <button onclick="location.reload()" class="bg-gray-100 px-4 py-2 rounded text-xs font-bold hover:bg-gray-200 uppercase">🔄 Refresh Data</button>
             </header>
 
             <div class="p-8">
                 <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-gray-50 border-b">
-                            <tr class="text-[10px] text-gray-400 font-bold uppercase">
-                                <th class="p-5">Instansi</th>
-                                <th class="p-5">Masalah</th>
+                            <tr class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                <th class="p-5">Instansi & Masalah</th>
+                                <th class="p-5">Isi Jawaban/Tanggapan</th>
                                 <th class="p-5 text-center">Status</th>
-                                <th class="p-5 text-center">Tindakan Admin</th>
+                                <th class="p-5 text-center">Tindakan</th>
                             </tr>
                         </thead>
                         <tbody id="adminBody" class="divide-y divide-gray-50"></tbody>
                     </table>
+                    <div id="loader" class="p-10 text-center text-gray-400 italic text-sm">Sedang mengambil data...</div>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbz61JFHQZumYdYQJUS09wY6NqTXfWMaegnb3QW5AfLS8Ppr7NPLQpK-fqEoP_JOXrKt/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzV05l8VTCWd6hF8AArlfhDPFamUB3zoy0D49z0tZG7c6FLjFc2JxFC5Vo6YQx2stk/exec";
 
         async function fetchAdmin() {
-            const res = await fetch(API_URL);
-            const data = await res.json();
-            document.getElementById('adminBody').innerHTML = data.reverse().map(item => `
-                <tr>
-                    <td class="p-5 align-middle font-bold text-sm">${item.opd}</td>
-                    <td class="p-5 align-middle text-sm">${item.judul}</td>
-                    <td class="p-5 text-center align-middle">
-                        <div class="flex justify-center">
-                            <span class="inline-block w-24 py-1 text-[10px] font-bold rounded-full border text-center ${item.status === 'Selesai' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
-                                ${item.status}
-                            </span>
-                        </div>
-                    </td>
-                    <td class="p-5 text-center align-middle">
-                        <div class="flex justify-center space-x-2">
-                            ${item.status !== 'Selesai' ? `<button onclick="updateStatus(${item.id}, 'Selesai')" class="bg-blue-600 text-white px-3 py-1 rounded text-[10px] font-bold hover:bg-blue-700">✓ SELESAI</button>` : `<span class="text-green-500 font-bold text-[10px]">TUNTAS</span>`}
-                            <a href="https://wa.me/${item.whatsapp}" target="_blank" class="bg-gray-200 px-3 py-1 rounded text-[10px] font-bold hover:bg-gray-300">WA</a>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+                document.getElementById('loader').classList.add('hidden');
+                
+                document.getElementById('adminBody').innerHTML = data.reverse().map(item => `
+                    <tr class="hover:bg-gray-50/50">
+                        <td class="p-5 align-top">
+                            <div class="font-bold text-sm text-gray-800">${item.opd}</div>
+                            <div class="text-xs text-gray-500 mt-1">${item.judul}</div>
+                        </td>
+                        <td class="p-5 align-top">
+                            ${item.status !== 'Selesai' ? 
+                                `<textarea id="reply-${item.id}" class="w-full p-3 text-xs border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" rows="3" placeholder="Tulis jawaban resmi di sini..."></textarea>` : 
+                                `<div class="text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border italic">"${item.jawaban || 'Sudah diselesaikan tanpa keterangan.'}"</div>`
+                            }
+                        </td>
+                        <td class="p-5 text-center align-top">
+                            <div class="flex justify-center mt-2">
+                                <span class="inline-block w-24 py-1 text-[10px] font-bold rounded-full border text-center ${item.status === 'Selesai' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'}">
+                                    ${item.status}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="p-5 text-center align-top">
+                            <div class="flex flex-col space-y-2 items-center mt-1">
+                                ${item.status !== 'Selesai' ? 
+                                    `<button onclick="kirimJawaban(${item.id})" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold hover:bg-blue-700 shadow-sm w-full">KIRIM JAWABAN</button>` : 
+                                    `<span class="text-green-500 font-bold text-[10px] py-2">✓ TERKIRIM</span>`
+                                }
+                                <a href="https://wa.me/${item.whatsapp}" target="_blank" class="bg-white border text-gray-600 px-4 py-2 rounded-lg text-[10px] font-bold hover:bg-gray-100 w-full text-center">HUBUNGI WA</a>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                document.getElementById('loader').innerText = "Gagal memuat data backend.";
+            }
         }
 
-        async function updateStatus(row, status) {
-            if(!confirm("Ubah status menjadi Selesai?")) return;
-            await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: "update_status", row: row, status_baru: status })
-            });
-            alert("Status Diperbarui!");
-            fetchAdmin();
+        async function kirimJawaban(rowId) {
+            const jawabanTeks = document.getElementById(`reply-${rowId}`).value;
+            
+            if(!jawabanTeks || jawabanTeks.trim() === "") {
+                return alert("Silakan isi jawaban terlebih dahulu sebelum mengirim.");
+            }
+
+            if(!confirm("Kirim jawaban ini? Status akan otomatis menjadi 'Selesai'.")) return;
+
+            try {
+                // Tampilkan loading sederhana
+                const btn = event.target;
+                btn.innerText = "MENGIRIM...";
+                btn.disabled = true;
+
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        action: "simpan_jawaban", 
+                        row: rowId, 
+                        isi_jawaban: jawabanTeks 
+                    })
+                });
+                
+                alert("Jawaban berhasil dikirim dan status diperbarui!");
+                fetchAdmin();
+            } catch (error) {
+                alert("Gagal mengirim jawaban. Coba lagi.");
+                btn.innerText = "KIRIM JAWABAN";
+                btn.disabled = false;
+            }
         }
+
         window.onload = fetchAdmin;
     </script>
 </body>
