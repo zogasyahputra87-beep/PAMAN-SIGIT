@@ -22,20 +22,20 @@
             
             <nav class="flex-1 mt-6 px-4 space-y-1">
                 <a href="index.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
-                    <span class="mr-3"></span> Dashboard
+                    <span class="mr-3">📊</span> Dashboard
                 </a>
                 <a href="buat-konsultasi.html" class="bg-gray-700 text-white w-full flex items-center p-3 rounded-lg text-sm font-bold border-r-4 border-gray-400">
-                    <span class="mr-3"></span> Buat Konsultasi
+                    <span class="mr-3">➕</span> Buat Konsultasi
                 </a>
                 <a href="riwayat.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
-                    <span class="mr-3"></span> Riwayat Konsultasi
+                    <span class="mr-3">📂</span> Riwayat Konsultasi
                 </a>
             </nav>
 
             <div class="p-6 border-t border-gray-700 text-center">
                 <p class="text-[9px] text-gray-500 uppercase">Pengembang</p>
                 <p class="text-xs font-bold text-gray-300 uppercase tracking-tighter">Ananda Zoga Syahputra, S.Tr.I.P.</p>
-                <button onclick="logout()" class="mt-4 text-[10px] text-red-400 font-bold hover:text-red-300 uppercase tracking-widest">Keluar Sistem</button>
+                <button onclick="logout()" class="mt-4 text-[10px] text-red-400 font-bold hover:text-red-300 uppercase tracking-widest bg-red-900/10 px-4 py-2 rounded-lg border border-red-900/20 w-full transition active:scale-95">Keluar Sistem</button>
             </div>
         </aside>
 
@@ -115,6 +115,14 @@
 
         const API_URL = "https://script.google.com/macros/s/AKfycbx1CfegHxZP-ULmj_UTCXluojx1j5KFyX_1Js-T4Z4ID1q2CC0OitrlubOaRqu8zqpT/exec";
 
+        // Fungsi Logout
+        function logout() {
+            if(confirm("Apakah Anda yakin ingin keluar?")) {
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            }
+        }
+
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
             document.getElementById('overlay').classList.toggle('hidden');
@@ -134,36 +142,4 @@
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true;
-            btn.innerText = "SEDANG MENGIRIM...";
-
-            const formData = {
-                action: "tambah_konsultasi", // Tambahkan instruksi untuk backend
-                opd: document.getElementById('opdName').value,
-                kategori: (document.getElementById('consultType').value === 'Lainnya') ? document.getElementById('otherConsultType').value : document.getElementById('consultType').value,
-                judul: document.getElementById('subject').value,
-                issue: document.getElementById('issue').value,
-                whatsapp: document.getElementById('whatsapp').value,
-                email: document.getElementById('email').value
-            };
-
-            // Kirim ke Google Sheets
-            fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Penting agar tidak diblokir browser
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            })
-            .then(() => {
-                alert('Data berhasil dikirim ke Inspektorat!');
-                window.location.href = "riwayat.html";
-            })
-            .catch(err => {
-                alert('Gagal mengirim ke server. Coba lagi.');
-                btn.disabled = false;
-                btn.innerText = "KIRIM PENGAJUAN";
-            });
-        });
-    </script>
-</body>
-</html>
+            btn.innerText =
