@@ -70,7 +70,26 @@
             } finally {
                 document.getElementById('loading').classList.add('hidden');
             }
-        }
+        function doGet() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var rows = sheet.getDataRange().getValues();
+  var result = [];
+  
+  // Ambil data mulai baris kedua (lewati header)
+  for (var i = 1; i < rows.length; i++) {
+    result.push({
+      id: i, // Baris asli di sheet
+      waktu: rows[i][0],
+      opd: rows[i][1],
+      kategori: rows[i][2],
+      judul: rows[i][3],
+      status: rows[i][6] || "Menunggu"
+    });
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
         function renderTable(data) {
             const tbody = document.getElementById('adminTableBody');
