@@ -60,23 +60,20 @@
                                 <input type="text" id="opdName" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" placeholder="Nama Instansi / OPD" required>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Jenis/Kategori Konsultasi</label>
+                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Jenis/Kategori</label>
                                 <select id="consultType" onchange="toggleOtherInput()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" required>
                                     <option value="">-- Pilih Kategori --</option>
                                     <option value="Pengelolaan Keuangan">Pengelolaan Keuangan</option>
                                     <option value="Administrasi Pemerintahan">Administrasi Pemerintahan</option>
                                     <option value="Pengadaan Barang/Jasa">Pengadaan Barang/Jasa</option>
-                                    <option value="Pelaksanaan Program/Kegiatan">Pelaksanaan Program/Kegiatan</option>
-                                    <option value="Manajemen Aset/BMD">Manajemen Aset/BMD</option>
-                                    <option value="Administrasi Kepegawaian">Administrasi Kepegawaian</option>
-                                    <option value="Lainnya">Lainnya (Ketik Manual)</option>
+                                    <option value="Lainnya">Lainnya</option>
                                 </select>
                             </div>
                         </div>
 
                         <div id="otherTypeContainer" class="hidden">
                             <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 italic">Sebutkan Kategori Lainnya</label>
-                            <input type="text" id="otherConsultType" class="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400 shadow-inner" placeholder="Ketik jenis konsultasi...">
+                            <input type="text" id="otherConsultType" class="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400">
                         </div>
 
                         <div>
@@ -87,11 +84,6 @@
                         <div>
                             <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Rincian Masalah</label>
                             <textarea id="issue" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" rows="4" placeholder="Jelaskan detail kendala..." required></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Dasar Hukum / Referensi <span class="text-gray-300 font-normal italic">(Opsional)</span></label>
-                            <textarea id="reference" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" rows="2" placeholder="Sebutkan aturan terkait jika ada..."></textarea>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -105,7 +97,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95 uppercase tracking-widest">
+                        <button id="btnSubmit" type="submit" class="w-full bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95 uppercase tracking-widest disabled:bg-gray-400">
                             Kirim Pengajuan
                         </button>
                     </form>
@@ -115,63 +107,62 @@
     </div>
 
     <script>
-        // Letakkan di bagian paling atas tag <script>
-if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-    // Jika belum login, tendang paksa ke halaman login
-    window.location.href = 'login.html';
-}
-        // Logika Sidebar Mobile
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('-translate-x-full');
-            overlay.classList.toggle('hidden');
+        // Cek Login
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
         }
 
-        // Logika Input 'Lainnya'
+        const API_URL = "https://script.google.com/macros/s/AKfycbxSBT9nnto_EJa8XadSUtUi4zNRExIyWNwSHA05lrrV-WqKgRo71zEQze2lc-LkOO1d/exec";
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+            document.getElementById('overlay').classList.toggle('hidden');
+        }
+
         function toggleOtherInput() {
             const selectVal = document.getElementById('consultType').value;
             const container = document.getElementById('otherTypeContainer');
-            const input = document.getElementById('otherConsultType');
-            
             if (selectVal === 'Lainnya') {
                 container.classList.remove('hidden');
-                input.setAttribute('required', 'required');
             } else {
                 container.classList.add('hidden');
-                input.removeAttribute('required');
             }
         }
 
-        // Simpan ke LocalStorage
         document.getElementById('consultForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.innerText = "SEDANG MENGIRIM...";
 
-    const formData = {
-        opd: document.getElementById('opdName').value,
-        type: (document.getElementById('consultType').value === 'Lainnya') ? document.getElementById('otherConsultType').value : document.getElementById('consultType').value,
-        subject: document.getElementById('subject').value,
-        issue: document.getElementById('issue').value,
-        whatsapp: document.getElementById('whatsapp').value,
-        email: document.getElementById('email').value
-    };
+            const formData = {
+                action: "tambah_konsultasi", // Tambahkan instruksi untuk backend
+                opd: document.getElementById('opdName').value,
+                kategori: (document.getElementById('consultType').value === 'Lainnya') ? document.getElementById('otherConsultType').value : document.getElementById('consultType').value,
+                judul: document.getElementById('subject').value,
+                issue: document.getElementById('issue').value,
+                whatsapp: document.getElementById('whatsapp').value,
+                email: document.getElementById('email').value
+            };
 
-    // 1. Simpan Lokal (Agar tetap muncul di halaman Riwayat)
-    const localData = JSON.parse(localStorage.getItem('consultations')) || [];
-    localData.push({...formData, status: 'Menunggu', date: new Date().toLocaleDateString()});
-    localStorage.setItem('consultations', JSON.stringify(localData));
-
-    // 2. Kirim ke Spreadsheet (Otomatis)
-    fetch('https://script.google.com/macros/s/AKfycbxJyaJhjhhRZ7zKXwSAWPFuyRxbp93-bYJMfraU3Hn8v1FVD4AF64H1UgoskKyT9Q/exec', {
-        method: 'POST',
-        body: JSON.stringify(formData)
-    })
-    .then(res => {
-        alert('Data berhasil dikirim!');
-        window.location.href = "riwayat.html";
-    })
-    .catch(err => alert('Gagal mengirim data.'));
-});
+            // Kirim ke Google Sheets
+            fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Penting agar tidak diblokir browser
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(() => {
+                alert('Data berhasil dikirim ke Inspektorat!');
+                window.location.href = "riwayat.html";
+            })
+            .catch(err => {
+                alert('Gagal mengirim ke server. Coba lagi.');
+                btn.disabled = false;
+                btn.innerText = "KIRIM PENGAJUAN";
+            });
+        });
     </script>
 </body>
 </html>
