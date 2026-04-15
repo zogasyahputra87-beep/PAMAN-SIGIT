@@ -115,6 +115,11 @@
     </div>
 
     <script>
+        // Letakkan di bagian paling atas tag <script>
+if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+    // Jika belum login, tendang paksa ke halaman login
+    window.location.href = 'login.html';
+}
         // Logika Sidebar Mobile
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
