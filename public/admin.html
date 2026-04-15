@@ -3,142 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin | Inspektorat Kab. Malang</title>
+    <title>Admin Panel | E-Consulting</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
-
+<body class="bg-gray-100 font-sans">
     <div class="flex h-screen overflow-hidden">
-        <aside class="w-72 bg-gray-900 text-gray-300 flex-shrink-0 hidden md:flex flex-col">
-            <div class="p-8 border-b border-gray-800">
-                <h1 class="text-xl font-bold text-white tracking-widest">ADMIN PANEL</h1>
-                <p class="text-[10px] text-gray-500 uppercase">E-Consulting System</p>
+        <aside class="w-72 bg-gray-900 text-gray-300 flex-shrink-0 flex flex-col">
+            <div class="p-8 border-b border-gray-800 text-center">
+                <h1 class="text-xl font-black text-white">ADMIN PANEL</h1>
+                <p class="text-[9px] text-gray-500 uppercase font-bold">Internal Inspektorat</p>
             </div>
-            <nav class="flex-1 mt-6 px-4 space-y-1">
-                <a href="index.html" class="flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
-                    <span class="mr-3">🏠</span> Lihat Website Utama
-                </a>
-                <a href="admin.html" class="bg-gray-800 text-white flex items-center p-3 rounded-lg text-sm font-bold border-r-4 border-blue-500">
-                    <span class="mr-3">🛡️</span> Kelola Konsultasi
-                </a>
+            <nav class="flex-1 mt-6 px-4">
+                <div class="bg-blue-600/10 text-blue-400 p-3 rounded-lg text-sm font-bold border-l-4 border-blue-500">🛡️ Kelola Data</div>
             </nav>
-            <div class="p-6 border-t border-gray-800 text-center text-[10px] text-gray-600 uppercase">
-                Internal Inspektorat Only
-            </div>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-y-auto">
-            <header class="bg-white border-b p-4 flex justify-between items-center px-8 h-20 shadow-sm">
-                <h2 class="text-lg font-bold text-gray-800 uppercase">Semua Data Masuk</h2>
-                <button onclick="fetchData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition">
-                    🔄 REFRESH DATA
-                </button>
+            <header class="bg-white border-b p-4 px-8 h-20 flex justify-between items-center shadow-sm">
+                <h2 class="font-bold text-gray-800">MODERASI KONSULTASI</h2>
+                <button onclick="location.reload()" class="bg-gray-100 px-4 py-2 rounded text-xs font-bold hover:bg-gray-200">🔄 REFRESH</button>
             </header>
 
             <div class="p-8">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                     <table class="w-full text-left">
-                        <thead class="bg-gray-50 border-b border-gray-100">
-                            <tr class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
-                                <th class="p-5">Waktu</th>
+                        <thead class="bg-gray-50 border-b">
+                            <tr class="text-[10px] text-gray-400 font-bold uppercase">
                                 <th class="p-5">Instansi</th>
-                                <th class="p-5">Permasalahan</th>
-                                <th class="p-5">Status</th>
+                                <th class="p-5">Masalah</th>
+                                <th class="p-5 text-center">Status</th>
                                 <th class="p-5 text-center">Tindakan Admin</th>
                             </tr>
                         </thead>
-                        <tbody id="adminTableBody" class="divide-y divide-gray-50">
-                            </tbody>
+                        <tbody id="adminBody" class="divide-y divide-gray-50"></tbody>
                     </table>
-                    <div id="loading" class="p-10 text-center text-gray-400 italic">Memuat data dari Spreadsheet...</div>
                 </div>
             </div>
         </main>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxS-AnBNpQuxAW0tda4hRZ7lcR42PVPT6ek5udTy-plpQu1xk7ArSJFYpdDV44W3DaH/exec"; // Ganti dengan URL Deployment Anda
+        const API_URL = "https://script.google.com/macros/s/AKfycbz61JFHQZumYdYQJUS09wY6NqTXfWMaegnb3QW5AfLS8Ppr7NPLQpK-fqEoP_JOXrKt/exec";
 
-        async function fetchData() {
-            document.getElementById('loading').classList.remove('hidden');
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-                renderTable(data);
-            } catch (error) {
-                alert("Gagal mengambil data backend!");
-            } finally {
-                document.getElementById('loading').classList.add('hidden');
-            }
-        function doGet() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var rows = sheet.getDataRange().getValues();
-  var result = [];
-  
-  // Ambil data mulai baris kedua (lewati header)
-  for (var i = 1; i < rows.length; i++) {
-    result.push({
-      id: i, // Baris asli di sheet
-      waktu: rows[i][0],
-      opd: rows[i][1],
-      kategori: rows[i][2],
-      judul: rows[i][3],
-      status: rows[i][6] || "Menunggu"
-    });
-  }
-  
-  return ContentService.createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-        function renderTable(data) {
-            const tbody = document.getElementById('adminTableBody');
-            tbody.innerHTML = data.reverse().map((item) => `
-                <tr class="hover:bg-blue-50/30 transition">
-                    <td class="p-5 text-xs text-gray-400">${new Date(item.waktu).toLocaleDateString('id-ID')}</td>
-                    <td class="p-5 font-bold text-sm">${item.opd}</td>
-                    <td class="p-5">
-                        <div class="text-sm font-bold text-gray-800">${item.judul}</div>
-                        <div class="text-[10px] text-gray-400 italic">${item.kategori}</div>
+        async function fetchAdmin() {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            document.getElementById('adminBody').innerHTML = data.reverse().map(item => `
+                <tr>
+                    <td class="p-5 align-middle font-bold text-sm">${item.opd}</td>
+                    <td class="p-5 align-middle text-sm">${item.judul}</td>
+                    <td class="p-5 text-center align-middle">
+                        <div class="flex justify-center">
+                            <span class="inline-block w-24 py-1 text-[10px] font-bold rounded-full border text-center ${item.status === 'Selesai' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+                                ${item.status}
+                            </span>
+                        </div>
                     </td>
-                    <td class="p-5">
-                        <span class="px-3 py-1 ${item.status === 'Selesai' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'} text-[10px] font-bold rounded-full uppercase">
-                            ${item.status}
-                        </span>
-                    </td>
-                    <td class="p-5">
+                    <td class="p-5 text-center align-middle">
                         <div class="flex justify-center space-x-2">
-                            ${item.status !== 'Selesai' ? 
-                                `<button onclick="updateStatus(${item.id}, 'Selesai')" class="bg-green-600 text-white px-3 py-1 rounded text-[10px] font-bold hover:bg-green-700">✓ SELESAIKAN</button>` : 
-                                `<span class="text-green-500 text-[10px] font-bold">TERVERIFIKASI</span>`
-                            }
-                            <a href="https://wa.me/${item.whatsapp}" target="_blank" class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-[10px] font-bold hover:bg-gray-300">CHAT WA</a>
+                            ${item.status !== 'Selesai' ? `<button onclick="updateStatus(${item.id}, 'Selesai')" class="bg-blue-600 text-white px-3 py-1 rounded text-[10px] font-bold hover:bg-blue-700">✓ SELESAI</button>` : `<span class="text-green-500 font-bold text-[10px]">TUNTAS</span>`}
+                            <a href="https://wa.me/${item.whatsapp}" target="_blank" class="bg-gray-200 px-3 py-1 rounded text-[10px] font-bold hover:bg-gray-300">WA</a>
                         </div>
                     </td>
                 </tr>
             `).join('');
         }
 
-        async function updateStatus(rowId, newStatus) {
-            if (!confirm(`Ubah status baris #${rowId} menjadi ${newStatus}?`)) return;
-
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: "update_status",
-                        row: rowId,
-                        status_baru: newStatus
-                    })
-                });
-                alert("Status Berhasil Diperbarui!");
-                fetchData(); // Refresh tabel
-            } catch (error) {
-                alert("Gagal update status!");
-            }
+        async function updateStatus(row, status) {
+            if(!confirm("Ubah status menjadi Selesai?")) return;
+            await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "update_status", row: row, status_baru: status })
+            });
+            alert("Status Diperbarui!");
+            fetchAdmin();
         }
-
-        window.onload = fetchData;
+        window.onload = fetchAdmin;
     </script>
 </body>
 </html>
