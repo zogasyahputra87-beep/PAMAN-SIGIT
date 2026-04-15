@@ -14,6 +14,8 @@
             0%    {opacity: 0; margin-top: -10px}
             100%  {opacity: 1; margin-top: 0px}
         }
+        /* Membatasi lebar kolom waktu agar tidak memakan tempat */
+        .col-waktu { width: 85px; min-width: 85px; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
@@ -38,10 +40,10 @@
 
             <div class="p-8">
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse table-fixed">
                         <thead class="bg-gray-50 border-b border-gray-100">
                             <tr class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
-                                <th class="p-5 w-24">Waktu</th>
+                                <th class="p-5 col-waktu">Waktu</th>
                                 <th class="p-5 w-48">Instansi</th>
                                 <th class="p-5">Konsultasi & Jawaban</th>
                                 <th class="p-5 text-center w-32">Status</th>
@@ -67,7 +69,7 @@
                 
                 document.getElementById('listTable').innerHTML = data.reverse().map(item => `
                     <tr class="hover:bg-gray-50 transition">
-                        <td class="p-5 text-[9px] text-gray-400 align-top pt-6 leading-tight">${item.waktu}</td>
+                        <td class="p-5 text-[9px] text-gray-400 align-top pt-6 leading-tight break-words">${item.waktu}</td>
                         <td class="p-5 font-bold text-sm text-gray-700 align-top pt-6">${item.opd}</td>
                         <td class="p-5 align-top pt-6">
                             <div class="text-sm font-bold text-gray-800">${item.judul}</div>
@@ -75,22 +77,22 @@
                             
                             <details class="group border border-gray-200 rounded-lg bg-white overflow-hidden shadow-sm">
                                 <summary class="list-none p-2 text-[10px] font-bold text-gray-600 cursor-pointer flex items-center hover:bg-gray-50 transition">
-                                    <span class="mr-2 group-open:rotate-90 transition-transform">▶</span> 
+                                    <span class="mr-2 group-open:rotate-90 transition-transform text-[8px]">▶</span> 
                                     LIHAT DETAIL KONSULTASI
                                 </summary>
-                                <div class="p-4 space-y-4 border-t border-gray-100">
-                                    <div class="bg-gray-50 p-3 rounded-lg border-l-4 border-gray-300">
-                                        <p class="text-[9px] font-bold text-gray-500 uppercase mb-1">Pertanyaan Anda:</p>
-                                        <p class="text-xs text-gray-700 leading-relaxed">${item.issue || "Rincian tidak tersedia."}</p>
+                                <div class="p-4 space-y-4 border-t border-gray-100 bg-gray-50/30">
+                                    <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                                        <p class="text-[9px] font-bold text-gray-400 uppercase mb-1 tracking-wider">Pertanyaan/Rincian Masalah:</p>
+                                        <p class="text-xs text-gray-700 leading-relaxed">${item.issue || "Tidak ada rincian masalah."}</p>
                                     </div>
 
-                                    <div class="${item.status === 'Selesai' ? 'bg-blue-50 border-l-4 border-blue-500' : 'bg-yellow-50 border-l-4 border-yellow-400'} p-3 rounded-lg">
-                                        <div class="flex justify-between items-center mb-1">
-                                            <p class="text-[9px] font-bold ${item.status === 'Selesai' ? 'text-blue-700' : 'text-yellow-700'} uppercase">Tanggapan Inspektorat:</p>
-                                            <p class="text-[8px] text-gray-400 italic">${item.status === 'Selesai' ? 'Dijawab: ' + (item.waktu_jawaban || '-') : 'Menunggu antrean'}</p>
+                                    <div class="${item.status === 'Selesai' ? 'bg-blue-50 border border-blue-100' : 'bg-yellow-50 border border-yellow-100'} p-3 rounded-lg shadow-sm">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <p class="text-[9px] font-bold ${item.status === 'Selesai' ? 'text-blue-700' : 'text-yellow-700'} uppercase tracking-wider">Tanggapan Inspektorat:</p>
+                                            <p class="text-[8px] text-gray-400 italic">${item.status === 'Selesai' ? 'Selesai: ' + (item.waktu_jawaban || '-') : 'Menunggu antrean'}</p>
                                         </div>
                                         <p class="text-xs text-gray-800 leading-relaxed italic">
-                                            "${item.status === 'Selesai' ? item.jawaban : 'Petugas kami sedang meninjau permohonan Anda. Mohon ditunggu.'}"
+                                            ${item.status === 'Selesai' ? item.jawaban : 'Petugas kami sedang meninjau permohonan Anda. Mohon ditunggu.'}
                                         </p>
                                     </div>
                                 </div>
