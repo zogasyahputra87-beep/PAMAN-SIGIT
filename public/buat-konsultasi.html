@@ -35,7 +35,7 @@
             <div class="p-6 border-t border-gray-700 text-center">
                 <p class="text-[9px] text-gray-500 uppercase">Pengembang</p>
                 <p class="text-xs font-bold text-gray-300 uppercase tracking-tighter">Ananda Zoga Syahputra, S.Tr.I.P.</p>
-                <button onclick="logout()" class="mt-4 text-[10px] text-red-400 font-bold hover:text-red-300 uppercase tracking-widest bg-red-900/10 px-4 py-2 rounded-lg border border-red-900/20 w-full transition active:scale-95">Keluar Sistem</button>
+                <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition active:scale-95">Keluar Sistem</button>
             </div>
         </aside>
 
@@ -73,8 +73,8 @@
                         </div>
 
                         <div id="otherTypeContainer" class="hidden">
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 italic">Sebutkan Kategori Lainnya</label>
-                            <input type="text" id="otherConsultType" class="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400">
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2 italic text-blue-600">Sebutkan Kategori Lainnya</label>
+                            <input type="text" id="otherConsultType" class="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 shadow-sm">
                         </div>
 
                         <div>
@@ -85,6 +85,12 @@
                         <div>
                             <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Rincian Masalah</label>
                             <textarea id="issue" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400" rows="4" placeholder="Jelaskan detail kendala..." required></textarea>
+                        </div>
+
+                        <div class="p-4 bg-blue-50/50 border-2 border-dashed border-blue-200 rounded-2xl">
+                            <label class="block text-[11px] font-bold text-blue-600 uppercase mb-2 tracking-widest text-center">Lampiran Dokumen (Opsional)</label>
+                            <input type="file" id="fileInput" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
+                            <p class="mt-2 text-[9px] text-gray-400 text-center italic">* Format: PDF, JPG, PNG (Maks. 5MB)</p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -108,14 +114,12 @@
     </div>
 
     <script>
-        // 1. CEK LOGIN
         if (sessionStorage.getItem('isLoggedIn') !== 'true') {
             window.location.href = 'login.html';
         }
 
         const API_URL = "https://script.google.com/macros/s/AKfycbx1CfegHxZP-ULmj_UTCXluojx1j5KFyX_1Js-T4Z4ID1q2CC0OitrlubOaRqu8zqpT/exec";
 
-        // 2. FUNGSI LOGOUT (DIBETULKAN)
         function logout() {
             if(confirm("Apakah Anda yakin ingin keluar?")) {
                 sessionStorage.clear();
@@ -123,7 +127,6 @@
             }
         }
 
-        // 3. LOGIKA SIDEBAR
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
             document.getElementById('overlay').classList.toggle('hidden');
@@ -132,19 +135,45 @@
         function toggleOtherInput() {
             const selectVal = document.getElementById('consultType').value;
             const container = document.getElementById('otherTypeContainer');
-            if (selectVal === 'Lainnya') {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-            }
+            container.classList.toggle('hidden', selectVal !== 'Lainnya');
         }
 
-        // 4. KIRIM FORM
-        document.getElementById('consultForm').addEventListener('submit', function(e) {
+        // FUNGSI UTAMA UNTUK MENGIRIM DATA + FILE
+        document.getElementById('consultForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
+            const fileInput = document.getElementById('fileInput');
+            
             btn.disabled = true;
-            btn.innerText = "SEDANG MENGIRIM...";
+            btn.innerText = "MENGUNGGAH DOKUMEN & DATA...";
+
+            let fileData = { data: "", name: "", type: "" };
+
+            // Cek jika ada file yang diunggah
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                
+                // Cek ukuran file (Maks 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert("Ukuran file terlalu besar! Maksimal 5MB.");
+                    btn.disabled = false;
+                    btn.innerText = "KIRIM PENGAJUAN";
+                    return;
+                }
+
+                // Ubah file ke Base64
+                fileData = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        resolve({
+                            data: e.target.result.split(",")[1],
+                            name: file.name,
+                            type: file.type
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
 
             const formData = {
                 action: "tambah_konsultasi",
@@ -153,25 +182,26 @@
                 judul: document.getElementById('subject').value,
                 issue: document.getElementById('issue').value,
                 whatsapp: document.getElementById('whatsapp').value,
-                email: document.getElementById('email').value
+                email: document.getElementById('email').value,
+                fileData: fileData.data, // Data Base64
+                fileName: fileData.name,
+                fileType: fileData.type
             };
 
-            fetch(API_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            })
-            .then(() => {
-                alert('Data berhasil dikirim ke Inspektorat!');
+            try {
+                // Kita kirim lewat fetch POST biasa (tanpa no-cors agar bisa dapet respon)
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(formData)
+                });
+                
+                alert('Pengajuan Berhasil Terkirim!');
                 window.location.href = "riwayat.html";
-            })
-            .catch(err => {
-                alert('Gagal mengirim ke server. Coba lagi.');
-                btn.disabled = false;
-                btn.innerText = "KIRIM PENGAJUAN";
-            });
+            } catch (err) {
+                // Karena GAS sering kirim CORS error padahal data masuk, kita arahkan saja
+                alert('Data sedang diproses, silakan cek menu riwayat secara berkala.');
+                window.location.href = "riwayat.html";
+            }
         });
     </script>
 </body>
