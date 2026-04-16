@@ -1,79 +1,175 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | E-Consulting Inspektorat</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | E-Consulting Inspektorat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-    <div class="flex h-screen overflow-hidden relative">
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#1F2937] text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
-            <div class="p-8 border-b border-gray-700 flex justify-between items-center">
-                <div>
-                    <h1 class="text-xl font-bold text-white tracking-tight">SiCODI</h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
-                </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-gray-400">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-            </div>
-            
-            <nav class="flex-1 mt-6 px-4 space-y-1">
-                <a href="index.html" class="bg-gray-700 text-white w-full flex items-center p-3 rounded-lg text-sm font-bold border-r-4 border-blue-500">
-                    <span class="mr-3">📊</span> Dashboard
-                </a>
-                <a href="buat-konsultasi.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
-                    <span class="mr-3">➕</span> Buat Konsultasi
-                </a>
-                <a href="riwayat.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
-                    <span class="mr-3">📂</span> Riwayat Konsultasi
-                </a>
-            </nav>
+    <div class="flex h-screen overflow-hidden relative">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#1F2937] text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
+            <div class="p-8 border-b border-gray-700 flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl font-bold text-white tracking-tight">SiCODI</h1>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
+                </div>
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-400">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            
+            <nav class="flex-1 mt-6 px-4 space-y-1">
+                <a href="index.html" class="bg-gray-700 text-white w-full flex items-center p-3 rounded-lg text-sm font-bold border-r-4 border-blue-500">
+                    <span class="mr-3"></span> Dashboard
+                </a>
+                <a href="buat-konsultasi.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
+                    <span class="mr-3"></span> Buat Konsultasi
+                </a>
+                <a href="riwayat.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">
+                    <span class="mr-3"></span> Riwayat Konsultasi
+                </a>
+            </nav>
 
-            <div class="p-6 border-t border-gray-700 text-center">
-                <p class="text-[9px] text-gray-500 uppercase">Pengembang</p>
-                <p class="text-xs font-bold text-gray-300 uppercase tracking-tighter">Ananda Zoga Syahputra, S.Tr.I.P.</p>
-                <button onclick="logout()" class="mt-4 text-[10px] text-red-400 font-bold hover:text-red-300 uppercase tracking-widest bg-red-900/10 px-4 py-2 rounded-lg border border-red-900/20 w-full transition active:scale-95">Keluar Sistem</button>
-            </div>
-        </aside>
+            <div class="p-6 border-t border-gray-700 text-center">
+                <p class="text-[9px] text-gray-500 uppercase">Pengembang</p>
+                <p class="text-xs font-bold text-gray-300 uppercase tracking-tighter">Ananda Zoga Syahputra, S.Tr.I.P.</p>
+                <button onclick="logout()" class="mt-4 text-[10px] text-red-400 font-bold hover:text-red-300 uppercase tracking-widest bg-red-900/10 px-4 py-2 rounded-lg border border-red-900/20 w-full transition active:scale-95">Keluar Sistem</button>
+            </div>
+        </aside>
 
-        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
 
-        <main class="flex-1 flex flex-col overflow-y-auto">
-            <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-6 h-20 flex-shrink-0">
-                <div class="flex items-center">
-                    <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg text-gray-600">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    </button>
-                    <h2 class="text-sm md:text-lg font-bold text-gray-800 uppercase tracking-wide">Ringkasan Dashboard</h2>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <span id="display-user" class="hidden md:block text-[10px] font-bold text-gray-400 uppercase">User</span>
-                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border text-xl shadow-inner">👤</div>
-                </div>
-            </header>
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-6 h-20 flex-shrink-0">
+                <div class="flex items-center">
+                    <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg text-gray-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    </button>
+                    <h2 class="text-sm md:text-lg font-bold text-gray-800 uppercase tracking-wide">Ringkasan Dashboard</h2>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span id="display-user" class="hidden md:block text-[10px] font-bold text-gray-400 uppercase">User</span>
+                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border text-xl shadow-inner">👤</div>
+                </div>
+            </header>
 
-            <div class="p-6 md:p-8 max-w-6xl mx-auto w-full">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        </div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Konsultasi</p>
-                        <h3 id="stat-total" class="text-4xl font-black text-gray-800 animate-pulse">...</h3>
-                    </div>
+            <div class="p-6 md:p-8 max-w-6xl mx-auto w-full">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        </div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Konsultasi</p>
+                        <h3 id="stat-total" class="text-4xl font-black text-gray-800 animate-pulse">...</h3>
+                    </div>
 
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center mb-4">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        </div>
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Dalam Proses</p>
-                        <h3 id="stat-pending" class="text-4xl font-black text-yellow-600 animate-pulse">...</h3>
-                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+                        <div class="w-12 h-12 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center mb-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Dalam Proses</p>
+                        <h3 id="stat-pending" class="text-4xl font-black text-yellow-600 animate-pulse">...</h3>
+                    </div>
 
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-4">
-                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
+                        <div class="w-12 h-12 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-4">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                        </div>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Telah Selesai</p>
+                        <h3 id="stat-done" class="text-4xl font-black text-green-600 animate-pulse">...</h3>
+                    </div>
+                </div>
+
+                <div class="bg-gray-800 text-white p-8 rounded-3xl shadow-xl">
+                    <h3 class="text-xl font-bold italic mb-2 text-blue-400">Selamat Datang di Portal SiCODI</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                        Sistem Konsultasi Digital ini dirancang untuk mempermudah koordinasi pembinaan dan pengawasan di Lingkungan Pemerintah Kabupaten Malang.
+                    </p>
+                    <div class="inline-block px-4 py-2 bg-gray-700 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-300">
+                        Status: <span class="text-green-400">Terhubung</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 1. CEK LOGIN
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        // Tampilkan nama user di header
+        document.getElementById('display-user').innerText = sessionStorage.getItem('userName') || 'User';
+
+        // 2. CONFIG BACKEND
+        const API_URL = "https://script.google.com/macros/s/AKfycbx1CfegHxZP-ULmj_UTCXluojx1j5KFyX_1Js-T4Z4ID1q2CC0OitrlubOaRqu8zqpT/exec"; // GANTI DENGAN URL DEPLOYMENT ANDA
+
+        // 3. LOGIKA SIDEBAR
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function logout() {
+        if(confirm("Apakah Anda yakin ingin keluar?")) {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // 4. FUNGSI UTAMA: Ambil Data dari Google Sheets
+        async function updateStats() {
+            try {
+                // Bersihkan LocalStorage lama agar tidak konflik
+                localStorage.removeItem('consultations');
+
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                // Hitung total
+                const total = data.length;
+                
+                // Hitung yang statusnya 'Menunggu' (Proses)
+                const pending = data.filter(item => item.status === 'Menunggu' || item.status === '-').length;
+                
+                // Hitung yang statusnya 'Selesai'
+                const done = data.filter(item => item.status === 'Selesai').length;
+
+                // Update ke HTML & Hapus animasi pulse
+                document.getElementById('stat-total').innerText = total;
+                document.getElementById('stat-total').classList.remove('animate-pulse');
+                
+                document.getElementById('stat-pending').innerText = pending;
+                document.getElementById('stat-pending').classList.remove('animate-pulse');
+                
+                document.getElementById('stat-done').innerText = done;
+                document.getElementById('stat-done').classList.remove('animate-pulse');
+
+            } catch (error) {
+                console.error("Gagal mengambil data statistik:", error);
+                document.getElementById('stat-total').innerText = "Err";
+                document.getElementById('stat-pending').innerText = "Err";
+                document.getElementById('stat-done').innerText = "Err";
+            }
+        }
+
+        // Jalankan fungsi saat halaman dibuka
+        window.onload = updateStats;
+    </script>
+  // Mendaftarkan Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('SW Registered'))
+        .catch(err => console.log('SW Failed', err));
+    });
+  }
+</script>
+
+<link rel="manifest" href="manifest.json">
+</body>
+</html>
