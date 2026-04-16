@@ -108,14 +108,14 @@
     </div>
 
     <script>
-        // Cek Login
+        // 1. CEK LOGIN
         if (sessionStorage.getItem('isLoggedIn') !== 'true') {
             window.location.href = 'login.html';
         }
 
         const API_URL = "https://script.google.com/macros/s/AKfycbx1CfegHxZP-ULmj_UTCXluojx1j5KFyX_1Js-T4Z4ID1q2CC0OitrlubOaRqu8zqpT/exec";
 
-        // Fungsi Logout
+        // 2. FUNGSI LOGOUT (DIBETULKAN)
         function logout() {
             if(confirm("Apakah Anda yakin ingin keluar?")) {
                 sessionStorage.clear();
@@ -123,6 +123,7 @@
             }
         }
 
+        // 3. LOGIKA SIDEBAR
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
             document.getElementById('overlay').classList.toggle('hidden');
@@ -138,8 +139,40 @@
             }
         }
 
+        // 4. KIRIM FORM
         document.getElementById('consultForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true;
-            btn.innerText =
+            btn.innerText = "SEDANG MENGIRIM...";
+
+            const formData = {
+                action: "tambah_konsultasi",
+                opd: document.getElementById('opdName').value,
+                kategori: (document.getElementById('consultType').value === 'Lainnya') ? document.getElementById('otherConsultType').value : document.getElementById('consultType').value,
+                judul: document.getElementById('subject').value,
+                issue: document.getElementById('issue').value,
+                whatsapp: document.getElementById('whatsapp').value,
+                email: document.getElementById('email').value
+            };
+
+            fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(() => {
+                alert('Data berhasil dikirim ke Inspektorat!');
+                window.location.href = "riwayat.html";
+            })
+            .catch(err => {
+                alert('Gagal mengirim ke server. Coba lagi.');
+                btn.disabled = false;
+                btn.innerText = "KIRIM PENGAJUAN";
+            });
+        });
+    </script>
+</body>
+</html>
