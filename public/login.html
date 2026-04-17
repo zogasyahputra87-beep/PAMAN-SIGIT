@@ -13,7 +13,7 @@
     
     <style>
         body {
-            /* PERBAIKAN: Background Gambar Kantor dengan Overlay Gelap */
+            /* Background Gambar Kantor dengan Overlay Gelap agar Kotak Login Jelas */
             background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.75)), 
                         url('../pages/gambar_kantor.jpg'); 
             background-size: cover;
@@ -22,7 +22,7 @@
             background-repeat: no-repeat;
         }
 
-        /* Efek sedikit transparan pada kartu (Glassmorphism) */
+        /* Efek Glassmorphism agar kartu terlihat premium */
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -75,3 +75,54 @@
             e.preventDefault();
             
             const userIn = document.getElementById('username').value;
+            const passIn = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+            const card = document.getElementById('loginCard');
+
+            // Efek Loading pada tombol
+            btn.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span> MEMPROSES...`;
+            btn.disabled = true;
+
+            const foundAccount = accounts.find(acc => acc.user === userIn && acc.pass === passIn);
+
+            setTimeout(() => {
+                if (foundAccount) {
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('userRole', foundAccount.role);
+                    sessionStorage.setItem('userName', foundAccount.user);
+
+                    Swal.fire({
+                        title: 'LOGIN BERHASIL',
+                        text: 'Selamat Datang di SiCODI',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        customClass: { popup: 'rounded-3xl' }
+                    }).then(() => {
+                        document.body.classList.add('animate__animated', 'animate__fadeOut');
+                        setTimeout(() => {
+                            window.location.href = foundAccount.target;
+                        }, 500);
+                    });
+                } else {
+                    btn.innerHTML = "Masuk ke Sistem";
+                    btn.disabled = false;
+                    
+                    // Reset dan Jalankan Animasi Shake (Getar) jika salah
+                    card.classList.remove('animate__fadeInDown', 'animate__headShake');
+                    void card.offsetWidth; 
+                    card.classList.add('animate__headShake');
+                    
+                    Swal.fire({
+                        title: 'AKSES DITOLAK',
+                        text: 'Username atau Password salah!',
+                        icon: 'error',
+                        confirmButtonColor: '#1F2937',
+                        customClass: { popup: 'rounded-3xl' }
+                    });
+                }
+            }, 800);
+        });
+    </script>
+</body>
+</html>
