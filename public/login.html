@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | E-Consulting Inspektorat</title>
     
-    <link rel="icon" type="image/png" href="/pages/logo_kab.png">
+    <link rel="icon" type="image/png" href="../pages/logo_kab.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -22,7 +22,7 @@
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate__animated animate__fadeInDown">
         <div class="p-8 text-center bg-gray-50 border-b">
             <div class="mb-4 flex justify-center">
-                <img src="/pages/logo_kab.png" 
+                <img src="../pages/logo_kab.png" 
                      alt="Logo Kabupaten Malang" 
                      class="h-20 w-auto drop-shadow-md">
             </div>
@@ -50,9 +50,57 @@
             <p class="text-[8px] text-gray-300 uppercase mt-1">Ananda Zoga Syahputra, S.Tr.I.P.</p>
         </div>
     </div>
-    
+
     <script>
-        // ... (Logika script Anda)
-    </script>
-</body>
-</html>
+        // DATA AKUN
+        const accounts = [
+            { user: "admin", pass: "inspektorat2026", role: "admin", target: "admin.html" },
+            { user: "malangkab", pass: "malangkab123", role: "user", target: "index.html" },
+            { user: "kecamatan", pass: "malang123", role: "user", target: "index.html" }
+        ];
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userIn = document.getElementById('username').value;
+            const passIn = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+            const card = document.querySelector('.animate__animated');
+
+            // Efek Loading
+            btn.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span> MEMPROSES...`;
+            btn.disabled = true;
+
+            // Cari Akun
+            const foundAccount = accounts.find(acc => acc.user === userIn && acc.pass === passIn);
+
+            setTimeout(() => {
+                if (foundAccount) {
+                    // Simpan status login
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('userRole', foundAccount.role);
+                    sessionStorage.setItem('userName', foundAccount.user);
+
+                    // Animasi Berhasil
+                    Swal.fire({
+                        title: 'LOGIN BERHASIL',
+                        text: 'Selamat Datang di SiCODI',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        customClass: { popup: 'rounded-3xl' }
+                    }).then(() => {
+                        // Animasi Keluar layar
+                        document.body.classList.add('animate__animated', 'animate__fadeOut');
+                        setTimeout(() => {
+                            // KUNCI PERBAIKAN: Langsung pindah ke file di folder yang sama (public)
+                            window.location.href = foundAccount.target;
+                        }, 500);
+                    });
+
+                } else {
+                    // Jika Gagal
+                    btn.innerHTML = "Masuk";
+                    btn.disabled = false;
+                    card.classList.remove('animate__fadeInDown');
+                    card.classList.add('animate__headShake');
