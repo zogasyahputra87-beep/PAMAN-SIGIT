@@ -5,13 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | E-Consulting Inspektorat</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <style>
+        /* Background estetik gradasi biru gelap khas instansi */
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+    </style>
 </head>
-<body class="bg-[#1F2937] h-screen flex items-center justify-center p-6">
+<body class="h-screen flex items-center justify-center p-6">
 
-    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate__animated animate__fadeInDown">
         <div class="p-8 text-center bg-gray-50 border-b">
-            <div class="w-16 h-16 bg-gray-800 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg">
-                <span class="text-white text-2xl font-bold">E</span>
+            <div class="mb-4 flex justify-center">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Logo_Kabupaten_Malang_-_Original_Version.svg/1200px-Logo_Kabupaten_Malang_-_Original_Version.svg.png" 
+                     alt="Logo Kabupaten Malang" 
+                     class="h-20 w-auto drop-shadow-md">
             </div>
             <h1 class="text-2xl font-black text-gray-800 uppercase tracking-tighter">SiCODI</h1>
             <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Inspektorat Kabupaten Malang</p>
@@ -20,27 +31,25 @@
         <form id="loginForm" class="p-8 space-y-5">
             <div>
                 <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Username</label>
-                <input type="text" id="username" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400 transition" placeholder="Masukkan username" required>
+                <input type="text" id="username" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan username" required>
             </div>
             <div>
                 <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Password</label>
-                <input type="password" id="password" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-gray-400 transition" placeholder="••••••••" required>
+                <input type="password" id="password" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="••••••••" required>
             </div>
             
-            <button type="submit" class="w-full bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95 uppercase tracking-widest text-sm">
+            <button type="submit" id="loginBtn" class="w-full bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95 uppercase tracking-widest text-sm">
                 Masuk ke Sistem
             </button>
-            
-            <p id="errorMessage" class="text-red-500 text-xs text-center hidden font-bold italic">Username atau Password salah!</p>
         </form>
         
         <div class="p-6 bg-gray-50 text-center border-t">
             <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Versi 1.0 - Aktualisasi CPNS</p>
+            <p class="text-[8px] text-gray-300 uppercase mt-1">Ananda Zoga Syahputra, S.Tr.I.P.</p>
         </div>
     </div>
 
     <script>
-        // 1. DATA AKUN (Bisa Anda tambah sesuai kebutuhan)
         const accounts = [
             { user: "admin", pass: "inspektorat2026", role: "admin", target: "admin.html" },
             { user: "malangkab", pass: "malangkab123", role: "user", target: "index.html" },
@@ -52,22 +61,57 @@
             
             const userIn = document.getElementById('username').value;
             const passIn = document.getElementById('password').value;
-            const errorMsg = document.getElementById('errorMessage');
+            const btn = document.getElementById('loginBtn');
+            const card = document.querySelector('.animate__animated');
 
-            // 2. LOGIKA PENGECEKAN
+            // Efek Loading pada tombol
+            btn.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span> MEMPROSES...`;
+            btn.disabled = true;
+
             const foundAccount = accounts.find(acc => acc.user === userIn && acc.pass === passIn);
 
-            if (foundAccount) {
-                // Simpan status login di SessionStorage (hilang saat browser ditutup)
-                sessionStorage.setItem('isLoggedIn', 'true');
-                sessionStorage.setItem('userRole', foundAccount.role);
-                sessionStorage.setItem('userName', foundAccount.user);
+            setTimeout(() => {
+                if (foundAccount) {
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('userRole', foundAccount.role);
+                    sessionStorage.setItem('userName', foundAccount.user);
 
-                // 3. PENGALIHAN AKSES
-                window.location.href = foundAccount.target;
-            } else {
-                errorMsg.classList.remove('hidden');
-            }
+                    // Animasi Berhasil
+                    Swal.fire({
+                        title: 'LOGIN BERHASIL',
+                        text: 'Selamat Datang di SiCODI',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        customClass: { popup: 'rounded-3xl' }
+                    }).then(() => {
+                        // Animasi Keluar (FadeOut)
+                        document.body.classList.add('animate__animated', 'animate__fadeOut');
+                        setTimeout(() => {
+                            window.location.href = foundAccount.target;
+                        }, 500);
+                    });
+
+                } else {
+                    // Balikkan tombol jika gagal
+                    btn.innerHTML = "Masuk ke Sistem";
+                    btn.disabled = false;
+
+                    // Animasi Getar (Shake) jika gagal
+                    card.classList.remove('animate__fadeInDown');
+                    card.classList.add('animate__headShake');
+                    
+                    Swal.fire({
+                        title: 'AKSES DITOLAK',
+                        text: 'Username atau Password salah!',
+                        icon: 'error',
+                        confirmButtonColor: '#1F2937',
+                        customClass: { popup: 'rounded-3xl' }
+                    }).then(() => {
+                        card.classList.remove('animate__headShake');
+                    });
+                }
+            }, 800); // Delay sedikit untuk efek loading yang natural
         });
     </script>
 </body>
