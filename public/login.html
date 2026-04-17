@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | E-Consulting Inspektorat</title>
+    
+    <link rel="icon" type="image/png" href="pages/Logo_Kabupaten_Malang.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -20,7 +23,7 @@
     <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate__animated animate__fadeInDown">
         <div class="p-8 text-center bg-gray-50 border-b">
             <div class="mb-4 flex justify-center">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Logo_Kabupaten_Malang_-_Original_Version.svg/1200px-Logo_Kabupaten_Malang_-_Original_Version.svg.png" 
+                <img src="pages/Logo_Kabupaten_Malang.png" 
                      alt="Logo Kabupaten Malang" 
                      class="h-20 w-auto drop-shadow-md">
             </div>
@@ -76,7 +79,6 @@
                     sessionStorage.setItem('userRole', foundAccount.role);
                     sessionStorage.setItem('userName', foundAccount.user);
 
-                    // Animasi Berhasil
                     Swal.fire({
                         title: 'LOGIN BERHASIL',
                         text: 'Selamat Datang di SiCODI',
@@ -85,7 +87,6 @@
                         timer: 1500,
                         customClass: { popup: 'rounded-3xl' }
                     }).then(() => {
-                        // Animasi Keluar (FadeOut)
                         document.body.classList.add('animate__animated', 'animate__fadeOut');
                         setTimeout(() => {
                             window.location.href = foundAccount.target;
@@ -93,11 +94,9 @@
                     });
 
                 } else {
-                    // Balikkan tombol jika gagal
                     btn.innerHTML = "Masuk ke Sistem";
                     btn.disabled = false;
 
-                    // Animasi Getar (Shake) jika gagal
                     card.classList.remove('animate__fadeInDown');
                     card.classList.add('animate__headShake');
                     
@@ -111,7 +110,7 @@
                         card.classList.remove('animate__headShake');
                     });
                 }
-            }, 800); // Delay sedikit untuk efek loading yang natural
+            }, 800);
         });
     </script>
 </body>
