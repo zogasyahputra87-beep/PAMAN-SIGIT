@@ -19,7 +19,7 @@
 </head>
 <body class="h-screen flex items-center justify-center p-6">
 
-    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate__animated animate__fadeInDown">
+    <div id="loginCard" class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate__animated animate__fadeInDown">
         <div class="p-8 text-center bg-gray-50 border-b">
             <div class="mb-4 flex justify-center">
                 <img src="../pages/logo_kab.png" 
@@ -65,7 +65,7 @@
             const userIn = document.getElementById('username').value;
             const passIn = document.getElementById('password').value;
             const btn = document.getElementById('loginBtn');
-            const card = document.querySelector('.animate__animated');
+            const card = document.getElementById('loginCard');
 
             // Efek Loading
             btn.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span> MEMPROSES...`;
@@ -90,17 +90,32 @@
                         timer: 1500,
                         customClass: { popup: 'rounded-3xl' }
                     }).then(() => {
-                        // Animasi Keluar layar
                         document.body.classList.add('animate__animated', 'animate__fadeOut');
                         setTimeout(() => {
-                            // KUNCI PERBAIKAN: Langsung pindah ke file di folder yang sama (public)
                             window.location.href = foundAccount.target;
                         }, 500);
                     });
 
                 } else {
                     // Jika Gagal
-                    btn.innerHTML = "Masuk";
+                    btn.innerHTML = "Masuk ke Sistem";
                     btn.disabled = false;
-                    card.classList.remove('animate__fadeInDown');
+                    
+                    // Reset animasi agar bisa goyang lagi
+                    card.classList.remove('animate__fadeInDown', 'animate__headShake');
+                    void card.offsetWidth; // Trigger reflow
                     card.classList.add('animate__headShake');
+                    
+                    Swal.fire({
+                        title: 'AKSES DITOLAK',
+                        text: 'Username atau Password salah!',
+                        icon: 'error',
+                        confirmButtonColor: '#1F2937',
+                        customClass: { popup: 'rounded-3xl' }
+                    });
+                }
+            }, 800);
+        });
+    </script>
+</body>
+</html>
