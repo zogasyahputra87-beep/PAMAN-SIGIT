@@ -6,6 +6,13 @@
     <title>Riwayat Konsultasi | E-Consulting Inspektorat</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* PROTEKSI: Mencegah seleksi teks pada data riwayat */
+        body {
+            user-select: none;
+            -webkit-user-select: none;
+            display: none; /* Sembunyikan sampai login tervalidasi */
+        }
+
         /* Animasi halus untuk membuka rincian */
         details[open] summary ~ * {
             animation: sweep .3s ease-in-out;
@@ -15,17 +22,14 @@
             100%  {opacity: 1; margin-top: 0px}
         }
         
-        /* Lebar kolom waktu agar hemat ruang */
         .col-waktu { width: 90px; min-width: 90px; }
         
-        /* Animasi putar untuk tombol refresh */
         .spin { animation: rotate 0.8s linear; }
         @keyframes rotate {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
-        /* Scrollbar cantik untuk tabel di HP */
         .custom-scrollbar::-webkit-scrollbar { height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -111,11 +115,28 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbx7Z5WIzD7sztiuaZj3woxst1TW0vCnQ3bddyquC4xUFmPZ9DKZqeyfewi6XSxkSJEN/exec";
+        // --- 1. FUNGSI KEAMANAN & AUTENTIKASI ---
+        (function() {
+            if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+                window.location.href = 'login.html';
+            } else {
+                document.body.style.display = "block";
+            }
+        })();
 
-        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-            window.location.href = 'login.html';
-        }
+        // Mematikan Klik Kanan
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Mematikan Shortcut Inspect Element & Source Code
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123) return false; // F12
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // Ctrl+Shift+J
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
+        };
+
+        // --- 2. LOGIKA SIDEBAR & DATA ---
+        const API_URL = "https://script.google.com/macros/s/AKfycbx7Z5WIzD7sztiuaZj3woxst1TW0vCnQ3bddyquC4xUFmPZ9DKZqeyfewi6XSxkSJEN/exec";
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
@@ -137,7 +158,7 @@
             icon.classList.add('spin');
             loader.classList.remove('hidden');
             loader.innerText = "Memperbarui data...";
-            listTable.innerHTML = ""; // Bersihkan tabel saat refresh
+            listTable.innerHTML = ""; 
             
             await loadData();
             setTimeout(() => icon.classList.remove('spin'), 800);
@@ -206,7 +227,7 @@
                 }).join('');
             } catch (e) {
                 console.error(e);
-                document.getElementById('loader').innerHTML = `<span class="text-red-500 font-bold uppercase text-[10px]">⚠️ Gagal terhubung ke server. Cek API URL Anda.</span>`;
+                document.getElementById('loader').innerHTML = `<span class="text-red-500 font-bold uppercase text-[10px]">⚠️ Gagal terhubung ke server.</span>`;
             }
         }
         window.onload = loadData;
