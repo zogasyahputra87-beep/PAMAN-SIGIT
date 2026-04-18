@@ -7,13 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="manifest" href="manifest.json">
     <style>
-        /* Mencegah seleksi teks agar data tidak mudah disalin */
+        /* Gabungkan proteksi seleksi teks dan sembunyikan body awal */
         body {
             user-select: none;
             -webkit-user-select: none;
+            display: none; 
         }
-        /* Sembunyikan body sampai pengecekan login selesai */
-        body { display: none; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 overflow-hidden">
@@ -51,7 +50,7 @@
             </div>
         </aside>
 
-        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
 
         <main class="flex-1 flex flex-col overflow-y-auto">
             <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-6 h-20 flex-shrink-0">
@@ -103,7 +102,7 @@
     </div>
 
     <script>
-        // --- 1. FUNGSI KEAMANAN & AUTENTIKASI ---
+        // 1. KEAMANAN & AUTENTIKASI
         (function() {
             if (sessionStorage.getItem('isLoggedIn') !== 'true') {
                 window.location.href = 'login.html';
@@ -112,23 +111,25 @@
             }
         })();
 
-        // Mematikan Klik Kanan
+        // Matikan Klik Kanan
         document.addEventListener('contextmenu', e => e.preventDefault());
 
-        // Mematikan Shortcut Inspect Element & Source Code
+        // Matikan Shortcut Inspect & Source
         document.onkeydown = function(e) {
-            if (e.keyCode == 123) return false; // F12
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // Ctrl+Shift+J
-            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
+            if (e.keyCode == 123) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
         };
 
-        // --- 2. LOGIKA SIDEBAR & USER ---
+        // 2. LOGIKA UI
         document.getElementById('display-user').innerText = sessionStorage.getItem('userName') || 'User';
 
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('-translate-x-full');
-            document.getElementById('overlay').classList.toggle('hidden');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
         }
 
         function logout() {
@@ -138,7 +139,7 @@
             }
         }
 
-        // --- 3. DATA & BACKEND ---
+        // 3. BACKEND STATS
         const API_URL = "https://script.google.com/macros/s/AKfycbx7Z5WIzD7sztiuaZj3woxst1TW0vCnQ3bddyquC4xUFmPZ9DKZqeyfewi6XSxkSJEN/exec";
 
         async function updateStats() {
@@ -161,10 +162,15 @@
 
             } catch (error) {
                 console.error("Gagal mengambil data statistik:", error);
+                // Matikan animasi pulse meskipun error agar tidak kedip terus
+                ['stat-total', 'stat-pending', 'stat-done'].forEach(id => {
+                    document.getElementById(id).innerText = "0";
+                    document.getElementById(id).classList.remove('animate-pulse');
+                });
             }
         }
 
-        // Service Worker untuk PWA
+        // PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Failed', err));
