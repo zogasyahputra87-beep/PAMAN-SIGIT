@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | SiCODI Inspektorat</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="manifest" href="manifest.json">
     <style>
-        /* Gabungkan proteksi seleksi teks dan sembunyikan body awal */
         body {
             user-select: none;
             -webkit-user-select: none;
@@ -111,14 +112,10 @@
             }
         })();
 
-        // Matikan Klik Kanan
         document.addEventListener('contextmenu', e => e.preventDefault());
-
-        // Matikan Shortcut Inspect & Source
         document.onkeydown = function(e) {
             if (e.keyCode == 123) return false;
             if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
             if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
         };
 
@@ -132,11 +129,24 @@
             overlay.classList.toggle('hidden');
         }
 
+        // Logout dengan SweetAlert2
         function logout() {
-            if(confirm("Apakah Anda yakin ingin keluar?")) {
-                sessionStorage.clear();
-                window.location.href = 'login.html';
-            }
+            Swal.fire({
+                title: 'Keluar Sistem?',
+                text: "Anda akan kembali ke halaman login.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#1F2937',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Keluar!',
+                cancelButtonText: 'Batal',
+                customClass: { popup: 'rounded-3xl' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                }
+            })
         }
 
         // 3. BACKEND STATS
@@ -162,19 +172,11 @@
 
             } catch (error) {
                 console.error("Gagal mengambil data statistik:", error);
-                // Matikan animasi pulse meskipun error agar tidak kedip terus
                 ['stat-total', 'stat-pending', 'stat-done'].forEach(id => {
                     document.getElementById(id).innerText = "0";
                     document.getElementById(id).classList.remove('animate-pulse');
                 });
             }
-        }
-
-        // PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Failed', err));
-            });
         }
 
         window.onload = updateStats;
