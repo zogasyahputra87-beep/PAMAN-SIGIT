@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buat Konsultasi | E-Consulting</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
     <style>
-        /* PROTEKSI: Mencegah seleksi teks dan menyembunyikan halaman sebelum login dicek */
         body {
             user-select: none;
             -webkit-user-select: none;
@@ -127,18 +130,15 @@
             if (sessionStorage.getItem('isLoggedIn') !== 'true') {
                 window.location.href = 'login.html';
             } else {
-                document.body.style.display = "block"; // Munculkan laman jika sudah login
+                document.body.style.display = "block";
             }
         })();
 
-        // Anti Klik Kanan
         document.addEventListener('contextmenu', e => e.preventDefault());
-
-        // Anti Shortcut Keyboard
         document.onkeydown = function(e) {
-            if (e.keyCode == 123) return false; // F12
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Inspect
-            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // View Source
+            if (e.keyCode == 123) return false;
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
         };
 
         // --- 2. LOGIKA SIDEBAR & UI ---
@@ -149,11 +149,24 @@
             document.getElementById('overlay').classList.toggle('hidden');
         }
 
+        // Fitur Konfirmasi Logout Cantik
         function logout() {
-            if(confirm("Apakah Anda yakin ingin keluar?")) {
-                sessionStorage.clear();
-                window.location.href = 'login.html';
-            }
+            Swal.fire({
+                title: 'Keluar Sistem?',
+                text: "Anda akan kembali ke halaman login.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#1F2937',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Keluar!',
+                cancelButtonText: 'Batal',
+                customClass: { popup: 'rounded-3xl' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    sessionStorage.clear();
+                    window.location.href = 'login.html';
+                }
+            })
         }
 
         function toggleOtherInput() {
@@ -162,14 +175,34 @@
             container.classList.toggle('hidden', selectVal !== 'Lainnya');
         }
 
-        // --- 3. LOGIKA KIRIM DATA ---
-        document.getElementById('consultForm').addEventListener('submit', async function(e) {
+        // --- 3. LOGIKA KIRIM DATA DENGAN KONFIRMASI ---
+        document.getElementById('consultForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Konfirmasi Sebelum Kirim
+            Swal.fire({
+                title: 'Kirim Konsultasi?',
+                text: "Pastikan data yang Anda masukkan sudah benar.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#1F2937',
+                cancelButtonColor: '#aaa',
+                confirmButtonText: 'Ya, Kirim Sekarang!',
+                cancelButtonText: 'Cek Kembali',
+                customClass: { popup: 'rounded-3xl' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    prosesKirimData();
+                }
+            });
+        });
+
+        async function prosesKirimData() {
             const btn = document.getElementById('btnSubmit');
             const fileInput = document.getElementById('fileInput');
             
             btn.disabled = true;
-            btn.innerText = "SEDANG MENGUNGGAH...";
+            btn.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span> SEDANG MENGUNGGAH...`;
 
             let fileData = { data: "", name: "", type: "" };
 
@@ -201,13 +234,31 @@
 
             try {
                 await fetch(API_URL, { method: 'POST', body: JSON.stringify(formData) });
-                alert('Berhasil! Data telah terkirim.');
-                window.location.href = "riwayat.html";
+                
+                // Notifikasi Berhasil
+                Swal.fire({
+                    title: 'BERHASIL!',
+                    text: 'Konsultasi Anda telah diterima Inspektorat.',
+                    icon: 'success',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: { popup: 'rounded-3xl' }
+                }).then(() => {
+                    window.location.href = "riwayat.html";
+                });
+
             } catch (err) {
-                alert('Proses selesai! Silakan cek menu riwayat.');
-                window.location.href = "riwayat.html";
+                Swal.fire({
+                    title: 'TERKIRIM!',
+                    text: 'Data sedang diproses. Silakan cek menu riwayat.',
+                    icon: 'info',
+                    confirmButtonColor: '#1F2937',
+                    customClass: { popup: 'rounded-3xl' }
+                }).then(() => {
+                    window.location.href = "riwayat.html";
+                });
             }
-        });
+        }
     </script>
 </body>
 </html>
