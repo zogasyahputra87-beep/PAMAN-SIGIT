@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | SiCODI Inspektorat</title>
     
+    <link rel="icon" type="image/png" href="../pages/logo_kab.png">
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="manifest" href="manifest.json">
@@ -14,18 +16,25 @@
             -webkit-user-select: none;
             display: none; 
         }
+        /* Bingkai halus untuk foto profil pengembang */
+        .profile-ring {
+            padding: 2px;
+            background: linear-gradient(to bottom right, #3b82f6, #1e40af);
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 overflow-hidden">
 
     <div class="flex h-screen overflow-hidden relative">
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#1F2937] text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
-            <div class="p-8 border-b border-gray-700 flex justify-between items-center">
-                <div>
+            
+            <div class="p-6 border-b border-gray-700 flex flex-col items-center">
+                <img src="logo.png" alt="Logo Kab Malang" class="w-14 mb-3 drop-shadow-md">
+                <div class="text-center">
                     <h1 class="text-xl font-bold text-white tracking-tight">SiCODI</h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
+                    <p class="text-[9px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-gray-400">
+                <button onclick="toggleSidebar()" class="md:hidden absolute top-4 right-4 text-gray-400">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
@@ -42,9 +51,14 @@
                 </a>
             </nav>
 
-            <div class="p-6 border-t border-gray-700 text-center">
-                <p class="text-[9px] text-gray-500 uppercase">Pengembang</p>
-                <p class="text-xs font-bold text-gray-300 uppercase tracking-tighter">Ananda Zoga Syahputra, S.Tr.I.P.</p>
+            <div class="p-6 border-t border-gray-700 flex flex-col items-center bg-gray-800/50">
+                <div class="w-16 h-16 rounded-full profile-ring shadow-lg mb-3 overflow-hidden">
+                    <img src="zoga.jpg" alt="Ananda Zoga" class="w-full h-full object-cover rounded-full bg-gray-700 text-[8px] text-center italic">
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] text-blue-400 uppercase font-black tracking-tighter mb-1">Pengembang</p>
+                    <p class="text-[11px] font-bold text-gray-100 leading-tight uppercase">Ananda Zoga Syahputra, S.Tr.I.P.</p>
+                </div>
                 <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition active:scale-95">
                     Keluar Sistem
                 </button>
@@ -129,7 +143,6 @@
             overlay.classList.toggle('hidden');
         }
 
-        // Logout dengan SweetAlert2
         function logout() {
             Swal.fire({
                 title: 'Keluar Sistem?',
@@ -173,8 +186,11 @@
             } catch (error) {
                 console.error("Gagal mengambil data statistik:", error);
                 ['stat-total', 'stat-pending', 'stat-done'].forEach(id => {
-                    document.getElementById(id).innerText = "0";
-                    document.getElementById(id).classList.remove('animate-pulse');
+                    const el = document.getElementById(id);
+                    if(el) {
+                        el.innerText = "0";
+                        el.classList.remove('animate-pulse');
+                    }
                 });
             }
         }
