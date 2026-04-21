@@ -3,13 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | SiCODI Inspektorat</title>
     
+    <title>Dashboard | SiCODI Inspektorat Kabupaten Malang</title>
+    <meta name="description" content="Monitoring real-time progres konsultasi digital dan tindak lanjut closed-loop Inspektorat Daerah Kabupaten Malang.">
+    <meta name="keywords" content="Dashboard SiCODI, Inspektorat Malang, Monitoring Konsultasi, Kabupaten Malang">
+    
+    <meta property="og:title" content="Dashboard SiCODI - Inspektorat Kabupaten Malang">
+    <meta property="og:description" content="Ringkasan statistik dan progres konsultasi digital secara real-time.">
+    <meta property="og:image" content="https://sicodi-malang.vercel.app/pages/logo_kab.png">
+    <meta property="og:type" content="website">
+
     <link rel="icon" type="image/png" href="../pages/logo_kab.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1F2937">
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="manifest" href="manifest.json">
+    
     <style>
         body {
             user-select: none;
@@ -173,14 +183,13 @@
 
         const API_URL = "https://script.google.com/macros/s/AKfycbxI7CDn0iJ48mX2NcNosdCAH-P1LZESQN76wKgTrqgcly-BvYxwaQbaAj65bEyidfqZ/exec";
 
-        // Fungsi manual refresh
         async function manualRefresh() {
             const icon = document.getElementById('icon-refresh');
             icon.classList.add('spin'); 
             
-            // Tambahkan animasi pulse kembali saat loading
             ['stat-total', 'stat-pending', 'stat-proses-tl', 'stat-verif', 'stat-done'].forEach(id => {
                 document.getElementById(id).classList.add('animate-pulse');
+                document.getElementById(id).innerText = "...";
             });
 
             await updateStats();
@@ -207,21 +216,18 @@
                 document.getElementById('stat-verif').innerText = verifTl;
                 document.getElementById('stat-done').innerText = tuntas;
 
-                // Ping notifikasi merah untuk Verifikasi TL
                 if(verifTl > 0) {
                     document.getElementById('ping-tl').classList.remove('hidden');
                 } else {
                     document.getElementById('ping-tl').classList.add('hidden');
                 }
 
-                // Matikan animasi pulse
                 ['stat-total', 'stat-pending', 'stat-proses-tl', 'stat-verif', 'stat-done'].forEach(id => {
                     document.getElementById(id).classList.remove('animate-pulse');
                 });
                 
             } catch (error) {
                 console.error("Error:", error);
-                Swal.fire({ icon: 'error', title: 'Koneksi Terputus', text: 'Gagal memperbarui statistik.' });
             }
         }
 
