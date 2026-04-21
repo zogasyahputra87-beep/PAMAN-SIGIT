@@ -166,16 +166,18 @@
                     const status = item.status || "Menunggu";
                     const lampiran = item.lampiran || "";
                     
-                    // NORMALISASI: Apapun yg tertulis di sheet (Besar/Kecil/Spasi) akan terbaca benar
-                    const cekMetode = item.metode ? item.metode.toString().trim().toLowerCase() : "";
+                    // --- PERBAIKAN LOGIKA DISINI ---
+                    // Menggunakan .includes() agar pencarian kata 'offline' lebih fleksibel
+                    const teksMetode = item.metode ? String(item.metode).toLowerCase().trim() : "";
+                    const isOffline = teksMetode.includes("offline");
                     
-                    const metodeTag = cekMetode === 'offline' 
+                    const metodeTag = isOffline 
                         ? `<div class="mt-2 flex flex-col space-y-1">
-                             <span class="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 text-[9px] font-black rounded border border-purple-200 uppercase tracking-tighter text-left">Offline / Tatap Muka</span>
+                             <span class="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 text-[9px] font-black rounded border border-purple-200 uppercase tracking-tighter text-left w-fit">Offline / Tatap Muka</span>
                              <span class="text-[9px] text-purple-600 font-bold italic text-left">📅 Ajuan: ${item.tgl_offline || '-'}</span>
                            </div>`
                         : `<div class="mt-2 text-left">
-                             <span class="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-black rounded border border-blue-200 uppercase tracking-tighter">Online / Digital</span>
+                             <span class="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-black rounded border border-blue-200 uppercase tracking-tighter w-fit">Online / Digital</span>
                            </div>`;
 
                     return `
@@ -224,6 +226,8 @@
             }
         }
 
+        // ... Sisa fungsi (batalSelesai, konfirmasiBalas, dll) tetap sama ...
+        
         function batalSelesai(rowId) {
             Swal.fire({
                 title: 'Ubah Jawaban?',
