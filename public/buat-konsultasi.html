@@ -3,9 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buat Konsultasi | SiCODI</title>
     
+    <title>Buat Konsultasi | SiCODI Inspektorat Kabupaten Malang</title>
+    <meta name="description" content="Ajukan konsultasi digital terkait pengelolaan keuangan, administrasi, dan pengadaan barang/jasa kepada Inspektorat Daerah Kabupaten Malang.">
+    <meta name="keywords" content="Buat Konsultasi, SiCODI, Inspektorat Malang, Pengawasan Malang, Pelayanan Publik">
+
+    <meta property="og:title" content="Buat Konsultasi Baru - SiCODI">
+    <meta property="og:description" content="Sampaikan kendala atau pertanyaan Anda melalui formulir konsultasi resmi SiCODI.">
+    <meta property="og:image" content="https://sicodi-malang.vercel.app/pages/logo_kab.png">
+    <meta property="og:type" content="website">
+
     <link rel="icon" type="image/png" href="../pages/logo_kab.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1F2937">
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -197,7 +207,6 @@
             })
         }
 
-        // FUNGSI TOGGLE INPUT BARU
         function toggleOtherInput() {
             const selectVal = document.getElementById('consultType').value;
             const container = document.getElementById('otherTypeContainer');
@@ -255,10 +264,8 @@
                 action: "tambah_konsultasi",
                 opd: document.getElementById('opdName').value,
                 kategori: (document.getElementById('consultType').value === 'Lainnya') ? document.getElementById('otherConsultType').value : document.getElementById('consultType').value,
-                // DATA BARU DISINI
                 metode: document.getElementById('metode').value,
                 tgl_offline: document.getElementById('tgl_offline').value || "-",
-                
                 judul: document.getElementById('subject').value,
                 issue: document.getElementById('issue').value,
                 whatsapp: document.getElementById('whatsapp').value,
