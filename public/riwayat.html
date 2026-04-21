@@ -140,7 +140,7 @@
             }
         })();
 
-        const API_URL = "https://script.google.com/macros/s/AKfycbzP4-Sdo7yBZEX-uC33Pw0olR_ACtMFMhkYFwJBmja6oas3pqv4vdnlndDihRciNNJ5/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxI7CDn0iJ48mX2NcNosdCAH-P1LZESQN76wKgTrqgcly-BvYxwaQbaAj65bEyidfqZ/exec";
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
@@ -171,7 +171,6 @@
                     const isTerjawab = item.status === 'Terjawab' || item.status === 'Selesai';
                     const isPending = item.status === 'Menunggu';
                     
-                    // Badge Metode
                     const metodeBadge = item.metode === 'Offline' 
                         ? `<div class="mt-2 inline-flex flex-col space-y-1">
                              <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-purple-200">Offline</span>
@@ -179,22 +178,21 @@
                            </div>`
                         : `<div class="mt-2"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-blue-200">Online</span></div>`;
 
-                    // Bagian Tindak Lanjut
                     let tlSection = "";
                     if (isTerjawab) {
                         if (item.status_tl === "Belum TL" || item.status_tl === "Perlu Perbaikan") {
                             tlSection = `
                                 <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl">
                                     <p class="text-[10px] font-bold text-blue-700 uppercase mb-2">🚀 Tindak Lanjut Layanan:</p>
-                                    ${item.status_tl === "Perlu Perbaikan" ? `<p class="text-[9px] text-red-600 font-bold mb-2 animate__animated animate__headShake">⚠️ Catatan Auditor: ${item.catatan_admin_tl}</p>` : ''}
-                                    <button onclick="formTL(${item.id})" class="w-full py-2 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition shadow-sm">Kirim Bukti Tindak Lanjut</button>
+                                    ${item.status_tl === "Perlu Perbaikan" ? `<p class="text-[9px] text-red-600 font-bold mb-2 animate__animated animate__headShake">⚠️ Perbaikan: ${item.catatan_admin_tl}</p>` : ''}
+                                    <button onclick="formTL(${item.id})" class="w-full py-2 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition shadow-sm">Kirim Laporan & Bukti TL</button>
                                 </div>
                             `;
                         } else if (item.status_tl === "Menunggu Verifikasi") {
                             tlSection = `
                                 <div class="mt-4 p-3 bg-orange-50 border border-orange-100 rounded-xl">
-                                    <p class="text-[10px] font-bold text-orange-700 uppercase">⌛ Menunggu Verifikasi TL</p>
-                                    <p class="text-[9px] text-orange-600 italic">Bukti telah dikirim pada ${item.waktu_tl}</p>
+                                    <p class="text-[10px] font-bold text-orange-700 uppercase">⌛ Verifikasi Auditor</p>
+                                    <p class="text-[9px] text-orange-600 italic">Bukti dikirim ${item.waktu_tl}</p>
                                 </div>
                             `;
                         } else if (item.status_tl === "Tuntas") {
@@ -202,8 +200,8 @@
                                 <div class="mt-4 p-3 bg-teal-50 border border-teal-100 rounded-xl flex items-center">
                                     <span class="text-lg mr-2">✅</span>
                                     <div>
-                                        <p class="text-[10px] font-bold text-teal-700 uppercase">Tindak Lanjut Tuntas</p>
-                                        <p class="text-[9px] text-gray-500 italic">Diverifikasi pada ${item.waktu_verifikasi}</p>
+                                        <p class="text-[10px] font-bold text-teal-700 uppercase">Tuntas</p>
+                                        <p class="text-[9px] text-gray-500 italic">Diverifikasi ${item.waktu_verifikasi}</p>
                                     </div>
                                 </div>
                             `;
@@ -213,10 +211,7 @@
                     return `
                     <tr class="hover:bg-gray-50/50 transition border-b border-gray-50">
                         <td class="p-5 text-[9px] text-gray-400 align-top pt-6 col-waktu">${item.waktu}</td>
-                        <td class="p-5 font-bold text-sm text-gray-700 align-top pt-6">
-                            ${item.opd}
-                            ${metodeBadge}
-                        </td>
+                        <td class="p-5 font-bold text-sm text-gray-700 align-top pt-6">${item.opd}${metodeBadge}</td>
                         <td class="p-5 align-top pt-6">
                             <div class="text-sm font-bold text-gray-800">${item.judul}</div>
                             <div class="text-[10px] text-blue-500 font-semibold italic mb-2 uppercase">${item.kategori}</div>
@@ -226,9 +221,9 @@
                                 ${isPending ? `<button onclick="batalkanKonsultasi('${item.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-[9px] font-bold uppercase tracking-wider">❌ Batalkan</button>` : ''}
                             </div>
 
-                            <details class="group border border-gray-200 rounded-lg bg-white overflow-hidden shadow-sm max-w-lg">
+                            <details class="group border border-gray-200 rounded-lg bg-white shadow-sm max-w-lg">
                                 <summary class="list-none p-2 text-[10px] font-bold text-gray-600 cursor-pointer flex items-center hover:bg-gray-50 uppercase tracking-tighter">
-                                    <span class="mr-2 group-open:rotate-90 transition-transform text-[8px]">▶</span> LIHAT TANGGAPAN AUDITOR
+                                    <span class="mr-2 group-open:rotate-90 transition-transform text-[8px]">▶</span> TANGGAPAN INSPEKTORAT
                                 </summary>
                                 <div class="p-4 space-y-4 border-t border-gray-100 bg-gray-50/30">
                                     <div class="bg-white p-3 rounded-lg border border-gray-200">
@@ -236,7 +231,7 @@
                                         <p class="text-xs text-gray-700">${item.issue || '-'}</p>
                                     </div>
                                     <div class="${isTerjawab ? 'bg-green-50 border-green-100' : 'bg-yellow-50 border-yellow-100'} p-3 rounded-lg border">
-                                        <p class="text-[9px] font-bold ${isTerjawab ? 'text-green-700' : 'text-yellow-700'} uppercase">Jawaban Inspektorat:</p>
+                                        <p class="text-[9px] font-bold ${isTerjawab ? 'text-green-700' : 'text-yellow-700'} uppercase">Jawaban Auditor:</p>
                                         <p class="text-xs text-gray-800 italic font-medium">"${item.jawaban || 'Sedang diproses...'}"</p>
                                     </div>
                                 </div>
@@ -257,48 +252,72 @@
         }
 
         async function formTL(rowId) {
-            const { value: text } = await Swal.fire({
-                title: 'Kirim Bukti Tindak Lanjut',
-                input: 'textarea',
-                inputLabel: 'Keterangan / Link Dokumen Bukti',
-                inputPlaceholder: 'Masukkan link Google Drive dokumen tindak lanjut atau penjelasan singkat...',
-                inputAttributes: { 'aria-label': 'Masukkan bukti TL' },
+            const { value: formValues } = await Swal.fire({
+                title: 'Laporan Tindak Lanjut',
+                html:
+                    '<div class="text-left">' +
+                    '<label class="text-[10px] font-bold text-gray-400 uppercase">Penjelasan Tindakan</label>' +
+                    '<textarea id="swal-input-ket" class="w-full p-2 border border-gray-300 rounded-lg text-xs mb-3 focus:ring-2 focus:ring-blue-500 outline-none" rows="3" placeholder="Jelaskan langkah-langkah yang telah diambil..."></textarea>' +
+                    '<label class="text-[10px] font-bold text-gray-400 uppercase">Dokumen Bukti (Opsional)</label>' +
+                    '<input type="file" id="swal-input-file" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" accept=".pdf,image/*,.doc,.docx,.xls,.xlsx">' +
+                    '<p class="text-[8px] text-gray-400 mt-1">*Format: PDF, Gambar, atau Dokumen</p>' +
+                    '</div>',
+                focusConfirm: false,
                 showCancelButton: true,
-                confirmButtonText: 'Kirim Bukti',
+                confirmButtonText: 'Kirim Laporan',
                 confirmButtonColor: '#2563eb',
-                customClass: { popup: 'rounded-3xl' }
+                customClass: { popup: 'rounded-3xl' },
+                preConfirm: () => {
+                    const penjelasan = document.getElementById('swal-input-ket').value;
+                    const fileInput = document.getElementById('swal-input-file');
+                    if (!penjelasan.trim()) {
+                        Swal.showValidationMessage('Penjelasan tindakan wajib diisi!');
+                        return false;
+                    }
+                    return { penjelasan: penjelasan, file: fileInput.files[0] || null };
+                }
             });
 
-            if (text) {
-                Swal.fire({ title: 'Mengirim...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-                try {
-                    await fetch(API_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: "kirim_tindak_lanjut", row: rowId, bukti_tl: text })
-                    });
-                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Bukti TL telah dikirim dan menunggu verifikasi.', timer: 2000, showConfirmButton: false });
-                    refreshData();
-                } catch (e) {
-                    Swal.fire('Gagal', 'Terjadi kesalahan sistem.', 'error');
+            if (formValues) {
+                Swal.fire({ title: 'Mengirim Laporan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+                
+                if (formValues.file) {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        const fileData = e.target.result.split(',')[1];
+                        await kirimDataTL(rowId, formValues.penjelasan, fileData, formValues.file.name, formValues.file.type);
+                    };
+                    reader.readAsDataURL(formValues.file);
+                } else {
+                    await kirimDataTL(rowId, formValues.penjelasan, "", "", "");
                 }
             }
         }
 
+        async function kirimDataTL(rowId, penjelasan, fileData, fileName, fileType) {
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "kirim_tindak_lanjut",
+                        row: rowId,
+                        penjelasan: penjelasan,
+                        fileData: fileData,
+                        fileName: fileName,
+                        fileType: fileType
+                    })
+                });
+                Swal.fire({ icon: 'success', title: 'Terkirim!', text: 'Laporan tindak lanjut sedang diverifikasi auditor.', timer: 2000, showConfirmButton: false });
+                refreshData();
+            } catch (e) {
+                Swal.fire('Gagal', 'Terjadi kesalahan sistem.', 'error');
+            }
+        }
+
         function batalkanKonsultasi(id) {
-            Swal.fire({
-                title: 'Batalkan Konsultasi?',
-                text: "Data akan dihapus permanen.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                confirmButtonText: 'Ya, Hapus!',
-                customClass: { popup: 'rounded-3xl' }
-            }).then((result) => {
+            Swal.fire({ title: 'Hapus?', text: "Data akan dihapus.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'Ya' }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(API_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: "hapus_konsultasi", id: id })
-                    }).then(() => refreshData());
+                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "hapus_konsultasi", id: id }) }).then(() => refreshData());
                 }
             });
         }
