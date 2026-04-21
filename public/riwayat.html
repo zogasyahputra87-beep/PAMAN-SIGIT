@@ -38,7 +38,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Bingkai halus untuk foto profil pengembang */
         .profile-ring {
             padding: 2px;
             background: linear-gradient(to bottom right, #3b82f6, #1e40af);
@@ -119,7 +118,7 @@
                                 <tr class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
                                     <th class="p-5 col-waktu">Waktu</th>
                                     <th class="p-5 w-48">Instansi / Metode</th>
-                                    <th class="p-5">Detail Konsultasi & Jawaban</th>
+                                    <th class="p-5">Detail Konsultasi & Monitoring TL</th>
                                     <th class="p-5 text-center w-32">Status</th>
                                 </tr>
                             </thead>
@@ -141,38 +140,11 @@
             }
         })();
 
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.onkeydown = function(e) {
-            if (e.keyCode == 123) return false;
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
-            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
-        };
-
-        // Pastikan API_URL ini adalah deployment terbaru setelah update Apps Script
         const API_URL = "https://script.google.com/macros/s/AKfycbzACBKApDa1eooecW61hN0BNG-tcrUifNTk8Qa5R42eYWbpbcxqZhxbYwmZVxFAuexi/exec";
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('-translate-x-full');
             document.getElementById('overlay').classList.toggle('hidden');
-        }
-
-        function logout() {
-            Swal.fire({
-                title: 'Keluar Sistem?',
-                text: "Anda akan kembali ke halaman login.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#1F2937',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Keluar!',
-                cancelButtonText: 'Batal',
-                customClass: { popup: 'rounded-3xl' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    sessionStorage.clear();
-                    window.location.href = 'login.html';
-                }
-            });
         }
 
         async function refreshData() {
@@ -196,17 +168,47 @@
                 loader.classList.add('hidden');
                 
                 listTable.innerHTML = data.reverse().map(item => {
-                    const isPending = item.status !== 'Selesai';
+                    const isTerjawab = item.status === 'Terjawab' || item.status === 'Selesai';
+                    const isPending = item.status === 'Menunggu';
                     
-                    // INDIKATOR METODE & TANGGAL (Pembaruan)
+                    // Badge Metode
                     const metodeBadge = item.metode === 'Offline' 
                         ? `<div class="mt-2 inline-flex flex-col space-y-1">
-                             <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-purple-200">Offline / Tatap Muka</span>
-                             <span class="text-[9px] text-purple-600 font-bold italic">📅 Ajuan: ${item.tgl_offline || '-'}</span>
+                             <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-purple-200">Offline</span>
+                             <span class="text-[9px] text-purple-600 font-bold italic">📅 ${item.tgl_offline || '-'}</span>
                            </div>`
-                        : `<div class="mt-2">
-                             <span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-blue-200">Online / Digital</span>
-                           </div>`;
+                        : `<div class="mt-2"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-blue-200">Online</span></div>`;
+
+                    // Bagian Tindak Lanjut
+                    let tlSection = "";
+                    if (isTerjawab) {
+                        if (item.status_tl === "Belum TL" || item.status_tl === "Perlu Perbaikan") {
+                            tlSection = `
+                                <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                                    <p class="text-[10px] font-bold text-blue-700 uppercase mb-2">🚀 Tindak Lanjut Layanan:</p>
+                                    ${item.status_tl === "Perlu Perbaikan" ? `<p class="text-[9px] text-red-600 font-bold mb-2 animate__animated animate__headShake">⚠️ Catatan Auditor: ${item.catatan_admin_tl}</p>` : ''}
+                                    <button onclick="formTL(${item.id})" class="w-full py-2 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition shadow-sm">Kirim Bukti Tindak Lanjut</button>
+                                </div>
+                            `;
+                        } else if (item.status_tl === "Menunggu Verifikasi") {
+                            tlSection = `
+                                <div class="mt-4 p-3 bg-orange-50 border border-orange-100 rounded-xl">
+                                    <p class="text-[10px] font-bold text-orange-700 uppercase">⌛ Menunggu Verifikasi TL</p>
+                                    <p class="text-[9px] text-orange-600 italic">Bukti telah dikirim pada ${item.waktu_tl}</p>
+                                </div>
+                            `;
+                        } else if (item.status_tl === "Tuntas") {
+                            tlSection = `
+                                <div class="mt-4 p-3 bg-teal-50 border border-teal-100 rounded-xl flex items-center">
+                                    <span class="text-lg mr-2">✅</span>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-teal-700 uppercase">Tindak Lanjut Tuntas</p>
+                                        <p class="text-[9px] text-gray-500 italic">Diverifikasi pada ${item.waktu_verifikasi}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
 
                     return `
                     <tr class="hover:bg-gray-50/50 transition border-b border-gray-50">
@@ -220,32 +222,30 @@
                             <div class="text-[10px] text-blue-500 font-semibold italic mb-2 uppercase">${item.kategori}</div>
                             
                             <div class="flex space-x-2 mb-3">
-                                ${item.lampiran ? 
-                                    `<a href="${item.lampiran}" target="_blank" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[9px] font-bold uppercase tracking-wider shadow-sm">📂 Buka Lampiran</a>` : ''
-                                }
-                                ${isPending ? 
-                                    `<button onclick="batalkanKonsultasi('${item.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-[9px] font-bold uppercase tracking-wider hover:bg-red-100 transition shadow-sm">❌ Batalkan</button>` : ''
-                                }
+                                ${item.lampiran && item.lampiran !== '-' ? `<a href="${item.lampiran}" target="_blank" class="px-3 py-1.5 bg-gray-100 text-gray-600 border border-gray-200 rounded-lg text-[9px] font-bold uppercase tracking-wider">📂 Lampiran</a>` : ''}
+                                ${isPending ? `<button onclick="batalkanKonsultasi('${item.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-[9px] font-bold uppercase tracking-wider">❌ Batalkan</button>` : ''}
                             </div>
 
-                            <details class="group border border-gray-200 rounded-lg bg-white overflow-hidden shadow-sm max-w-lg mb-4">
+                            <details class="group border border-gray-200 rounded-lg bg-white overflow-hidden shadow-sm max-w-lg">
                                 <summary class="list-none p-2 text-[10px] font-bold text-gray-600 cursor-pointer flex items-center hover:bg-gray-50 uppercase tracking-tighter">
-                                    <span class="mr-2 group-open:rotate-90 transition-transform text-[8px]">▶</span> DETAIL KONSULTASI
+                                    <span class="mr-2 group-open:rotate-90 transition-transform text-[8px]">▶</span> LIHAT TANGGAPAN AUDITOR
                                 </summary>
                                 <div class="p-4 space-y-4 border-t border-gray-100 bg-gray-50/30">
                                     <div class="bg-white p-3 rounded-lg border border-gray-200">
-                                        <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">Permasalahan:</p>
+                                        <p class="text-[9px] font-bold text-gray-400 uppercase mb-1">Masalah:</p>
                                         <p class="text-xs text-gray-700">${item.issue || '-'}</p>
                                     </div>
-                                    <div class="${!isPending ? 'bg-green-50 border border-green-100' : 'bg-yellow-50 border border-yellow-100'} p-3 rounded-lg">
-                                        <p class="text-[9px] font-bold ${!isPending ? 'text-green-700' : 'text-yellow-700'} uppercase">Tanggapan:</p>
+                                    <div class="${isTerjawab ? 'bg-green-50 border-green-100' : 'bg-yellow-50 border-yellow-100'} p-3 rounded-lg border">
+                                        <p class="text-[9px] font-bold ${isTerjawab ? 'text-green-700' : 'text-yellow-700'} uppercase">Jawaban Inspektorat:</p>
                                         <p class="text-xs text-gray-800 italic font-medium">"${item.jawaban || 'Sedang diproses...'}"</p>
                                     </div>
                                 </div>
                             </details>
+                            
+                            ${tlSection}
                         </td>
                         <td class="p-5 text-center align-top pt-6">
-                            <span class="inline-block w-24 py-1.5 ${!isPending ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'} text-[9px] font-bold rounded-full uppercase border shadow-sm">
+                            <span class="inline-block w-24 py-1.5 ${isTerjawab ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'} text-[9px] font-bold rounded-full uppercase border">
                                 ${item.status}
                             </span>
                         </td>
@@ -256,44 +256,55 @@
             }
         }
 
+        async function formTL(rowId) {
+            const { value: text } = await Swal.fire({
+                title: 'Kirim Bukti Tindak Lanjut',
+                input: 'textarea',
+                inputLabel: 'Keterangan / Link Dokumen Bukti',
+                inputPlaceholder: 'Masukkan link Google Drive dokumen tindak lanjut atau penjelasan singkat...',
+                inputAttributes: { 'aria-label': 'Masukkan bukti TL' },
+                showCancelButton: true,
+                confirmButtonText: 'Kirim Bukti',
+                confirmButtonColor: '#2563eb',
+                customClass: { popup: 'rounded-3xl' }
+            });
+
+            if (text) {
+                Swal.fire({ title: 'Mengirim...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+                try {
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: "kirim_tindak_lanjut", row: rowId, bukti_tl: text })
+                    });
+                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Bukti TL telah dikirim dan menunggu verifikasi.', timer: 2000, showConfirmButton: false });
+                    refreshData();
+                } catch (e) {
+                    Swal.fire('Gagal', 'Terjadi kesalahan sistem.', 'error');
+                }
+            }
+        }
+
         function batalkanKonsultasi(id) {
             Swal.fire({
                 title: 'Batalkan Konsultasi?',
-                text: "Data yang sudah dihapus tidak dapat dikembalikan.",
-                icon: 'error',
+                text: "Data akan dihapus permanen.",
+                icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
-                cancelButtonColor: '#aaa',
-                confirmButtonText: 'Ya, Batalkan!',
-                cancelButtonText: 'Jangan',
+                confirmButtonText: 'Ya, Hapus!',
                 customClass: { popup: 'rounded-3xl' }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Memproses...',
-                        didOpen: () => { Swal.showLoading() },
-                        allowOutsideClick: false,
-                        customClass: { popup: 'rounded-3xl' }
-                    });
-                    
                     fetch(API_URL, {
                         method: 'POST',
                         body: JSON.stringify({ action: "hapus_konsultasi", id: id })
-                    }).then(() => {
-                        Swal.fire({
-                            title: 'Dibatalkan!',
-                            text: 'Konsultasi berhasil dihapus.',
-                            icon: 'success',
-                            timer: 1500,
-                            showConfirmButton: false,
-                            customClass: { popup: 'rounded-3xl' }
-                        }).then(() => refreshData());
-                    });
+                    }).then(() => refreshData());
                 }
             });
         }
 
         window.onload = loadData;
+        function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
     </script>
 </body>
 </html>
