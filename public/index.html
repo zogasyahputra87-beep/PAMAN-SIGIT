@@ -22,6 +22,13 @@
             background: linear-gradient(to bottom right, #3b82f6, #1e40af);
         }
         .stat-card { @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-md bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center; }
+        
+        /* Animasi putar untuk tombol refresh */
+        .spin { animation: rotate 0.8s linear; }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 overflow-hidden">
@@ -71,6 +78,7 @@
         </aside>
 
         <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+        
         <main class="flex-1 flex flex-col overflow-y-auto">
              <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-6 h-20 flex-shrink-0">
                 <div class="flex items-center">
@@ -79,7 +87,12 @@
                     </button>
                     <h2 class="text-sm md:text-lg font-bold text-gray-800 uppercase tracking-wide">Ringkasan Dashboard</h2>
                 </div>
+                
                 <div class="flex items-center space-x-3">
+                    <button onclick="manualRefresh()" id="btn-refresh" class="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 py-2 rounded-xl border border-gray-200 transition active:scale-95 shadow-sm">
+                        <span id="icon-refresh">🔄</span>
+                        <span class="hidden md:inline text-[10px] font-bold uppercase tracking-widest">Update Data</span>
+                    </button>
                     <span id="display-user" class="hidden md:block text-[10px] font-bold text-gray-400 uppercase tracking-wider">User</span>
                     <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border text-xl shadow-inner">👤</div>
                 </div>
@@ -94,7 +107,7 @@
                     </div>
                     <div class="stat-card">
                         <div class="w-10 h-10 bg-yellow-50 text-yellow-600 rounded-xl flex items-center justify-center mb-3 text-xl">⏳</div>
-                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Menunggu Jawaban</p>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Butuh Jawaban</p>
                         <h3 id="stat-pending" class="text-2xl font-black text-yellow-600 animate-pulse">...</h3>
                     </div>
                     <div class="stat-card">
@@ -160,40 +173,58 @@
 
         const API_URL = "https://script.google.com/macros/s/AKfycbxI7CDn0iJ48mX2NcNosdCAH-P1LZESQN76wKgTrqgcly-BvYxwaQbaAj65bEyidfqZ/exec";
 
+        // Fungsi manual refresh
+        async function manualRefresh() {
+            const icon = document.getElementById('icon-refresh');
+            icon.classList.add('spin'); 
+            
+            // Tambahkan animasi pulse kembali saat loading
+            ['stat-total', 'stat-pending', 'stat-proses-tl', 'stat-verif', 'stat-done'].forEach(id => {
+                document.getElementById(id).classList.add('animate-pulse');
+            });
+
+            await updateStats();
+            
+            setTimeout(() => {
+                icon.classList.remove('spin');
+            }, 800);
+        }
+
         async function updateStats() {
             try {
                 const response = await fetch(API_URL);
                 const data = await response.json();
                 
-                // Perhitungan Statistik sesuai Siklus
                 const total = data.length;
                 const pending = data.filter(item => item.status === 'Menunggu').length;
-                
-                // Proses TL: Sudah dijawab Auditor, tapi OPD belum mengirim TL (Status TL masih "Belum TL")
                 const prosesTl = data.filter(item => item.status === 'Terjawab' && item.status_tl === 'Belum TL').length;
-                
                 const verifTl = data.filter(item => item.status_tl === 'Menunggu Verifikasi').length;
                 const tuntas = data.filter(item => item.status_tl === 'Tuntas').length;
 
-                // Update Elemen HTML
                 document.getElementById('stat-total').innerText = total;
                 document.getElementById('stat-pending').innerText = pending;
                 document.getElementById('stat-proses-tl').innerText = prosesTl;
                 document.getElementById('stat-verif').innerText = verifTl;
                 document.getElementById('stat-done').innerText = tuntas;
 
-                // Indikator Notifikasi TL (Ping merah)
-                if(verifTl > 0) document.getElementById('ping-tl').classList.remove('hidden');
+                // Ping notifikasi merah untuk Verifikasi TL
+                if(verifTl > 0) {
+                    document.getElementById('ping-tl').classList.remove('hidden');
+                } else {
+                    document.getElementById('ping-tl').classList.add('hidden');
+                }
 
-                // Hilangkan animasi pulse setelah data masuk
+                // Matikan animasi pulse
                 ['stat-total', 'stat-pending', 'stat-proses-tl', 'stat-verif', 'stat-done'].forEach(id => {
                     document.getElementById(id).classList.remove('animate-pulse');
                 });
                 
             } catch (error) {
-                console.error("Gagal mengambil data statistik:", error);
+                console.error("Error:", error);
+                Swal.fire({ icon: 'error', title: 'Koneksi Terputus', text: 'Gagal memperbarui statistik.' });
             }
         }
+
         window.onload = updateStats;
     </script>
 </body>
