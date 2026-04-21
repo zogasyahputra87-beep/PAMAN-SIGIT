@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | E-Consulting Inspektorat</title>
     
+    <title>Login | SiCODI Inspektorat Kabupaten Malang</title>
+    <meta name="description" content="Halaman akses resmi SiCODI (Sistem Konsultasi Digital) Inspektorat Daerah Kabupaten Malang.">
+    <meta name="keywords" content="SiCODI, Inspektorat Malang, Login SiCODI, Kabupaten Malang">
+    <meta name="author" content="Ananda Zoga Syahputra">
+    
+    <meta property="og:title" content="Login SiCODI - Inspektorat Kabupaten Malang">
+    <meta property="og:description" content="Portal Konsultasi Digital & Monitoring Tindak Lanjut.">
+    <meta property="og:image" content="https://sicodi-malang.vercel.app/pages/logo_kab.png">
+    <meta property="og:type" content="website">
+
     <link rel="icon" type="image/png" href="../pages/logo_kab.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1F2937">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -19,7 +30,6 @@
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-            /* Mencegah seleksi teks */
             user-select: none;
             -webkit-user-select: none;
         }
@@ -63,22 +73,19 @@
     </div>
 
     <script>
-        // --- 1. FUNGSI KEAMANAN TAMBAHAN ---
-        
         // Mematikan Klik Kanan
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
         });
 
-        // Mematikan Shortcut Keyboard (F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U)
+        // Mematikan Shortcut Keyboard
         document.onkeydown = function(e) {
-            if (e.keyCode == 123) return false; // F12
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; // Ctrl+Shift+I
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; // Ctrl+Shift+J
-            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; // Ctrl+U
+            if (e.keyCode == 123) return false; 
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; 
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; 
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; 
         };
 
-        // --- 2. LOGIKA LOGIN ---
         const accounts = [
             { user: "admin", pass: "inspektorat2026", role: "admin", target: "admin.html" },
             { user: "malangkab", pass: "malangkab123", role: "user", target: "index.html" },
