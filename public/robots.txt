@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sicodi-malang.vercel.app/sitemap.xml
