@@ -106,11 +106,16 @@
                 <div class="bg-gray-800 text-white p-8 rounded-3xl shadow-xl border border-gray-700">
                     <h3 class="text-xl font-bold italic mb-2 text-blue-400 uppercase tracking-tighter">Selamat Datang di Portal SiCODI</h3>
                     <p class="text-gray-400 text-sm leading-relaxed mb-6">
-                        Sistem Konsultasi Digital ini dirancang untuk mempermudah koordinasi pembinaan dan pengawasan di Lingkungan Pemerintah Kabupaten Malang.
+                        Sistem Konsultasi Digital ini dirancang untuk mempermudah koordinasi pembinaan dan pengawasan di Lingkungan Pemerintah Kabupaten Malang. Kini mendukung metode **Hybrid (Online & Tatap Muka)**.
                     </p>
-                    <div class="inline-flex items-center px-4 py-2 bg-gray-700/50 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-300 border border-gray-600">
-                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span>
-                        Sistem: <span class="ml-1 text-green-400">Aktif & Terhubung</span>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="inline-flex items-center px-4 py-2 bg-gray-700/50 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-300 border border-gray-600">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span>
+                            Sistem: <span class="ml-1 text-green-400">Aktif</span>
+                        </div>
+                        <div class="inline-flex items-center px-4 py-2 bg-blue-900/30 rounded-full text-[10px] font-bold uppercase tracking-widest text-blue-300 border border-blue-800/50">
+                            🏢 Mode: <span class="ml-1 text-blue-400">Hybrid Enabled</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -118,7 +123,6 @@
     </div>
 
     <script>
-        // Logika script kamu tetap sama dan sudah benar
         (function() {
             if (sessionStorage.getItem('isLoggedIn') !== 'true') {
                 window.location.href = 'login.html';
