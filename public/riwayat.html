@@ -53,7 +53,6 @@
             background: linear-gradient(to bottom right, #3b82f6, #1e40af);
         }
 
-        /* Alur Timeline Styling */
         .timeline-step {
             position: relative;
             padding-left: 1.5rem;
@@ -75,7 +74,6 @@
         .timeline-success::before { background: #10b981; }
         .timeline-error::before { background: #ef4444; }
 
-        /* Styling Preview Dokumen agar konsisten */
         .preview-container {
             width: 100%;
             height: 250px;
@@ -141,29 +139,34 @@
         <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
 
         <main class="flex-1 flex flex-col overflow-y-auto">
-            <header class="bg-white border-b p-4 px-6 md:px-8 h-20 flex justify-between items-center shadow-sm flex-shrink-0 sticky top-0 z-30">
+            <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-6 h-20 flex-shrink-0 sticky top-0 z-30">
                 <div class="flex items-center flex-1">
                     <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg text-gray-600">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     </button>
                     <div class="relative w-full max-w-md hidden md:block">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🔍</span>
-                        <input type="text" id="searchInput" onkeyup="filterRiwayat()" placeholder="Cari Instansi atau Judul Konsultasi..." class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 text-xs placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition shadow-sm">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-xs">🔍</span>
+                        <input type="text" id="searchInput" onkeyup="filterRiwayat()" placeholder="Cari Instansi atau Judul Konsultasi..." class="block w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl bg-gray-50 text-[11px] placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition shadow-sm font-medium">
                     </div>
+                    <h2 class="md:hidden text-sm font-bold text-gray-800 uppercase tracking-wide">Riwayat</h2>
                 </div>
                 
-                <div class="flex items-center space-x-2 md:space-x-4">
-                    <button onclick="refreshData()" class="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 md:px-4 py-2 rounded-xl border border-gray-200 transition active:scale-95 shadow-sm">
+                <div class="flex items-center space-x-3">
+                    <button onclick="refreshData()" class="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 py-2 rounded-xl border border-gray-200 transition active:scale-95 shadow-sm">
                         <span id="refresh-icon">🔄</span>
-                        <span class="hidden md:inline text-[10px] font-bold uppercase tracking-widest">Refresh</span>
+                        <span class="hidden md:inline text-[10px] font-bold uppercase tracking-widest">Update</span>
                     </button>
-                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xl shadow-inner border border-gray-200">👤</div>
+                    <span id="display-user" class="hidden md:block text-[10px] font-bold text-gray-400 uppercase tracking-wider">User</span>
+                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border text-xl shadow-inner">👤</div>
                 </div>
             </header>
 
             <div class="p-4 md:p-8">
-                <div class="mb-4 md:hidden">
-                    <input type="text" id="searchInputMobile" onkeyup="filterRiwayatMobile()" placeholder="Cari Instansi atau Judul..." class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-white text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="mb-4 md:hidden px-2">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-xs">🔍</span>
+                        <input type="text" id="searchInputMobile" onkeyup="filterRiwayatMobile()" placeholder="Cari Instansi atau Judul..." class="w-full pl-9 pr-4 py-3 border border-gray-200 rounded-xl bg-white text-[11px] shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -197,6 +200,9 @@
             }
         })();
 
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.getElementById('display-user').innerText = sessionStorage.getItem('userName') || 'User';
+
         const API_URL = "https://script.google.com/macros/s/AKfycbxI7CDn0iJ48mX2NcNosdCAH-P1LZESQN76wKgTrqgcly-BvYxwaQbaAj65bEyidfqZ/exec";
 
         function toggleSidebar() {
@@ -207,8 +213,16 @@
         async function refreshData() {
             const icon = document.getElementById('refresh-icon');
             icon.classList.add('spin');
+            
+            const listTable = document.getElementById('listTable');
+            listTable.classList.add('opacity-50');
+            
             await loadData();
-            setTimeout(() => icon.classList.remove('spin'), 800);
+            
+            setTimeout(() => {
+                icon.classList.remove('spin');
+                listTable.classList.remove('opacity-50');
+            }, 800);
         }
 
         async function loadData() {
@@ -259,7 +273,6 @@
                 }
 
                 let timelineContent = "";
-                
                 timelineContent += `
                     <div class="timeline-step timeline-success">
                         <p class="text-[9px] font-bold text-gray-400 uppercase">Tahap 1: Pengajuan & Tanggapan</p>
@@ -281,7 +294,6 @@
                     else if(item.status_tl === "Menunggu Verifikasi") tlStatusText = `<span class="text-orange-600 font-medium">Bukti terkirim pada ${item.waktu_tl}</span><br>Penjelasan: "${item.bukti_tl.split('|')[0]}" ${previewTL}`;
                     else if(item.status_tl === "Perlu Perbaikan") { tlStatusText = `<span class="text-red-600 font-medium font-bold">⚠️ Perlu Perbaikan:</span> ${item.catatan_admin_tl} <br> ${previewTL}`; tlClass = "timeline-error"; }
                     else if(item.status_tl === "Tuntas") { tlStatusText = `<span class="text-teal-600 font-medium font-bold">✅ Sesuai (Tuntas):</span> Diverifikasi pada ${item.waktu_verifikasi}. <br><span class="italic text-gray-500">Catatan Auditor: ${item.catatan_admin_tl}</span> ${previewTL}`; tlClass = "timeline-success"; }
-
                     timelineContent += `<div class="timeline-step ${tlClass}"><p class="text-[9px] font-bold text-gray-400 uppercase">Tahap 2: Monitoring Tindak Lanjut</p><div class="text-xs text-gray-700 mt-1">${tlStatusText}</div></div>`;
                 }
 
