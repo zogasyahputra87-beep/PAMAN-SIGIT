@@ -9,9 +9,9 @@
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        /* PROTEKSI: Menyembunyikan laman sampai verifikasi Admin selesai */
         body {
             user-select: none;
             -webkit-user-select: none;
@@ -21,7 +21,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Bingkai gradasi halus untuk foto profil pengembang */
         .profile-ring {
             padding: 2px;
             background: linear-gradient(to bottom right, #3b82f6, #1e40af);
@@ -51,10 +50,7 @@
 
             <div class="p-6 border-t border-gray-700 flex flex-col items-center bg-gray-800/50">
                 <div class="w-16 h-16 rounded-full profile-ring shadow-lg mb-3 overflow-hidden bg-gray-700 flex items-center justify-center">
-                    <img src="../pages/zoga.jpg" 
-                         alt="Ananda Zoga" 
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                         class="w-full h-full object-cover rounded-full">
+                    <img src="../pages/zoga.jpg" alt="Ananda Zoga" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover rounded-full">
                     <div class="hidden w-full h-full items-center justify-center text-xs font-bold text-white uppercase">AZ</div>
                 </div>
                 <div class="text-center">
@@ -73,7 +69,7 @@
                     <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg text-gray-600 hover:bg-gray-200 transition">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     </button>
-                    <h2 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Moderasi Pertanyaan & Jawaban</h2>
+                    <h2 class="font-bold text-gray-800 uppercase text-sm tracking-wide">Moderasi Pertanyaan & Monitoring TL</h2>
                 </div>
                 <button onclick="fetchAdmin()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold hover:bg-blue-700 uppercase shadow-md transition active:scale-95">🔄 Refresh Data</button>
             </header>
@@ -85,7 +81,7 @@
                             <thead class="bg-gray-50 border-b border-gray-100">
                                 <tr class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                     <th class="p-5">Waktu & Instansi</th>
-                                    <th class="p-5">Detail Masalah & Jawaban</th>
+                                    <th class="p-5">Detail Konsultasi & Monitoring TL</th>
                                     <th class="p-5 text-center">Status</th>
                                     <th class="p-5 text-center">Tindakan</th>
                                 </tr>
@@ -103,19 +99,10 @@
         (function() {
             const isLoggedIn = sessionStorage.getItem('isLoggedIn');
             const userRole = sessionStorage.getItem('userRole');
-
-            if (isLoggedIn !== 'true') {
-                window.location.href = 'login.html';
-            } else if (userRole !== 'admin') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Akses Ditolak',
-                    text: 'Laman ini khusus untuk Admin!',
-                    confirmButtonColor: '#1F2937'
-                }).then(() => { window.location.href = 'index.html'; });
-            } else {
-                document.body.style.display = "block";
-            }
+            if (isLoggedIn !== 'true') { window.location.href = 'login.html'; } 
+            else if (userRole !== 'admin') { 
+                Swal.fire({ icon: 'error', title: 'Akses Ditolak', text: 'Laman khusus Admin!', confirmButtonColor: '#1F2937' }).then(() => { window.location.href = 'index.html'; });
+            } else { document.body.style.display = "block"; }
         })();
 
         const API_URL = "https://script.google.com/macros/s/AKfycbzACBKApDa1eooecW61hN0BNG-tcrUifNTk8Qa5R42eYWbpbcxqZhxbYwmZVxFAuexi/exec";
@@ -125,30 +112,10 @@
             document.getElementById('overlay').classList.toggle('hidden');
         }
 
-        function logout() {
-            Swal.fire({
-                title: 'Keluar Admin Panel?',
-                text: "Anda harus login kembali untuk mengelola data.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#1F2937',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Keluar!',
-                cancelButtonText: 'Batal',
-                customClass: { popup: 'rounded-3xl' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    sessionStorage.clear();
-                    window.location.href = 'login.html';
-                }
-            });
-        }
-
         async function fetchAdmin() {
             const loader = document.getElementById('loader');
             const adminBody = document.getElementById('adminBody');
             loader.classList.remove('hidden');
-            loader.innerText = "Sedang mengambil data...";
             adminBody.innerHTML = "";
             
             try {
@@ -162,142 +129,127 @@
                 }
 
                 adminBody.innerHTML = data.reverse().map(item => {
-                    const id = item.id || "-";
+                    const id = item.id;
                     const status = item.status || "Menunggu";
-                    const lampiran = item.lampiran || "";
+                    const isTerjawab = status === 'Terjawab' || status === 'Selesai';
                     
-                    // --- PERBAIKAN LOGIKA DISINI ---
-                    // Menggunakan .includes() agar pencarian kata 'offline' lebih fleksibel
-                    const teksMetode = item.metode ? String(item.metode).toLowerCase().trim() : "";
-                    const isOffline = teksMetode.includes("offline");
-                    
-                    const metodeTag = isOffline 
-                        ? `<div class="mt-2 flex flex-col space-y-1">
-                             <span class="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 text-[9px] font-black rounded border border-purple-200 uppercase tracking-tighter text-left w-fit">Offline / Tatap Muka</span>
-                             <span class="text-[9px] text-purple-600 font-bold italic text-left">📅 Ajuan: ${item.tgl_offline || '-'}</span>
-                           </div>`
-                        : `<div class="mt-2 text-left">
-                             <span class="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-[9px] font-black rounded border border-blue-200 uppercase tracking-tighter w-fit">Online / Digital</span>
-                           </div>`;
+                    const metodeDb = item.metode ? item.metode.toString().trim().toLowerCase() : "online";
+                    const metodeTag = metodeDb.includes("offline") 
+                        ? `<div class="mt-2 flex flex-col space-y-1"><span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[9px] font-black uppercase border border-purple-200 w-fit">Offline</span><span class="text-[9px] text-purple-600 font-bold italic">📅 ${item.tgl_offline || '-'}</span></div>`
+                        : `<div class="mt-2"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[9px] font-black uppercase border border-blue-200 w-fit">Online</span></div>`;
+
+                    // PANEL TINDAK LANJUT (Monitoring TL)
+                    let tlPanel = "";
+                    if (isTerjawab) {
+                        if (item.status_tl === "Menunggu Verifikasi") {
+                            tlPanel = `
+                                <div class="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-xl animate__animated animate__fadeIn">
+                                    <p class="text-[10px] font-bold text-orange-700 uppercase mb-2">🚩 Verifikasi Bukti TL OPD:</p>
+                                    <div class="text-xs text-gray-700 mb-3 bg-white p-3 rounded-lg border border-orange-100 italic">"${item.bukti_tl}"</div>
+                                    <textarea id="catatan-tl-${id}" class="w-full p-3 text-xs border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none mb-3" rows="2" placeholder="Berikan catatan verifikasi (Apresiasi atau Alasan Perbaikan)..."></textarea>
+                                    <div class="flex space-x-2">
+                                        <button onclick="prosesVerifikasi(${id}, 'Tuntas')" class="flex-1 bg-teal-600 text-white py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-teal-700 transition shadow-md">Terima (Tuntas)</button>
+                                        <button onclick="prosesVerifikasi(${id}, 'Perlu Perbaikan')" class="flex-1 bg-white text-red-600 border border-red-200 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-red-50 transition">Perlu Perbaikan</button>
+                                    </div>
+                                </div>`;
+                        } else if (item.status_tl === "Tuntas") {
+                            tlPanel = `
+                                <div class="mt-4 p-3 bg-teal-50 border border-teal-200 rounded-xl flex items-center">
+                                    <span class="text-xl mr-3">✅</span>
+                                    <div><p class="text-[10px] font-bold text-teal-700 uppercase">Tindak Lanjut Tuntas</p><p class="text-[11px] text-gray-600 italic">Catatan: ${item.catatan_admin_tl}</p></div>
+                                </div>`;
+                        } else if (item.status_tl === "Perlu Perbaikan") {
+                            tlPanel = `
+                                <div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl">
+                                    <p class="text-[10px] font-bold text-red-700 uppercase">⌛ Menunggu Revisi OPD</p>
+                                    <p class="text-[11px] text-gray-500 italic">Alasan: ${item.catatan_admin_tl}</p>
+                                </div>`;
+                        }
+                    }
 
                     return `
                     <tr class="hover:bg-gray-50/50 transition border-b border-gray-100">
-                        <td class="p-5 align-top w-48 text-left">
-                            <div class="text-[10px] text-blue-600 font-bold mb-1 uppercase italic tracking-tighter">📅 ${item.waktu}</div>
-                            <div class="font-bold text-gray-800 leading-tight uppercase text-xs">${item.opd}</div>
+                        <td class="p-5 align-top w-48">
+                            <div class="text-[10px] text-blue-600 font-bold mb-1 italic">📅 ${item.waktu}</div>
+                            <div class="font-bold text-gray-800 uppercase text-xs">${item.opd}</div>
                             ${metodeTag}
                         </td>
                         <td class="p-5 align-top">
-                            <div class="font-bold text-gray-800 mb-1 text-left">${item.judul}</div>
-                            <div class="text-xs text-gray-500 mb-3 bg-gray-50 p-3 rounded-lg border border-gray-100 italic text-left">
-                                "${item.issue}"
+                            <div class="font-bold text-gray-800 mb-1">${item.judul}</div>
+                            <div class="text-xs text-gray-500 mb-3 italic bg-gray-50 p-3 rounded-lg border border-gray-100">"${item.issue}"</div>
+                            <div class="mb-4">
+                                ${item.lampiran && item.lampiran !== "-" ? `<a href="${item.lampiran}" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase shadow-sm">📂 Lampiran</a>` : `<span class="text-[9px] text-gray-400 italic">Tanpa lampiran</span>`}
                             </div>
-                            <div class="mb-4 text-left">
-                                ${lampiran && lampiran !== "-" ? 
-                                    `<a href="${lampiran}" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded-lg text-[10px] font-bold hover:bg-blue-700 transition shadow-sm uppercase active:scale-95">📂 Buka Lampiran</a>` : 
-                                    `<span class="text-[9px] text-gray-400 italic">Tanpa lampiran</span>`
-                                }
-                            </div>
-                            ${status === 'Selesai' ? 
-                                `<div class="p-3 bg-green-50 rounded-xl border border-green-200 text-xs text-gray-700 italic text-left">
-                                    <span class="block font-bold text-green-700 text-[9px] uppercase mb-1 text-left">Jawaban/Hasil Pertemuan:</span> "${item.jawaban}"
-                                </div>` : 
-                                `<textarea id="reply-${id}" class="w-full p-3 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" rows="2" placeholder="Tulis jawaban atau catatan kesepakatan tatap muka..."></textarea>`
+                            ${isTerjawab ? 
+                                `<div class="p-3 bg-green-50 rounded-xl border border-green-200 text-xs text-gray-700 italic"><span class="block font-bold text-green-700 text-[9px] uppercase mb-1">Tanggapan Inspektorat:</span> "${item.jawaban}"</div>` : 
+                                `<textarea id="reply-${id}" class="w-full p-3 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" rows="2" placeholder="Tulis jawaban atau saran perbaikan..."></textarea>`
                             }
+                            ${tlPanel}
                         </td>
                         <td class="p-5 text-center align-top pt-8 w-32">
-                            <span class="inline-block w-24 py-1 text-[9px] font-bold rounded-full border ${status === 'Selesai' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'} uppercase text-center">
-                                ${status}
-                            </span>
+                            <span class="inline-block w-24 py-1 text-[9px] font-bold rounded-full border ${isTerjawab ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'} uppercase text-center">${status}</span>
+                            ${item.status_tl === "Menunggu Verifikasi" ? `<div class="mt-2 animate-pulse inline-block bg-orange-500 text-white text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">Ada TL Masuk!</div>` : ''}
                         </td>
                         <td class="p-5 text-center align-top pt-6 w-40">
                             <div class="flex flex-col space-y-2">
-                                ${status !== 'Selesai' ? 
-                                    `<button onclick="konfirmasiBalas(${id})" class="bg-blue-600 text-white py-2 rounded-lg text-[10px] font-bold hover:bg-blue-700 transition uppercase shadow-md active:scale-95">Kirim Jawaban</button>` : 
-                                    `<button onclick="batalSelesai(${id})" class="bg-orange-500 text-white py-2 rounded-lg text-[10px] font-bold hover:bg-orange-600 transition uppercase shadow-md active:scale-95">Ubah Jawaban</button>`
-                                }
-                                <a href="https://wa.me/${item.whatsapp}" target="_blank" class="bg-white border border-gray-300 text-gray-600 py-2 rounded-lg text-[10px] font-bold hover:bg-gray-100 transition text-center uppercase active:scale-95">WhatsApp</a>
+                                ${!isTerjawab ? `<button onclick="konfirmasiBalas(${id})" class="bg-blue-600 text-white py-2 rounded-lg text-[10px] font-bold uppercase shadow-md active:scale-95 transition">Kirim Jawaban</button>` : `<button onclick="batalSelesai(${id})" class="bg-orange-500 text-white py-2 rounded-lg text-[10px] font-bold uppercase shadow-md transition">Ubah Jawaban</button>`}
+                                <a href="https://wa.me/${item.whatsapp}" target="_blank" class="bg-white border border-gray-300 text-gray-600 py-2 rounded-lg text-[10px] font-bold text-center uppercase active:scale-95 transition">WhatsApp</a>
                             </div>
                         </td>
                     </tr>`;
                 }).join('');
-            } catch (e) {
-                loader.innerHTML = `<span class="text-red-500 font-bold uppercase">⚠️ Gagal terhubung ke server.</span>`;
-            }
+            } catch (e) { loader.innerHTML = `<span class="text-red-500 font-bold uppercase">⚠️ Gagal terhubung ke server.</span>`; }
         }
 
-        // ... Sisa fungsi (batalSelesai, konfirmasiBalas, dll) tetap sama ...
-        
-        function batalSelesai(rowId) {
-            Swal.fire({
-                title: 'Ubah Jawaban?',
-                text: "Status akan kembali menjadi 'Menunggu' dan Anda dapat menulis jawaban baru.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#f97316',
-                cancelButtonColor: '#aaa',
-                confirmButtonText: 'Ya, Ubah!',
-                cancelButtonText: 'Batal',
-                customClass: { popup: 'rounded-3xl' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    eksekusiBatalSelesai(rowId);
-                }
-            });
-        }
+        async function prosesVerifikasi(rowId, statusTL) {
+            const catatan = document.getElementById(`catatan-tl-${rowId}`).value.trim();
+            if(!catatan) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'Harap berikan catatan verifikasi!' }); return; }
 
-        async function eksekusiBatalSelesai(rowId) {
             Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             try {
                 await fetch(API_URL, {
                     method: 'POST',
-                    body: JSON.stringify({ action: "batal_selesai", row: rowId })
+                    body: JSON.stringify({ action: "verifikasi_tindak_lanjut", row: rowId, status_tl: statusTL, catatan: catatan })
                 });
-                Swal.fire({ icon: 'success', title: 'Siap!', text: 'Silakan masukkan jawaban baru.', timer: 1500, showConfirmButton: false });
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: `Tindak lanjut telah di-${statusTL === 'Tuntas' ? 'terima' : 'kembalikan'}.`, timer: 1500, showConfirmButton: false });
                 fetchAdmin();
-            } catch (error) {
-                fetchAdmin();
-            }
+            } catch (error) { fetchAdmin(); }
         }
 
         function konfirmasiBalas(rowId) {
             const replyBox = document.getElementById(`reply-${rowId}`);
-            if(!replyBox.value.trim()) {
-                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Jawaban tidak boleh kosong!', confirmButtonColor: '#1F2937' });
-                return;
-            }
-            Swal.fire({
-                title: 'Kirim Jawaban?',
-                text: "Pastikan jawaban sudah benar.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#1F2937',
-                cancelButtonColor: '#aaa',
-                confirmButtonText: 'Ya, Kirim!',
-                cancelButtonText: 'Batal',
-                customClass: { popup: 'rounded-3xl' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    kirimJawaban(rowId, replyBox.value.trim());
-                }
+            if(!replyBox.value.trim()) { Swal.fire({ icon: 'error', title: 'Oops...', text: 'Jawaban tidak boleh kosong!' }); return; }
+            Swal.fire({ title: 'Kirim Jawaban?', text: "Pastikan arahan sudah sesuai regulasi.", icon: 'question', showCancelButton: true, confirmButtonColor: '#1F2937', confirmButtonText: 'Ya, Kirim!' }).then((result) => {
+                if (result.isConfirmed) { kirimJawaban(rowId, replyBox.value.trim()); }
             });
         }
 
         async function kirimJawaban(rowId, isiJawaban) {
             Swal.fire({ title: 'Mengirim...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: "simpan_jawaban", row: rowId, isi_jawaban: isiJawaban })
-                });
-                Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Jawaban telah tersimpan.', timer: 1500, showConfirmButton: false });
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "simpan_jawaban", row: rowId, isi_jawaban: isiJawaban }) });
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Jawaban terkirim.', timer: 1500, showConfirmButton: false });
                 fetchAdmin();
-            } catch (error) {
+            } catch (error) { fetchAdmin(); }
+        }
+
+        async function eksekusiBatalSelesai(rowId) {
+            Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            try {
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "batal_selesai", row: rowId }) });
                 fetchAdmin();
-            }
+                Swal.close();
+            } catch (error) { fetchAdmin(); }
+        }
+
+        function batalSelesai(rowId) {
+            Swal.fire({ title: 'Ubah Jawaban?', text: "Status akan kembali menjadi 'Menunggu'.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#f97316', confirmButtonText: 'Ya, Ubah!' }).then((result) => {
+                if (result.isConfirmed) { eksekusiBatalSelesai(rowId); }
+            });
         }
 
         window.onload = fetchAdmin;
+        function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
     </script>
 </body>
 </html>
