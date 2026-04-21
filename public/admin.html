@@ -11,7 +11,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* PROTEKSI: Menyembunyikan laman sampai verifikasi Admin selesai */
         body {
             user-select: none;
             -webkit-user-select: none;
@@ -21,7 +20,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Bingkai gradasi halus untuk foto profil pengembang */
         .profile-ring {
             padding: 2px;
             background: linear-gradient(to bottom right, #3b82f6, #1e40af);
@@ -37,7 +35,7 @@
                 <img src="../pages/logo_kab.png" alt="Logo Kab Malang" class="w-14 mb-3 drop-shadow-md">
                 <div class="text-center">
                     <h1 class="text-xl font-bold text-white tracking-tight uppercase">Admin Panel</h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight text-center">Inspektorat Daerah<br>Kabupaten Malang</p>
+                    <p class="text-[9px] text-gray-500 uppercase tracking-widest leading-tight text-center">Inspektorat Daerah<br>Kabupaten Malang</p>
                 </div>
                 <button onclick="toggleSidebar()" class="md:hidden absolute top-4 right-4 text-gray-400">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -100,7 +98,6 @@
     </div>
 
     <script>
-        // --- 1. PROTEKSI KEAMANAN ADMIN ---
         (function() {
             const isLoggedIn = sessionStorage.getItem('isLoggedIn');
             const userRole = sessionStorage.getItem('userRole');
@@ -118,13 +115,6 @@
                 document.body.style.display = "block";
             }
         })();
-
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.onkeydown = function(e) {
-            if (e.keyCode == 123) return false;
-            if (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) return false;
-            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
-        };
 
         const API_URL = "https://script.google.com/macros/s/AKfycbyX-a7p08hDx5yT-GCznvANR0Ttc_XT5CE5QtBRR_JVYuR5V4XMTdrYNoppQQhLLf9b/exec";
 
@@ -173,12 +163,18 @@
                     const id = item.id || "-";
                     const status = item.status || "Menunggu";
                     const lampiran = item.lampiran || "";
+                    
+                    // INDIKATOR METODE (BARU)
+                    const metodeTag = item.metode === 'Offline' 
+                        ? `<div class="mt-2 inline-block px-2 py-1 bg-purple-100 text-purple-700 text-[9px] font-black rounded border border-purple-200 uppercase tracking-tighter">Offline: ${item.tgl_offline}</div>`
+                        : `<div class="mt-2 inline-block px-2 py-1 bg-blue-100 text-blue-700 text-[9px] font-black rounded border border-blue-200 uppercase tracking-tighter">Online</div>`;
 
                     return `
                     <tr class="hover:bg-gray-50/50 transition border-b border-gray-100">
-                        <td class="p-5 align-top w-48">
+                        <td class="p-5 align-top w-48 text-left">
                             <div class="text-[10px] text-blue-600 font-bold mb-1 uppercase italic tracking-tighter">📅 ${item.waktu}</div>
-                            <div class="font-bold text-gray-800 leading-tight uppercase text-xs text-left">${item.opd}</div>
+                            <div class="font-bold text-gray-800 leading-tight uppercase text-xs">${item.opd}</div>
+                            ${metodeTag}
                         </td>
                         <td class="p-5 align-top">
                             <div class="font-bold text-gray-800 mb-1 text-left">${item.judul}</div>
@@ -193,9 +189,9 @@
                             </div>
                             ${status === 'Selesai' ? 
                                 `<div class="p-3 bg-green-50 rounded-xl border border-green-200 text-xs text-gray-700 italic text-left">
-                                    <span class="block font-bold text-green-700 text-[9px] uppercase mb-1 text-left">Jawaban Anda:</span> "${item.jawaban}"
+                                    <span class="block font-bold text-green-700 text-[9px] uppercase mb-1 text-left">Jawaban/Hasil Pertemuan:</span> "${item.jawaban}"
                                 </div>` : 
-                                `<textarea id="reply-${id}" class="w-full p-3 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" rows="2" placeholder="Tulis tanggapan resmi di sini..."></textarea>`
+                                `<textarea id="reply-${id}" class="w-full p-3 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" rows="2" placeholder="Tulis jawaban atau catatan kesepakatan tatap muka..."></textarea>`
                             }
                         </td>
                         <td class="p-5 text-center align-top pt-8 w-32">
@@ -206,7 +202,7 @@
                         <td class="p-5 text-center align-top pt-6 w-40">
                             <div class="flex flex-col space-y-2">
                                 ${status !== 'Selesai' ? 
-                                    `<button onclick="konfirmasiBalas(${id})" class="bg-blue-600 text-white py-2 rounded-lg text-[10px] font-bold hover:bg-blue-700 transition uppercase shadow-md active:scale-95">Kirim Balasan</button>` : 
+                                    `<button onclick="konfirmasiBalas(${id})" class="bg-blue-600 text-white py-2 rounded-lg text-[10px] font-bold hover:bg-blue-700 transition uppercase shadow-md active:scale-95">Kirim Jawaban</button>` : 
                                     `<button onclick="batalSelesai(${id})" class="bg-orange-500 text-white py-2 rounded-lg text-[10px] font-bold hover:bg-orange-600 transition uppercase shadow-md active:scale-95">Ubah Jawaban</button>`
                                 }
                                 <a href="https://wa.me/${item.whatsapp}" target="_blank" class="bg-white border border-gray-300 text-gray-600 py-2 rounded-lg text-[10px] font-bold hover:bg-gray-100 transition text-center uppercase active:scale-95">WhatsApp</a>
@@ -254,12 +250,12 @@
         function konfirmasiBalas(rowId) {
             const replyBox = document.getElementById(`reply-${rowId}`);
             if(!replyBox.value.trim()) {
-                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Tanggapan tidak boleh kosong!', confirmButtonColor: '#1F2937' });
+                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Jawaban tidak boleh kosong!', confirmButtonColor: '#1F2937' });
                 return;
             }
             Swal.fire({
                 title: 'Kirim Jawaban?',
-                text: "Pastikan tanggapan sudah sesuai dengan regulasi.",
+                text: "Pastikan jawaban sudah benar.",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#1F2937',
@@ -281,7 +277,7 @@
                     method: 'POST',
                     body: JSON.stringify({ action: "simpan_jawaban", row: rowId, isi_jawaban: isiJawaban })
                 });
-                Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Jawaban telah dikirim.', timer: 1500, showConfirmButton: false });
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Jawaban telah tersimpan.', timer: 1500, showConfirmButton: false });
                 fetchAdmin();
             } catch (error) {
                 fetchAdmin();
