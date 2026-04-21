@@ -21,7 +21,7 @@
             padding: 2px;
             background: linear-gradient(to bottom right, #3b82f6, #1e40af);
         }
-        .stat-card { @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-md; }
+        .stat-card { @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-md bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 overflow-hidden">
@@ -86,27 +86,32 @@
             </header>
 
             <div class="p-6 md:p-8 max-w-7xl mx-auto w-full">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                    <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4 text-2xl">📋</div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Masuk</p>
-                        <h3 id="stat-total" class="text-3xl font-black text-gray-800 animate-pulse">...</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-8">
+                    <div class="stat-card">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-3 text-xl">📋</div>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Masuk</p>
+                        <h3 id="stat-total" class="text-2xl font-black text-gray-800 animate-pulse">...</h3>
                     </div>
-                    <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 bg-yellow-50 text-yellow-600 rounded-xl flex items-center justify-center mb-4 text-2xl">⏳</div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Butuh Jawaban</p>
-                        <h3 id="stat-pending" class="text-3xl font-black text-yellow-600 animate-pulse">...</h3>
+                    <div class="stat-card">
+                        <div class="w-10 h-10 bg-yellow-50 text-yellow-600 rounded-xl flex items-center justify-center mb-3 text-xl">⏳</div>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Butuh Jawaban</p>
+                        <h3 id="stat-pending" class="text-2xl font-black text-yellow-600 animate-pulse">...</h3>
                     </div>
-                    <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-orange-100 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-4 text-2xl">🚩</div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Verifikasi TL</p>
-                        <h3 id="stat-verif" class="text-3xl font-black text-orange-600 animate-pulse">...</h3>
+                    <div class="stat-card">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center mb-3 text-xl">🚀</div>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Proses TL</p>
+                        <h3 id="stat-proses-tl" class="text-2xl font-black text-blue-500 animate-pulse">...</h3>
+                    </div>
+                    <div class="stat-card relative overflow-hidden">
+                        <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-3 text-xl">🚩</div>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Verifikasi TL</p>
+                        <h3 id="stat-verif" class="text-2xl font-black text-orange-600 animate-pulse">...</h3>
                         <div id="ping-tl" class="hidden absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
                     </div>
-                    <div class="stat-card bg-white p-6 rounded-2xl shadow-sm border border-teal-100 flex flex-col items-center justify-center text-center">
-                        <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-4 text-2xl">🏆</div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tuntas TL</p>
-                        <h3 id="stat-done" class="text-3xl font-black text-teal-600 animate-pulse">...</h3>
+                    <div class="stat-card">
+                        <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-3 text-xl">🏆</div>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tuntas TL</p>
+                        <h3 id="stat-done" class="text-2xl font-black text-teal-600 animate-pulse">...</h3>
                     </div>
                 </div>
 
@@ -160,23 +165,28 @@
                 const response = await fetch(API_URL);
                 const data = await response.json();
                 
-                // Menghitung statistik berdasarkan siklus TL
+                // Perhitungan Statistik sesuai Siklus
                 const total = data.length;
                 const pending = data.filter(item => item.status === 'Menunggu').length;
+                
+                // Proses TL: Sudah dijawab Auditor, tapi OPD belum mengirim TL (Status TL masih "Belum TL")
+                const prosesTl = data.filter(item => item.status === 'Terjawab' && item.status_tl === 'Belum TL').length;
+                
                 const verifTl = data.filter(item => item.status_tl === 'Menunggu Verifikasi').length;
                 const tuntas = data.filter(item => item.status_tl === 'Tuntas').length;
 
                 // Update Elemen HTML
                 document.getElementById('stat-total').innerText = total;
                 document.getElementById('stat-pending').innerText = pending;
+                document.getElementById('stat-proses-tl').innerText = prosesTl;
                 document.getElementById('stat-verif').innerText = verifTl;
                 document.getElementById('stat-done').innerText = tuntas;
 
-                // Indikator Notifikasi TL
+                // Indikator Notifikasi TL (Ping merah)
                 if(verifTl > 0) document.getElementById('ping-tl').classList.remove('hidden');
 
-                // Hilangkan animasi pulse
-                ['stat-total', 'stat-pending', 'stat-verif', 'stat-done'].forEach(id => {
+                // Hilangkan animasi pulse setelah data masuk
+                ['stat-total', 'stat-pending', 'stat-proses-tl', 'stat-verif', 'stat-done'].forEach(id => {
                     document.getElementById(id).classList.remove('animate-pulse');
                 });
                 
