@@ -130,7 +130,7 @@
 
         function renderTable(dataToRender) {
             const adminBody = document.getElementById('adminBody');
-            if (dataToRender.length === 0) {
+            if (!dataToRender || dataToRender.length === 0) {
                 adminBody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-gray-400 italic">Belum ada data masuk.</td></tr>`;
                 return;
             }
@@ -157,7 +157,7 @@
                     </div>
                     <div class="timeline-step ${isTerjawab ? 'timeline-success' : 'timeline-active'}">
                         <p class="text-[9px] font-bold text-gray-400 uppercase">Tahap 2: Jawaban Auditor</p>
-                        <p class="text-xs text-gray-700 mt-1">${isTerjawab ? `<span class="text-green-600 font-bold">Jawaban:</span> ${item.jawaban} <br><span class="text-[10px] text-gray-400">Pukul: ${new Date(item.waktu_jawaban).toLocaleString('id-ID')}</span>` : 'Menunggu respon Anda...'}</p>
+                        <p class="text-xs text-gray-700 mt-1">${isTerjawab ? `<span class="text-green-600 font-bold">Jawaban:</span> ${item.jawaban} <br><span class="text-[10px] text-gray-400">Pukul: ${item.waktu_jawaban ? new Date(item.waktu_jawaban).toLocaleString('id-ID') : '-'}</span>` : 'Menunggu respon Anda...'}</p>
                     </div>
                 `;
 
@@ -210,33 +210,54 @@
             const reply = document.getElementById(`reply-${id}`).value;
             if(!reply.trim()) return Swal.fire('Error', 'Tulis jawaban dulu!', 'error');
             
-            Swal.fire({ title: 'Mengirim...', didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'Mengirim...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
-                await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, {
                     method: 'PATCH',
                     headers: headers,
-                    body: JSON.stringify({ jawaban: reply, waktu_jawaban: new Date().toISOString(), status: 'Terjawab' })
+                    body: JSON.stringify({ 
+                        jawaban: reply, 
+                        waktu_jawaban: new Date().toISOString(), 
+                        status: 'Terjawab' 
+                    })
                 });
-                fetchAdmin(); Swal.close();
-            } catch (e) { Swal.fire('Gagal', 'Sistem error', 'error'); }
+
+                if(!res.ok) throw new Error("Gagal menyimpan ke database");
+
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Jawaban terkirim.', timer: 1500, showConfirmButton: false });
+                fetchAdmin(); 
+            } catch (e) { 
+                Swal.fire('Gagal', 'Terjadi kesalahan saat menyimpan jawaban. Pastikan Policy UPDATE di Supabase sudah aktif.', 'error'); 
+            }
         }
 
         async function prosesVerifikasi(id, status) {
             const catatan = document.getElementById(`catatan-tl-${id}`).value;
             if(!catatan.trim()) return Swal.fire('Error', 'Catatan wajib diisi!', 'error');
 
+            Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
-                await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, {
                     method: 'PATCH',
                     headers: headers,
-                    body: JSON.stringify({ status_tl: status, catatan_admin_tl: catatan, waktu_verifikasi: new Date().toISOString() })
+                    body: JSON.stringify({ 
+                        status_tl: status, 
+                        catatan_admin_tl: catatan, 
+                        waktu_verifikasi: new Date().toISOString() 
+                    })
                 });
+
+                if(!res.ok) throw new Error("Gagal verifikasi");
+
+                Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Status diperbarui.', timer: 1500, showConfirmButton: false });
                 fetchAdmin();
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                Swal.fire('Error', 'Gagal memproses verifikasi.', 'error');
+            }
         }
 
         async function batalSelesai(id) {
-            Swal.fire({ title: 'Buka Kembali?', text: 'Jawaban lama akan dihapus.', icon: 'warning', showCancelButton: true }).then(async (res) => {
+            Swal.fire({ title: 'Ubah Jawaban?', text: 'Status akan dikembalikan ke Menunggu.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#1F2937' }).then(async (res) => {
                 if(res.isConfirmed) {
                     await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, {
                         method: 'PATCH',
@@ -250,7 +271,10 @@
 
         function filterData() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = rawData.filter(item => item.instansi.toLowerCase().includes(query) || item.judul_masalah.toLowerCase().includes(query));
+            const filtered = rawData.filter(item => 
+                (item.instansi && item.instansi.toLowerCase().includes(query)) || 
+                (item.judul_masalah && item.judul_masalah.toLowerCase().includes(query))
+            );
             renderTable(filtered);
         }
 
