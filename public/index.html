@@ -53,12 +53,12 @@
             </nav>
 
             <div class="p-6 border-t border-gray-700 flex flex-col items-center bg-gray-800/50">
-                <div class="w-16 h-16 rounded-full profile-ring shadow-lg mb-3 overflow-hidden bg-gray-600 flex items-center justify-center text-white text-xl font-bold">
-                    <span id="side-initials">OPD</span>
+                <div class="w-16 h-16 rounded-full profile-ring shadow-lg mb-3 overflow-hidden bg-gray-700">
+                    <img src="../pages/zoga.jpg" alt="Zoga" onerror="this.src='https://ui-avatars.com/api/?name=Ananda+Zoga'" class="w-full h-full object-cover">
                 </div>
-                <div class="text-center px-4">
-                    <p id="side-opd-name" class="text-[10px] font-bold text-gray-100 uppercase leading-tight mb-1">NAMA OPD</p>
-                    <p id="side-username" class="text-[8px] text-gray-400 uppercase tracking-widest">@username</p>
+                <div class="text-center">
+                    <p class="text-[9px] text-blue-400 uppercase font-black tracking-tighter mb-1">Pengembang Sistem</p>
+                    <p class="text-[11px] font-bold text-gray-100 uppercase text-center leading-tight">Ananda Zoga Syahputra, S.Tr.I.P.</p>
                 </div>
                 <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition active:scale-95">Keluar Sistem</button>
             </div>
@@ -67,45 +67,54 @@
         <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
         
         <main class="flex-1 flex flex-col overflow-y-auto">
-             <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-6 h-20 flex-shrink-0 sticky top-0 z-30">
+            <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-6 h-20 flex-shrink-0 sticky top-0 z-30">
                 <div class="flex items-center">
                     <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg text-gray-600">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     </button>
                     <div class="flex flex-col">
-                        <h2 class="text-sm md:text-lg font-black text-gray-800 uppercase tracking-tighter">Ringkasan Layanan</h2>
-                        <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Statistik Keseluruhan OPD</p>
+                        <h2 class="text-sm md:text-lg font-black text-gray-800 uppercase tracking-tighter leading-tight">Dashboard Layanan</h2>
+                        <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Statistik Global Kabupaten Malang</p>
                     </div>
                 </div>
                 
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-4">
                     <button onclick="manualRefresh()" id="btn-refresh" class="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 py-2 rounded-xl border border-gray-200 transition active:scale-95 shadow-sm">
                         <span id="icon-refresh">🔄</span>
                         <span class="hidden md:inline text-[10px] font-bold uppercase tracking-widest font-black">Refresh</span>
                     </button>
-                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border text-xl shadow-inner">👤</div>
+
+                    <div class="flex items-center pl-4 border-l border-gray-200">
+                        <div class="text-right mr-3 hidden md:block">
+                            <p id="head-opd-name" class="text-[10px] font-black text-gray-800 uppercase leading-none mb-1">NAMA OPD</p>
+                            <p id="head-username" class="text-[9px] text-blue-600 font-bold tracking-tight">@username</p>
+                        </div>
+                        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-lg ring-2 ring-blue-50 ring-offset-2">
+                            <span id="head-initials">--</span>
+                        </div>
+                    </div>
                 </div>
             </header>
 
             <div class="p-6 md:p-8 max-w-7xl mx-auto w-full">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <div class="stat-card border-l-4 border-l-blue-500">
+                    <div class="stat-card border-b-4 border-b-blue-500">
                         <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-3 text-xl">📋</div>
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Konsultasi</p>
                         <h3 id="stat-total" class="text-3xl font-black text-gray-800 animate-pulse">...</h3>
                     </div>
-                    <div class="stat-card border-l-4 border-l-yellow-500">
+                    <div class="stat-card border-b-4 border-b-yellow-500">
                         <div class="w-10 h-10 bg-yellow-50 text-yellow-600 rounded-xl flex items-center justify-center mb-3 text-xl">⏳</div>
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sedang Diproses</p>
                         <h3 id="stat-pending" class="text-3xl font-black text-yellow-600 animate-pulse">...</h3>
                     </div>
-                    <div class="stat-card border-l-4 border-l-orange-500 relative">
+                    <div class="stat-card border-b-4 border-b-orange-500 relative">
                         <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-3 text-xl">🚩</div>
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Verifikasi TL</p>
                         <h3 id="stat-verif" class="text-3xl font-black text-orange-600 animate-pulse">...</h3>
                         <div id="ping-tl" class="hidden absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
                     </div>
-                    <div class="stat-card border-l-4 border-l-teal-500">
+                    <div class="stat-card border-b-4 border-b-teal-500">
                         <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-3 text-xl">🏆</div>
                         <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tuntas (Selesai)</p>
                         <h3 id="stat-done" class="text-3xl font-black text-teal-600 animate-pulse">...</h3>
@@ -116,15 +125,12 @@
                     <div class="relative z-10">
                         <h3 class="text-2xl font-black mb-2 text-blue-400 uppercase tracking-tighter">Portal SiCODI Kabupaten Malang</h3>
                         <p class="text-gray-400 text-sm leading-relaxed mb-6 max-w-2xl">
-                            Selamat Datang, <span id="welcome-opd" class="text-white font-bold">Instansi</span>. Anda dapat memantau progres layanan pembinaan dan pengawasan secara transparan melalui dashboard ini.
+                            Selamat Datang, <span id="welcome-opd" class="text-white font-bold">Instansi</span>. Anda dapat memantau progres layanan pembinaan dan pengawasan secara transparan melalui dashboard statistik global ini.
                         </p>
                         <div class="flex flex-wrap gap-3">
                             <div class="inline-flex items-center px-4 py-2 bg-gray-700/50 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-300 border border-gray-600">
                                 <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span>
-                                Layanan: <span class="ml-1 text-green-400">Aktif</span>
-                            </div>
-                            <div class="inline-flex items-center px-4 py-2 bg-blue-600/20 rounded-full text-[10px] font-bold uppercase tracking-widest text-blue-400 border border-blue-500/30">
-                                Peran: <span id="welcome-role" class="ml-1 text-blue-300">User</span>
+                                Koneksi Database: <span class="ml-1 text-green-400">Online</span>
                             </div>
                         </div>
                     </div>
@@ -142,7 +148,7 @@
             "Authorization": `Bearer ${SUPABASE_KEY}`
         };
 
-        // --- PROTEKSI & SETUP PROFIL ---
+        // --- PROTEKSI & SETUP ---
         (function() {
             if (sessionStorage.getItem('isLoggedIn') !== 'true') {
                 window.location.href = 'login.html';
@@ -154,12 +160,13 @@
 
                 if(role === 'admin') document.getElementById('admin-link').classList.remove('hidden');
                 
-                // Update Sidebar & Welcome Text
-                document.getElementById('side-opd-name').innerText = name;
-                document.getElementById('side-username').innerText = '@' + user;
-                document.getElementById('side-initials').innerText = name.substring(0,2).toUpperCase();
+                // Update Header User Profile
+                document.getElementById('head-opd-name').innerText = name;
+                document.getElementById('head-username').innerText = '@' + user;
+                document.getElementById('head-initials').innerText = name.substring(0,2).toUpperCase();
+                
+                // Update Welcome Message
                 document.getElementById('welcome-opd').innerText = name;
-                document.getElementById('welcome-role').innerText = role.toUpperCase();
             }
         })();
 
@@ -189,8 +196,7 @@
         }
 
         async function updateStats() {
-            // Perhatikan: Kita TIDAK memfilter berdasarkan username di sini
-            // Agar statistik menampilkan KESELURUHAN layanan Inspektorat (Public Dashboard)
+            // STATISTIK GLOBAL (SEMUA DATA)
             let queryUrl = `${SUPABASE_URL}/rest/v1/konsultasi?select=status_tl,jawaban`;
 
             try {
@@ -207,7 +213,6 @@
                 document.getElementById('stat-verif').innerText = verifTl;
                 document.getElementById('stat-done').innerText = tuntas;
 
-                // Ping jika ada yang butuh verifikasi (hanya admin yang butuh alert ini sebenernya, tapi buat hiasan gpp)
                 if(verifTl > 0) document.getElementById('ping-tl').classList.remove('hidden');
                 else document.getElementById('ping-tl').classList.add('hidden');
 
