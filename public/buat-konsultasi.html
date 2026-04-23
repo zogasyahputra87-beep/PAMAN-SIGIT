@@ -39,11 +39,14 @@
             </nav>
 
             <div class="p-6 border-t border-gray-700 flex flex-col items-center bg-gray-800/50">
-                <div class="w-16 h-16 rounded-full profile-ring shadow-lg mb-3 overflow-hidden">
+                <div class="w-16 h-16 rounded-full profile-ring shadow-lg mb-3 overflow-hidden bg-gray-700">
                     <img src="../pages/zoga.jpg" alt="Zoga" onerror="this.src='https://ui-avatars.com/api/?name=Ananda+Zoga'" class="w-full h-full object-cover">
                 </div>
-                <p class="text-[11px] font-bold text-gray-100 uppercase text-center">Ananda Zoga Syahputra, S.Tr.I.P.</p>
-                <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition active:scale-95">Keluar Sistem</button>
+                <div class="text-center">
+                    <p class="text-[9px] text-blue-400 uppercase font-black tracking-tighter mb-1">Pengembang Sistem</p>
+                    <p class="text-[11px] font-bold text-gray-100 uppercase text-center leading-tight">Ananda Zoga Syahputra, S.Tr.I.P.</p>
+                </div>
+                <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition active:scale-95">Keluar Sistem</button>
             </div>
         </aside>
 
@@ -55,21 +58,31 @@
                     <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg text-gray-600">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     </button>
-                    <h2 class="text-lg font-bold text-gray-800 uppercase tracking-wide">Buat Konsultasi Baru</h2>
+                    <h2 class="text-sm md:text-lg font-black text-gray-800 uppercase tracking-widest">Buat Konsultasi Baru</h2>
                 </div>
-                <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center border text-xl shadow-inner">👤</div>
+                
+                <div class="flex items-center">
+                    <div class="text-right mr-3 hidden md:block">
+                        <p id="head-opd-name" class="text-[10px] font-black text-gray-800 uppercase leading-none mb-1">NAMA OPD</p>
+                        <p id="head-username" class="text-[9px] text-blue-600 font-bold tracking-tight">@username</p>
+                    </div>
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-lg ring-2 ring-blue-50 ring-offset-2">
+                        <span id="head-initials">--</span>
+                    </div>
+                </div>
             </header>
 
             <div class="p-8 max-w-3xl mx-auto w-full">
-                <div class="bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-200">
+                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-gray-200 animate__animated animate__fadeInUp">
                     <form id="consultForm" class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Instansi / OPD</label>
-                                <input type="text" id="opdName" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" placeholder="Nama Instansi" required>
+                                <input type="text" id="opdName" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl outline-none text-gray-500 font-bold cursor-not-allowed" readonly>
+                                <p class="mt-1 text-[9px] text-gray-400 italic">* Otomatis sesuai akun login</p>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Kategori</label>
+                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Kategori Masalah</label>
                                 <select id="consultType" onchange="toggleOtherInput()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" required>
                                     <option value="">-- Pilih Kategori --</option>
                                     <option value="Pengelolaan Keuangan">Pengelolaan Keuangan</option>
@@ -90,7 +103,7 @@
                             <div>
                                 <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Metode Konsultasi</label>
                                 <select id="metode" onchange="toggleTanggal()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" required>
-                                    <option value="Online">Online (Aplikasi)</option>
+                                    <option value="Online">Online (Melalui Aplikasi)</option>
                                     <option value="Offline">Offline (Tatap Muka)</option>
                                 </select>
                             </div>
@@ -102,33 +115,33 @@
 
                         <div>
                             <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Judul Masalah</label>
-                            <input type="text" id="subject" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" placeholder="Ringkasan topik" required>
+                            <input type="text" id="subject" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" placeholder="Ringkasan topik konsultasi" required>
                         </div>
 
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Rincian Masalah</label>
-                            <textarea id="issue" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" rows="4" placeholder="Jelaskan detail kendala..." required></textarea>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Rincian Permasalahan</label>
+                            <textarea id="issue" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" rows="4" placeholder="Jelaskan detail kendala atau pertanyaan Anda..." required></textarea>
                         </div>
 
                         <div class="p-4 bg-blue-50/50 border-2 border-dashed border-blue-200 rounded-2xl">
-                            <label class="block text-[10px] font-bold text-blue-600 uppercase mb-2 tracking-widest text-center">Lampiran Dokumen (Opsional)</label>
+                            <label class="block text-[10px] font-bold text-blue-600 uppercase mb-2 tracking-widest text-center">Lampiran Dokumen Pendukung (Opsional)</label>
                             <input type="file" id="fileInput" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
-                            <p class="mt-2 text-[9px] text-gray-400 text-center italic">* Maksimal 5MB (PDF/JPG/PNG) akan disimpan di GDrive</p>
+                            <p class="mt-2 text-[9px] text-gray-400 text-center italic">* Maksimal 5MB (PDF/Gambar)</p>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">WhatsApp</label>
+                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Nomor WhatsApp (Aktif)</label>
                                 <input type="tel" id="whatsapp" placeholder="0812xxxx" class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" required>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Email</label>
-                                <input type="email" id="email" placeholder="contoh@malangkab.go.id" class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" required>
+                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Email Instansi</label>
+                                <input type="email" id="email" placeholder="nama@malangkab.go.id" class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" required>
                             </div>
                         </div>
 
                         <button id="btnSubmit" type="submit" class="w-full bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95 uppercase tracking-widest disabled:bg-gray-400">
-                            Kirim Pengajuan
+                            Kirim Pengajuan Konsultasi
                         </button>
                     </form>
                 </div>
@@ -137,16 +150,26 @@
     </div>
 
     <script>
-        // --- KONFIGURASI ---
         const SUPABASE_URL = "https://afaiwyfodjllolzwbhmz.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl";
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2l5RHPGfRBDGt4SJUyKycyAfvKBjHl7F9Prr6Oq82AMoGUAKLRticQPf55sKy-AZr/exec";
 
+        // --- PROTEKSI & SETUP ---
         (function() {
             if (sessionStorage.getItem('isLoggedIn') !== 'true') {
                 window.location.href = 'login.html';
             } else {
                 document.body.style.display = "block";
+                const name = sessionStorage.getItem('namaOpd');
+                const user = sessionStorage.getItem('userName');
+                
+                // Set Otomatis Nama OPD di Form
+                document.getElementById('opdName').value = name;
+                
+                // Update Header User Profile
+                document.getElementById('head-opd-name').innerText = name;
+                document.getElementById('head-username').innerText = '@' + user;
+                document.getElementById('head-initials').innerText = name.substring(0,2).toUpperCase();
             }
         })();
 
@@ -178,7 +201,7 @@
             e.preventDefault();
             Swal.fire({
                 title: 'Kirim Konsultasi?',
-                text: "Data akan disimpan secara aman di sistem.",
+                text: "Pastikan data yang Anda isi sudah benar.",
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#1F2937',
@@ -194,11 +217,11 @@
             const btn = document.getElementById('btnSubmit');
             const fileInput = document.getElementById('fileInput');
             btn.disabled = true;
-            btn.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span> SEDANG MEMPROSES...`;
+            btn.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span> SEDANG MENGIRIM...`;
 
             let gDriveLink = "-";
 
-            // 1. UPLOAD FILE KE GDRIVE (JIKA ADA)
+            // 1. UPLOAD FILE JIKA ADA
             if (fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 const base64 = await new Promise((resolve) => {
@@ -222,13 +245,13 @@
                         gDriveLink = uploadResult.fileLink;
                     }
                 } catch (err) {
-                    console.error("Gagal upload ke Drive:", err);
+                    console.error("Gagal upload file.");
                 }
             }
 
             // 2. SIMPAN KE SUPABASE
             const payload = {
-                instansi: document.getElementById('opdName').value,
+                instansi: sessionStorage.getItem('namaOpd'),
                 kategori: (document.getElementById('consultType').value === 'Lainnya') ? document.getElementById('otherConsultType').value : document.getElementById('consultType').value,
                 metode: document.getElementById('metode').value,
                 tanggal_offline: document.getElementById('tgl_offline').value || "-",
@@ -242,7 +265,6 @@
             };
 
             try {
-                // PERBAIKAN: Menggunakan template literal yang benar
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/konsultasi`, {
                     method: 'POST',
                     headers: {
@@ -257,20 +279,19 @@
                 if (res.ok) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'TERKIRIM!',
-                        text: 'Konsultasi berhasil disimpan.',
+                        title: 'BERHASIL!',
+                        text: 'Konsultasi Anda telah masuk ke sistem.',
                         timer: 2000,
                         showConfirmButton: false,
                         customClass: { popup: 'rounded-3xl' }
                     }).then(() => window.location.href = "riwayat.html");
                 } else {
-                    const errorJson = await res.json();
-                    throw new Error(errorJson.message || "Gagal menyimpan");
+                    throw new Error("Gagal menyimpan data.");
                 }
             } catch (err) {
-                Swal.fire('Error', 'Gagal menyimpan ke database: ' + err.message, 'error');
+                Swal.fire('Error', err.message, 'error');
                 btn.disabled = false;
-                btn.innerHTML = "Kirim Pengajuan";
+                btn.innerHTML = "Kirim Pengajuan Konsultasi";
             }
         }
     </script>
