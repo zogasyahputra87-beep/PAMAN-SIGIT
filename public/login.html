@@ -1,24 +1,11 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta name="google-site-verification" content="PThX0k0-0mpfE8h8zCusaP9iocfEovlLdAcA1qYBJ80" />
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>Login | SiCODI Inspektorat Daerah Kabupaten Malang</title>
-    <meta name="description" content="Sistem Konsultasi Digital Inspektorat Daerah Kabupaten Malang.">
-    <meta name="keywords" content="SiCODI, Inspektorat Malang, Login SiCODI, Kabupaten Malang">
-    <meta name="author" content="Ananda Zoga Syahputra">
-    
-    <meta property="og:title" content="Login SiCODI - Inspektorat Kabupaten Malang">
-    <meta property="og:description" content="Portal Konsultasi Digital & Monitoring Tindak Lanjut.">
-    <meta property="og:image" content="https://sicodi-malang.vercel.app/pages/logo_kab.png">
-    <meta property="og:type" content="website">
-
     <link rel="icon" type="image/png" href="../pages/logo_kab.png">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1F2937">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -31,11 +18,9 @@
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            background-repeat: no-repeat;
             user-select: none;
             -webkit-user-select: none;
         }
-
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -69,32 +54,17 @@
         </form>
         
         <div class="p-6 bg-gray-50/50 text-center border-t border-gray-100">
-            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Versi 1.0 - Aktualisasi CPNS</p>
+            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Versi 1.1 - Database Driven</p>
             <p class="text-[8px] text-gray-300 uppercase mt-1">Ananda Zoga Syahputra, S.Tr.I.P.</p>
         </div>
     </div>
 
     <script>
-        // Mematikan Klik Kanan
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
+        // --- KONFIGURASI SUPABASE ---
+        const SUPABASE_URL = "https://afaiwyfodjllolzwbhmz.supabase.co"; 
+        const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl"; 
 
-        // Mematikan Shortcut Keyboard
-        document.onkeydown = function(e) {
-            if (e.keyCode == 123) return false; 
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false; 
-            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false; 
-            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false; 
-        };
-
-        const accounts = [
-            { user: "admin", pass: "inspektorat2026", role: "admin", target: "admin.html" },
-            { user: "malangkab", pass: "malangkab123", role: "user", target: "index.html" },
-            { user: "kecamatan", pass: "malang123", role: "user", target: "index.html" }
-        ];
-
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const userIn = document.getElementById('username').value;
@@ -102,47 +72,69 @@
             const btn = document.getElementById('loginBtn');
             const card = document.getElementById('loginCard');
 
-            btn.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span> MEMPROSES...`;
+            btn.innerHTML = `<span class="inline-block animate-spin mr-2">⏳</span> VERIFIKASI...`;
             btn.disabled = true;
 
-            const foundAccount = accounts.find(acc => acc.user === userIn && acc.pass === passIn);
+            try {
+                // Mencocokkan username dan password ke tabel 'users_opd'
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${userIn}&password=eq.${passIn}&select=*`, {
+                    headers: {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": `Bearer ${SUPABASE_KEY}`
+                    }
+                });
 
-            setTimeout(() => {
-                if (foundAccount) {
+                const data = await response.json();
+
+                if (data.length > 0) {
+                    const user = data[0];
+                    
+                    // Simpan data login ke Session Storage
                     sessionStorage.setItem('isLoggedIn', 'true');
-                    sessionStorage.setItem('userRole', foundAccount.role);
-                    sessionStorage.setItem('userName', foundAccount.user);
+                    sessionStorage.setItem('userName', user.username);
+                    sessionStorage.setItem('namaOpd', user.nama_opd); // Untuk otomatisasi form
+                    sessionStorage.setItem('userRole', user.role);
 
                     Swal.fire({
                         title: 'LOGIN BERHASIL',
-                        text: 'Selamat Datang di SiCODI',
+                        text: `Selamat Datang, ${user.nama_opd}`,
                         icon: 'success',
                         showConfirmButton: false,
                         timer: 1500,
                         customClass: { popup: 'rounded-3xl' }
                     }).then(() => {
-                        document.body.classList.add('animate__animated', 'animate__fadeOut');
-                        setTimeout(() => {
-                            window.location.href = foundAccount.target;
-                        }, 500);
+                        // Arahkan berdasarkan Role
+                        if (user.role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
                     });
                 } else {
-                    btn.innerHTML = "Masuk ke Sistem";
-                    btn.disabled = false;
-                    card.classList.remove('animate__fadeInDown', 'animate__headShake');
-                    void card.offsetWidth; 
-                    card.classList.add('animate__headShake');
-                    
-                    Swal.fire({
-                        title: 'AKSES DITOLAK',
-                        text: 'Username atau Password salah!',
-                        icon: 'error',
-                        confirmButtonColor: '#1F2937',
-                        customClass: { popup: 'rounded-3xl' }
-                    });
+                    throw new Error("Username atau Password salah!");
                 }
-            }, 800);
+
+            } catch (error) {
+                btn.innerHTML = "Masuk ke Sistem";
+                btn.disabled = false;
+                
+                // Animasi getar jika gagal
+                card.classList.remove('animate__fadeInDown', 'animate__headShake');
+                void card.offsetWidth; 
+                card.classList.add('animate__headShake');
+
+                Swal.fire({
+                    title: 'AKSES DITOLAK',
+                    text: error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#1F2937',
+                    customClass: { popup: 'rounded-3xl' }
+                });
+            }
         });
+
+        // Proteksi Klik Kanan
+        document.addEventListener('contextmenu', e => e.preventDefault());
     </script>
 </body>
 </html>
