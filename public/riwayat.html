@@ -64,8 +64,8 @@
         <main class="flex-1 flex flex-col overflow-y-auto">
             <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-8 h-20 flex-shrink-0 sticky top-0 z-30">
                 <div class="flex items-center">
-                    <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg">
-                        <svg class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg text-gray-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     </button>
                     <h2 class="text-sm md:text-lg font-black text-gray-800 uppercase tracking-widest">Riwayat Konsultasi</h2>
                 </div>
@@ -109,9 +109,11 @@
     </div>
 
     <script>
-        // --- KONFIGURASI SUPABASE ---
+        // --- KONFIGURASI ---
         const SUPABASE_URL = "https://afaiwyfodjllolzwbhmz.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl"; 
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2l5RHPGfRBDGt4SJUyKycyAfvKBjHl7F9Prr6Oq82AMoGUAKLRticQPf55sKy-AZr/exec";
+
         const headers = {
             "apikey": SUPABASE_KEY,
             "Authorization": `Bearer ${SUPABASE_KEY}`,
@@ -146,7 +148,6 @@
             const currentUser = sessionStorage.getItem('userName');
             const currentRole = sessionStorage.getItem('userRole');
             
-            // Filter Privasi: Jika bukan admin, hanya ambil data miliknya sendiri
             let queryUrl = `${SUPABASE_URL}/rest/v1/konsultasi?select=*&order=waktu_pengajuan.desc`;
             if (currentRole !== 'admin') {
                 queryUrl += `&username=eq.${currentUser}`;
@@ -183,14 +184,16 @@
                        </div>`
                     : `<div class="mt-2"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-blue-200">Online</span></div>`;
 
-                // Logic Formatting Waktu (Supabase ISO to Indo)
                 const tglAju = new Date(item.waktu_pengajuan).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
 
-                // Preview Lampiran & TL
+                // Preview Logics
                 let previewTL = "";
                 if (item.bukti_tl && item.bukti_tl.includes('drive.google.com')) {
-                    const previewUrl = item.bukti_tl.replace('/view', '/preview').split('?')[0];
-                    previewTL = `<div class="preview-container"><iframe src="${previewUrl}" class="preview-iframe"></iframe></div>`;
+                    const match = item.bukti_tl.match(/https?:\/\/drive\.google\.com\/[^\s]+/);
+                    if(match) {
+                        const previewUrl = match[0].replace('/view', '/preview').split('?')[0];
+                        previewTL = `<div class="preview-container"><iframe src="${previewUrl}" class="preview-iframe"></iframe></div>`;
+                    }
                 }
 
                 let previewAjuan = "";
@@ -219,4 +222,99 @@
                     else if(item.status_tl === "Menunggu Verifikasi") tlStatusText = `<span class="text-orange-600 font-medium">Bukti terkirim.</span> ${previewTL}`;
                     else if(item.status_tl === "Perlu Perbaikan") { tlStatusText = `<span class="text-red-600 font-bold">⚠️ Perlu Perbaikan:</span> ${item.catatan_admin_tl} <br> ${previewTL}`; tlClass = "timeline-error"; }
                     else if(item.status_tl === "Tuntas") { tlStatusText = `<span class="text-teal-600 font-bold">✅ Sesuai (Tuntas):</span> Diverifikasi. <br><span class="italic text-gray-500">Catatan Auditor: ${item.catatan_admin_tl}</span> ${previewTL}`; tlClass = "timeline-success"; }
-                    timelineContent += `<div class="timeline-step ${tlClass}"><p class="text-
+                    timelineContent += `<div class="timeline-step ${tlClass}"><p class="text-[9px] font-bold text-gray-400 uppercase">Tahap 2: Monitoring Tindak Lanjut</p><div class="text-xs text-gray-700 mt-1">${tlStatusText}</div></div>`;
+                }
+
+                let actionBtn = (isTerjawab && (item.status_tl === "Belum TL" || item.status_tl === "Perlu Perbaikan")) 
+                    ? `<button onclick="formTL(${item.id})" class="mt-2 w-full py-2 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition shadow-sm animate__animated animate__pulse animate__infinite">Kirim Laporan & Bukti TL</button>` : "";
+
+                return `<tr class="hover:bg-gray-50/50 transition border-b border-gray-50">
+                    <td class="p-5 text-[9px] text-gray-400 align-top pt-6">${tglAju}</td>
+                    <td class="p-5 font-bold text-sm text-gray-700 align-top pt-6">${item.instansi}${metodeBadge}</td>
+                    <td class="p-5 align-top pt-6">
+                        <div class="text-sm font-bold text-gray-800">${item.judul_masalah}</div>
+                        <div class="text-[10px] text-blue-500 font-semibold italic mb-4 uppercase">${item.kategori}</div>
+                        <div class="mb-4 bg-gray-50 p-4 rounded-xl border border-gray-100">${timelineContent}</div>
+                        <div class="flex space-x-2">
+                            ${item.lampiran && item.lampiran !== '-' ? `<a href="${item.lampiran}" target="_blank" class="px-3 py-1.5 bg-gray-100 text-gray-600 border border-gray-200 rounded-lg text-[9px] font-bold uppercase tracking-wider">📂 Buka Lampiran</a>` : ''}
+                        </div>${actionBtn}
+                    </td>
+                    <td class="p-5 text-center align-top pt-6">
+                        <span class="inline-block w-24 py-1.5 ${item.status_tl === 'Tuntas' ? 'bg-teal-100 text-teal-700 border-teal-200' : (isTerjawab ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200')} text-[9px] font-bold rounded-full uppercase border">
+                            ${item.status_tl === 'Tuntas' ? 'Tuntas' : (isTerjawab ? 'Terjawab' : 'Menunggu')}
+                        </span>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function filterRiwayat() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = rawRiwayat.filter(item => 
+                item.instansi.toLowerCase().includes(query) || 
+                item.judul_masalah.toLowerCase().includes(query)
+            );
+            renderRiwayat(filtered);
+        }
+
+        async function formTL(rowId) {
+            const { value: formValues } = await Swal.fire({
+                title: 'Laporan Tindak Lanjut',
+                html: '<div class="text-left"><label class="text-[10px] font-bold text-gray-400 uppercase">Penjelasan</label><textarea id="swal-input-ket" class="w-full p-2 border rounded-lg text-xs mb-3 outline-none" rows="3" placeholder="Apa saja yang sudah ditindaklanjuti?"></textarea><p class="text-[10px] text-gray-400 mb-1 italic">Lampiran Bukti (Opsional):</p><input type="file" id="swal-input-file" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-50 file:text-blue-700" accept=".pdf,image/*"></div>',
+                showCancelButton: true,
+                confirmButtonText: 'Kirim Laporan',
+                preConfirm: () => {
+                    const penjelasan = document.getElementById('swal-input-ket').value;
+                    const file = document.getElementById('swal-input-file').files[0] || null;
+                    if (!penjelasan.trim()) { Swal.showValidationMessage('Penjelasan wajib diisi!'); return false; }
+                    return { penjelasan, file };
+                }
+            });
+
+            if (formValues) {
+                Swal.fire({ title: 'Mengirim...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                
+                let linkBukti = "-";
+                if (formValues.file) {
+                    const base64 = await new Promise(resolve => {
+                        const reader = new FileReader();
+                        reader.onload = e => resolve(e.target.result.split(',')[1]);
+                        reader.readAsDataURL(formValues.file);
+                    });
+
+                    try {
+                        const uploadRes = await fetch(APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                action: "upload_only",
+                                fileData: base64,
+                                fileName: formValues.file.name,
+                                fileType: formValues.file.type
+                            })
+                        });
+                        const uploadResult = await uploadRes.json();
+                        linkBukti = uploadResult.fileLink;
+                    } catch (err) { console.error("Upload gagal"); }
+                }
+
+                try {
+                    await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${rowId}`, {
+                        method: 'PATCH',
+                        headers: headers,
+                        body: JSON.stringify({ 
+                            bukti_tl: `Keterangan: ${formValues.penjelasan} | Link Dokumen: ${linkBukti}`,
+                            status_tl: "Menunggu Verifikasi",
+                            waktu_kirim_tl: new Date().toISOString()
+                        })
+                    });
+                    Swal.fire({ icon: 'success', title: 'Terkirim!', timer: 1500, showConfirmButton: false });
+                    refreshData();
+                } catch (e) { Swal.fire('Gagal', 'Update database gagal.', 'error'); }
+            }
+        }
+
+        window.onload = loadData;
+        function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
+    </script>
+</body>
+</html>
