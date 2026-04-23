@@ -242,6 +242,7 @@
             };
 
             try {
+                // PERBAIKAN: Menggunakan template literal yang benar
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/konsultasi`, {
                     method: 'POST',
                     headers: {
@@ -263,7 +264,8 @@
                         customClass: { popup: 'rounded-3xl' }
                     }).then(() => window.location.href = "riwayat.html");
                 } else {
-                    throw new Error("Gagal menyimpan ke Supabase");
+                    const errorJson = await res.json();
+                    throw new Error(errorJson.message || "Gagal menyimpan");
                 }
             } catch (err) {
                 Swal.fire('Error', 'Gagal menyimpan ke database: ' + err.message, 'error');
