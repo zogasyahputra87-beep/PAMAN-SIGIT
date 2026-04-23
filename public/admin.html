@@ -146,9 +146,11 @@
                 // Handle link GDrive Bukti TL
                 let previewTL = "";
                 if (item.bukti_tl && item.bukti_tl.includes('drive.google.com')) {
-                    const parts = item.bukti_tl.split('Link Dokumen: ');
-                    const url = parts.length > 1 ? parts[1].trim() : item.bukti_tl;
-                    previewTL = `<div class="preview-container"><iframe src="${url.replace('/view', '/preview')}" class="preview-iframe"></iframe></div>`;
+                    const match = item.bukti_tl.match(/https?:\/\/drive\.google\.com\/[^\s|]+/);
+                    if(match) {
+                        const previewUrl = match[0].replace('/view', '/preview').split('?')[0];
+                        previewTL = `<div class="preview-container"><iframe src="${previewUrl}" class="preview-iframe"></iframe></div>`;
+                    }
                 }
 
                 // Handle link GDrive Lampiran Ajuan
@@ -182,8 +184,8 @@
                     <div class="mt-4 p-4 bg-orange-50 border rounded-xl">
                         <textarea id="catatan-tl-${id}" class="w-full p-3 text-xs border border-orange-200 rounded-lg outline-none mb-3" rows="2" placeholder="Tulis catatan verifikasi..."></textarea>
                         <div class="flex space-x-2">
-                            <button onclick="konfirmasiVerifikasi(${id}, 'Tuntas')" class="flex-1 bg-teal-600 text-white py-2 rounded-lg text-[10px] font-bold uppercase">Terima (Tuntas)</button>
-                            <button onclick="konfirmasiVerifikasi(${id}, 'Perlu Perbaikan')" class="flex-1 bg-white text-red-600 border border-red-200 py-2 rounded-lg text-[10px] font-bold uppercase">Revisi</button>
+                            <button onclick="konfirmasiVerifikasi(${id}, 'Tuntas')" class="flex-1 bg-teal-600 text-white py-2 rounded-lg text-[10px] font-bold uppercase shadow-sm">Terima (Tuntas)</button>
+                            <button onclick="konfirmasiVerifikasi(${id}, 'Perlu Perbaikan')" class="flex-1 bg-white text-red-600 border border-red-200 py-2 rounded-lg text-[10px] font-bold uppercase shadow-sm">Revisi</button>
                         </div>
                     </div>` : "";
 
@@ -195,7 +197,7 @@
                     <td class="p-5 align-top">
                         <div class="font-bold text-gray-800 mb-4">${item.judul_masalah}</div>
                         <div class="mb-4 bg-gray-50 p-4 rounded-xl border border-gray-100">${timelineContent}</div>
-                        ${!isTerjawab ? `<textarea id="reply-${id}" class="w-full p-3 text-xs border border-gray-300 rounded-xl outline-none mb-2" rows="2" placeholder="Ketik jawaban resmi..."></textarea>` : ''}
+                        ${!isTerjawab ? `<textarea id="reply-${id}" class="w-full p-3 text-xs border border-gray-300 rounded-xl outline-none mb-2 focus:ring-2 focus:ring-blue-500/20" rows="2" placeholder="Ketik jawaban resmi..."></textarea>` : ''}
                         ${verifAction}
                     </td>
                     <td class="p-5 text-center align-top pt-8 w-32">
@@ -203,36 +205,36 @@
                     </td>
                     <td class="p-5 text-center align-top pt-6 w-40">
                         <div class="flex flex-col space-y-2">
-                            ${!isTerjawab ? `<button onclick="konfirmasiKirimJawaban(${id})" class="bg-blue-600 text-white py-2 rounded-lg text-[10px] font-bold uppercase">Kirim Jawaban</button>` : `<button onclick="batalSelesai(${id})" class="bg-orange-500 text-white py-2 rounded-lg text-[10px] font-bold uppercase">Ubah Jawaban</button>`}
-                            <a href="https://wa.me/${item.nomor_hp}" target="_blank" class="bg-white border border-gray-300 text-gray-600 py-2 rounded-lg text-[10px] font-bold uppercase">WhatsApp</a>
+                            ${!isTerjawab ? `<button onclick="handleKirimJawaban(${id})" class="bg-blue-600 text-white py-2 rounded-lg text-[10px] font-bold uppercase shadow-sm active:scale-95 transition">Kirim Jawaban</button>` : `<button onclick="batalSelesai(${id})" class="bg-orange-500 text-white py-2 rounded-lg text-[10px] font-bold uppercase shadow-sm active:scale-95 transition">Ubah Jawaban</button>`}
+                            <a href="https://wa.me/${item.nomor_hp}" target="_blank" class="bg-white border border-gray-300 text-gray-600 py-2 rounded-lg text-[10px] font-bold uppercase shadow-sm active:scale-95 transition">WhatsApp</a>
                         </div>
                     </td>
                 </tr>`;
             }).join('');
         }
 
-        // --- FITUR KONFIRMASI JAWABAN ---
-        function konfirmasiKirimJawaban(id) {
+        // --- KONFIRMASI KIRIM JAWABAN ---
+        async function handleKirimJawaban(id) {
             const reply = document.getElementById(`reply-${id}`).value;
-            if(!reply.trim()) return Swal.fire('Error', 'Tulis jawaban dulu!', 'error');
+            if(!reply.trim()) return Swal.fire('Error', 'Silakan tulis jawaban terlebih dahulu!', 'error');
 
-            Swal.fire({
+            const { isConfirmed } = await Swal.fire({
                 title: 'Kirim Jawaban?',
-                text: "Jawaban yang dikirim akan langsung tampil di dashboard OPD terkait.",
+                text: "Jawaban akan langsung tampil di riwayat konsultasi OPD.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#2563eb',
                 cancelButtonColor: '#64748b',
-                confirmButtonText: 'Ya, Kirim Jawaban',
+                confirmButtonText: 'Ya, Kirim!',
                 cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    kirimJawaban(id, reply);
-                }
             });
+
+            if (isConfirmed) {
+                prosesKirimJawaban(id, reply);
+            }
         }
 
-        async function kirimJawaban(id, reply) {
+        async function prosesKirimJawaban(id, reply) {
             Swal.fire({ title: 'Mengirim...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, {
@@ -240,39 +242,41 @@
                     headers: headers,
                     body: JSON.stringify({ 
                         jawaban: reply, 
-                        waktu_jawaban: new Date().toISOString(), 
-                        status: 'Terjawab' 
+                        waktu_jawaban: new Date().toISOString()
                     })
                 });
 
-                if(!res.ok) throw new Error("Gagal menyimpan");
+                if(!res.ok) {
+                    const error = await res.json();
+                    throw new Error(error.message);
+                }
 
                 Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Jawaban terkirim.', timer: 1500, showConfirmButton: false });
                 fetchAdmin(); 
             } catch (e) { 
-                Swal.fire('Gagal', 'Pastikan Policy UPDATE di Supabase sudah aktif atau RLS sudah OFF.', 'error'); 
+                Swal.fire('Gagal', 'Pesan Error: ' + e.message, 'error'); 
             }
         }
 
-        // --- FITUR KONFIRMASI VERIFIKASI ---
-        function konfirmasiVerifikasi(id, status) {
+        // --- KONFIRMASI VERIFIKASI ---
+        async function konfirmasiVerifikasi(id, status) {
             const catatan = document.getElementById(`catatan-tl-${id}`).value;
             if(!catatan.trim()) return Swal.fire('Error', 'Catatan verifikasi wajib diisi!', 'error');
 
-            Swal.fire({
-                title: status === 'Tuntas' ? 'Terima Tindak Lanjut?' : 'Minta Perbaikan?',
-                text: `Status monitoring akan diubah menjadi: ${status}`,
+            const { isConfirmed } = await Swal.fire({
+                title: status === 'Tuntas' ? 'Selesaikan Konsultasi?' : 'Minta Perbaikan?',
+                text: `Status akan diubah menjadi: ${status}`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: status === 'Tuntas' ? '#0d9488' : '#ef4444',
                 cancelButtonColor: '#64748b',
                 confirmButtonText: 'Ya, Proses',
                 cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    prosesVerifikasi(id, status, catatan);
-                }
             });
+
+            if (isConfirmed) {
+                prosesVerifikasi(id, status, catatan);
+            }
         }
 
         async function prosesVerifikasi(id, status, catatan) {
@@ -298,16 +302,24 @@
         }
 
         async function batalSelesai(id) {
-            Swal.fire({ title: 'Buka Kembali?', text: 'Jawaban lama akan dihapus dan status kembali ke Menunggu.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#f59e0b' }).then(async (res) => {
-                if(res.isConfirmed) {
-                    await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, {
-                        method: 'PATCH',
-                        headers: headers,
-                        body: JSON.stringify({ jawaban: null, waktu_jawaban: null, status: 'Menunggu', status_tl: 'Belum TL' })
-                    });
-                    fetchAdmin();
-                }
+            const { isConfirmed } = await Swal.fire({ 
+                title: 'Ubah Jawaban?', 
+                text: 'Jawaban lama akan dihapus dan status kembali ke Menunggu.', 
+                icon: 'warning', 
+                showCancelButton: true, 
+                confirmButtonColor: '#f59e0b' 
             });
+
+            if(isConfirmed) {
+                Swal.fire({ title: 'Membuka...', didOpen: () => Swal.showLoading() });
+                await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, {
+                    method: 'PATCH',
+                    headers: headers,
+                    body: JSON.stringify({ jawaban: null, waktu_jawaban: null, status_tl: 'Belum TL' })
+                });
+                fetchAdmin();
+                Swal.close();
+            }
         }
 
         function filterData() {
