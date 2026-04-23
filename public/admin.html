@@ -32,7 +32,7 @@
                 <img src="../pages/logo_kab.png" alt="Logo" class="w-14 mb-3 drop-shadow-md">
                 <div class="text-center">
                     <h1 class="text-xl font-bold text-white tracking-tight uppercase">Admin Panel</h1>
-                    <p id="admin-wilayah-label" class="text-[10px] text-blue-400 uppercase font-black tracking-widest leading-tight text-center">Wilayah Kerja</p>
+                    <p id="admin-wilayah-label" class="text-[10px] text-blue-400 uppercase font-black tracking-widest leading-tight text-center">Memuat...</p>
                 </div>
             </div>
             <nav class="flex-1 mt-6 px-4 space-y-2">
@@ -145,26 +145,31 @@
 
         async function fetchAdmin() {
             const loader = document.getElementById('loader');
-            // Pastikan perbandingan case-insensitive dan bersih dari spasi
-            const myWilayah = (sessionStorage.getItem('wilayah') || 'semua').trim().toLowerCase();
+            // Menghilangkan spasi dan paksa huruf kecil untuk pengecekan "semua"
+            const myWilayahRaw = sessionStorage.getItem('wilayah') || 'semua';
+            const myWilayah = myWilayahRaw.trim().toLowerCase();
+            
             loader.classList.remove('hidden');
 
             let queryUrl = `${SUPABASE_URL}/rest/v1/konsultasi?select=*&order=waktu_pengajuan.desc`;
             
-            // JIKA BUKAN SUPER ADMIN ('semua'), lakukan filter wilayah_opd
+            // LOGIKA FILTER: Jika BUKAN "semua", maka filter berdasarkan kolom wilayah_opd
             if (myWilayah !== 'semua') {
-                // Gunakan .ilike agar lebih fleksibel terhadap case sensitive di database
-                queryUrl += `&wilayah_opd=ilike.${myWilayah}`;
+                queryUrl += `&wilayah_opd=eq.${sessionStorage.getItem('wilayah')}`;
             }
 
             try {
                 const res = await fetch(queryUrl, { headers: headers });
                 rawData = await res.json();
+                
                 loader.classList.add('hidden');
                 
+                // Panggil statistik untuk data yang berhasil ditarik
                 updateAdminStats(rawData);
                 renderTable(rawData);
-            } catch (e) { loader.innerHTML = `<span class="text-red-500 font-bold">⚠️ Gagal Memuat Database.</span>`; }
+            } catch (e) { 
+                loader.innerHTML = `<span class="text-red-500 font-bold">⚠️ Gagal Memuat Database.</span>`; 
+            }
         }
 
         function updateAdminStats(data) {
@@ -182,7 +187,7 @@
         function renderTable(dataToRender) {
             const adminBody = document.getElementById('adminBody');
             if (!dataToRender || dataToRender.length === 0) {
-                adminBody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-gray-400 italic uppercase text-[10px] tracking-widest">Belum ada data masuk untuk wilayah ini.</td></tr>`;
+                adminBody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-gray-400 italic uppercase text-[10px] tracking-widest">Belum ada data masuk.</td></tr>`;
                 return;
             }
             adminBody.innerHTML = dataToRender.map(item => {
@@ -241,8 +246,7 @@
                         headers: { 
                             "apikey": SUPABASE_KEY, 
                             "Authorization": `Bearer ${SUPABASE_KEY}`,
-                            "Content-Type": "application/json",
-                            "Prefer": "return=minimal"
+                            "Content-Type": "application/json"
                         },
                         body: JSON.stringify({ 
                             jawaban: reply, 
