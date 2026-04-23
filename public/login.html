@@ -92,8 +92,12 @@
                     // Simpan data login ke Session Storage
                     sessionStorage.setItem('isLoggedIn', 'true');
                     sessionStorage.setItem('userName', user.username);
-                    sessionStorage.setItem('namaOpd', user.nama_opd); // Untuk otomatisasi form
+                    sessionStorage.setItem('namaOpd', user.nama_opd);
                     sessionStorage.setItem('userRole', user.role);
+                    
+                    // --- PENYESUAIAN WILAYAH ---
+                    // Mengambil nilai kolom 'wilayah' dari database (Contoh: "semua" atau "Irban I")
+                    sessionStorage.setItem('wilayah', user.wilayah || 'semua');
 
                     Swal.fire({
                         title: 'LOGIN BERHASIL',
