@@ -31,6 +31,24 @@
         .preview-container { width: 100%; height: 250px; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; margin-top: 0.5rem; background: #f9fafb; }
         .preview-iframe { width: 100%; height: 100%; border: none; }
         .stat-mini-card { @apply bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:shadow-md; }
+
+        /* --- WATERMARK LOGO GLOBAL --- */
+        .watermark-fixed {
+            position: fixed;
+            bottom: -30px;
+            right: -30px;
+            width: 500px;
+            height: 500px;
+            background-image: url('../pages/inspektorat.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.1;
+            z-index: 0;
+            pointer-events: none;
+            transform: none;
+        }
+
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 overflow-hidden">
