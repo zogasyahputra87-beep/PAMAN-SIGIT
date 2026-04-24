@@ -30,7 +30,7 @@
         .timeline-error::before { background: #ef4444; }
         .preview-container { width: 100%; height: 250px; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; margin-top: 0.5rem; background: #f9fafb; }
         .preview-iframe { width: 100%; height: 100%; border: none; }
-        .stat-mini-card { @apply bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:shadow-md; } }
+        .stat-mini-card { @apply bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:shadow-md; }
 
         /* --- WATERMARK LOGO GLOBAL --- */
         .watermark-fixed {
@@ -43,23 +43,24 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            opacity: 0.5;
+            opacity: 0.08; /* Diturunkan agar tidak menutupi teks riwayat */
             z-index: 0;
             pointer-events: none;
             transform: none;
         }
-
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 overflow-hidden">
 
-    <div class="flex h-screen overflow-hidden relative">
+    <div class="watermark-fixed"></div>
+
+    <div class="flex h-screen overflow-hidden relative z-10">
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#1F2937] text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
             <div class="p-6 border-b border-gray-700 flex flex-col items-center">
                 <img src="../pages/logo_kab.png" alt="Logo" class="w-14 mb-3">
                 <div class="text-center">
                     <h1 class="text-xl font-bold text-white tracking-tight">SiCODI</h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight text-center">Inspektorat Daerah<br>Kabupaten Malang</p>
                 </div>
             </div>
             
@@ -118,7 +119,7 @@
                 </div>
             </header>
 
-            <div class="p-6 md:p-10">
+            <div class="p-6 md:p-10 relative z-10">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     <div class="stat-mini-card">
                         <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Konsultasi Saya</p>
@@ -179,7 +180,6 @@
 
         let rawRiwayat = []; 
 
-        // --- PROTEKSI & SETUP PROFIL ---
         (function() {
             if (sessionStorage.getItem('isLoggedIn') !== 'true') {
                 window.location.href = 'login.html';
@@ -188,10 +188,7 @@
                 const role = sessionStorage.getItem('userRole');
                 const name = sessionStorage.getItem('namaOpd');
                 const user = sessionStorage.getItem('userName');
-
                 if(role === 'admin') document.getElementById('admin-link').classList.remove('hidden');
-
-                // Header Profile Update
                 document.getElementById('head-opd-name').innerText = name;
                 document.getElementById('head-username').innerText = '@' + user;
                 document.getElementById('head-initials').innerText = name.substring(0, 2).toUpperCase();
@@ -216,25 +213,17 @@
             const currentUser = sessionStorage.getItem('userName');
             const currentRole = sessionStorage.getItem('userRole');
             const myWilayah = sessionStorage.getItem('wilayah');
-            
-            // --- LOGIKA FILTER WILAYAH & USER ---
             let queryUrl = `${SUPABASE_URL}/rest/v1/konsultasi?select=*&order=waktu_pengajuan.desc`;
-            
             if (currentRole !== 'admin') {
-                // OPD: Hanya lihat data miliknya sendiri
                 queryUrl += `&username=eq.${currentUser}`;
             } else if (myWilayah && myWilayah !== 'semua') {
-                // Admin Irban: Filter berdasarkan wilayah_opd
                 queryUrl += `&wilayah_opd=eq.${myWilayah}`;
             }
 
             try {
                 const res = await fetch(queryUrl, { method: "GET", headers: headers });
                 rawRiwayat = await res.json();
-                
-                // Hitung Statistik Privat Akun
                 updateUserStats(rawRiwayat);
-                
                 renderRiwayat(rawRiwayat);
             } catch (e) {
                 document.getElementById('loader').innerText = "⚠️ Gagal memuat data.";
@@ -246,7 +235,6 @@
             const pending = data.filter(item => !item.jawaban || item.jawaban === "").length;
             const needsTl = data.filter(item => (item.jawaban && item.jawaban !== "") && (item.status_tl === "Belum TL" || item.status_tl === "Perlu Perbaikan")).length;
             const done = data.filter(item => item.status_tl === "Tuntas").length;
-
             document.getElementById('user-stat-total').innerText = total;
             document.getElementById('user-stat-pending').innerText = pending;
             document.getElementById('user-stat-tl').innerText = needsTl;
@@ -256,7 +244,6 @@
         function renderRiwayat(dataToRender) {
             const listTable = document.getElementById('listTable');
             const loader = document.getElementById('loader');
-            
             if (!dataToRender || dataToRender.length === 0) {
                 listTable.innerHTML = "";
                 loader.classList.remove('hidden');
@@ -264,45 +251,17 @@
                 return;
             }
             loader.classList.add('hidden');
-            
             listTable.innerHTML = dataToRender.map(item => {
                 const isTerjawab = item.jawaban && item.jawaban !== "";
-                
                 const metodeBadge = item.metode === 'Offline' 
-                    ? `<div class="mt-2 inline-flex flex-col space-y-1">
-                         <span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-purple-200 w-fit">Offline</span>
-                         <span class="text-[9px] text-purple-600 font-bold italic">📅 ${item.tanggal_offline || '-'}</span>
-                       </div>`
+                    ? `<div class="mt-2 inline-flex flex-col space-y-1"><span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-purple-200 w-fit">Offline</span><span class="text-[9px] text-purple-600 font-bold italic">📅 ${item.tanggal_offline || '-'}</span></div>`
                     : `<div class="mt-2"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-blue-200 w-fit">Online</span></div>`;
-
                 const tglAju = new Date(item.waktu_pengajuan).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+                
+                let previewTL = (item.bukti_tl && item.bukti_tl.includes('drive.google.com')) ? `<div class="preview-container"><iframe src="${item.bukti_tl.replace('/view', '/preview').split('?')[0]}" class="preview-iframe"></iframe></div>` : "";
+                let previewAjuan = (item.lampiran && item.lampiran.includes('drive.google.com')) ? `<div class="preview-container"><iframe src="${item.lampiran.replace('/view', '/preview').split('?')[0]}" class="preview-iframe"></iframe></div>` : "";
 
-                // Preview Logics
-                let previewTL = "";
-                if (item.bukti_tl && item.bukti_tl.includes('drive.google.com')) {
-                    const match = item.bukti_tl.match(/https?:\/\/drive\.google\.com\/[^\s|]+/);
-                    if(match) {
-                        const previewUrl = match[0].replace('/view', '/preview').split('?')[0];
-                        previewTL = `<div class="preview-container"><iframe src="${previewUrl}" class="preview-iframe"></iframe></div>`;
-                    }
-                }
-
-                let previewAjuan = (item.lampiran && item.lampiran.includes('drive.google.com')) 
-                    ? `<div class="preview-container"><iframe src="${item.lampiran.replace('/view', '/preview').split('?')[0]}" class="preview-iframe"></iframe></div>` : "";
-
-                let timelineContent = `
-                    <div class="timeline-step timeline-success">
-                        <p class="text-[9px] font-bold text-gray-400 uppercase">Tahap 1: Pengajuan</p>
-                        <div class="text-xs text-gray-700 mt-1">
-                            <p class="italic bg-white p-2 rounded border border-gray-100 mb-2">"${item.rincian_masalah || '-'}"</p>
-                            ${previewAjuan}
-                            <hr class="my-2 border-gray-200">
-                            <p class="font-bold mb-1 text-green-700">Tanggapan Auditor:</p>
-                            <p class="italic">${isTerjawab ? `"${item.jawaban}" <br><span class="text-[10px] text-gray-400">Dijawab: ${new Date(item.waktu_jawaban).toLocaleString('id-ID')}</span>` : 'Menunggu tanggapan...'}</p>
-                        </div>
-                    </div>
-                `;
-
+                let timelineContent = `<div class="timeline-step timeline-success"><p class="text-[9px] font-bold text-gray-400 uppercase">Tahap 1: Pengajuan</p><div class="text-xs text-gray-700 mt-1"><p class="italic bg-white p-2 rounded border border-gray-100 mb-2">"${item.rincian_masalah || '-'}"</p>${previewAjuan}<hr class="my-2 border-gray-200"><p class="font-bold mb-1 text-green-700">Tanggapan Auditor:</p><p class="italic">${isTerjawab ? `"${item.jawaban}" <br><span class="text-[10px] text-gray-400">Dijawab: ${new Date(item.waktu_jawaban).toLocaleString('id-ID')}</span>` : 'Menunggu tanggapan...'}</p></div></div>`;
                 if(isTerjawab) {
                     let tlStatusText = "";
                     let tlClass = "timeline-active";
@@ -312,48 +271,21 @@
                     else if(item.status_tl === "Tuntas") { tlStatusText = `<span class="text-teal-600 font-bold">✅ Tuntas:</span> Selesai diverifikasi. <br><span class="italic text-[10px] text-gray-500">Catatan: ${item.catatan_admin_tl}</span> ${previewTL}`; tlClass = "timeline-success"; }
                     timelineContent += `<div class="timeline-step ${tlClass}"><p class="text-[9px] font-bold text-gray-400 uppercase">Tahap 2: Monitoring Tindak Lanjut</p><div class="text-xs text-gray-700 mt-1">${tlStatusText}</div></div>`;
                 }
-
-                let actionBtn = (isTerjawab && (item.status_tl === "Belum TL" || item.status_tl === "Perlu Perbaikan")) 
-                    ? `<button onclick="formTL(${item.id})" class="mt-2 w-full py-2 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition shadow-sm animate__animated animate__pulse animate__infinite">Kirim Laporan & Bukti TL</button>` : "";
-
-                return `<tr class="hover:bg-gray-50/50 transition border-b border-gray-50">
-                    <td class="p-5 text-[9px] text-gray-400 align-top pt-6">${tglAju}</td>
-                    <td class="p-5 align-top pt-6">
-                        <div class="text-[10px] text-blue-500 font-semibold italic mb-1 uppercase">${item.kategori}</div>
-                        ${metodeBadge}
-                    </td>
-                    <td class="p-5 align-top pt-6">
-                        <div class="text-sm font-bold text-gray-800 mb-4">${item.judul_masalah}</div>
-                        <div class="mb-4 bg-gray-50 p-4 rounded-xl border border-gray-100">${timelineContent}</div>
-                        ${actionBtn}
-                    </td>
-                    <td class="p-5 text-center align-top pt-6">
-                        <span class="inline-block w-24 py-1.5 ${item.status_tl === 'Tuntas' ? 'bg-teal-100 text-teal-700 border-teal-200' : (isTerjawab ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200')} text-[9px] font-bold rounded-full uppercase border">
-                            ${item.status_tl === 'Tuntas' ? 'Tuntas' : (isTerjawab ? 'Terjawab' : 'Menunggu')}
-                        </span>
-                    </td>
-                </tr>`;
+                let actionBtn = (isTerjawab && (item.status_tl === "Belum TL" || item.status_tl === "Perlu Perbaikan")) ? `<button onclick="formTL(${item.id})" class="mt-2 w-full py-2 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition shadow-sm animate__animated animate__pulse animate__infinite">Kirim Laporan & Bukti TL</button>` : "";
+                return `<tr class="hover:bg-gray-50/50 transition border-b border-gray-50"><td class="p-5 text-[9px] text-gray-400 align-top pt-6">${tglAju}</td><td class="p-5 align-top pt-6"><div class="text-[10px] text-blue-500 font-semibold italic mb-1 uppercase">${item.kategori}</div>${metodeBadge}</td><td class="p-5 align-top pt-6"><div class="text-sm font-bold text-gray-800 mb-4">${item.judul_masalah}</div><div class="mb-4 bg-gray-50 p-4 rounded-xl border border-gray-100">${timelineContent}</div>${actionBtn}</td><td class="p-5 text-center align-top pt-6"><span class="inline-block w-24 py-1.5 ${item.status_tl === 'Tuntas' ? 'bg-teal-100 text-teal-700 border-teal-200' : (isTerjawab ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200')} text-[9px] font-bold rounded-full uppercase border">${item.status_tl === 'Tuntas' ? 'Tuntas' : (isTerjawab ? 'Terjawab' : 'Menunggu')}</span></td></tr>`;
             }).join('');
         }
 
         function filterRiwayat() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = rawRiwayat.filter(item => 
-                item.judul_masalah.toLowerCase().includes(query)
-            );
+            const filtered = rawRiwayat.filter(item => item.judul_masalah.toLowerCase().includes(query));
             renderRiwayat(filtered);
         }
 
         async function formTL(rowId) {
             const { value: formValues } = await Swal.fire({
                 title: 'Kirim Laporan Tindak Lanjut',
-                html: `
-                    <div class="text-left">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase">Penjelasan Tindak Lanjut</label>
-                        <textarea id="swal-input-ket" class="w-full p-3 border rounded-xl text-xs mb-3 outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Jelaskan tindakan yang sudah dilakukan..."></textarea>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase">Unggah Bukti Dokumen (PDF/Gambar)</label>
-                        <input type="file" id="swal-input-file" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-50 file:text-blue-700" accept=".pdf,image/*">
-                    </div>`,
+                html: `<div class="text-left"><label class="text-[10px] font-bold text-gray-400 uppercase">Penjelasan Tindak Lanjut</label><textarea id="swal-input-ket" class="w-full p-3 border rounded-xl text-xs mb-3 outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Jelaskan tindakan yang sudah dilakukan..."></textarea><label class="text-[10px] font-bold text-gray-400 uppercase">Unggah Bukti Dokumen (PDF/Gambar)</label><input type="file" id="swal-input-file" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-50 file:text-blue-700" accept=".pdf,image/*"></div>`,
                 showCancelButton: true,
                 confirmButtonText: 'Kirim Sekarang',
                 cancelButtonText: 'Batal',
@@ -369,7 +301,6 @@
 
             if (formValues) {
                 Swal.fire({ title: 'Mengirim Laporan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                
                 let linkBukti = "-";
                 if (formValues.file) {
                     const base64 = await new Promise(resolve => {
@@ -377,16 +308,10 @@
                         reader.onload = e => resolve(e.target.result.split(',')[1]);
                         reader.readAsDataURL(formValues.file);
                     });
-
                     try {
                         const uploadRes = await fetch(APPS_SCRIPT_URL, {
                             method: 'POST',
-                            body: JSON.stringify({
-                                action: "upload_only",
-                                fileData: base64,
-                                fileName: formValues.file.name,
-                                fileType: formValues.file.type
-                            })
+                            body: JSON.stringify({ action: "upload_only", fileData: base64, fileName: formValues.file.name, fileType: formValues.file.type })
                         });
                         const uploadResult = await uploadRes.json();
                         linkBukti = uploadResult.fileLink;
@@ -397,15 +322,9 @@
                     const res = await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${rowId}`, {
                         method: 'PATCH',
                         headers: headers,
-                        body: JSON.stringify({ 
-                            bukti_tl: `Keterangan: ${formValues.penjelasan} | Link Dokumen: ${linkBukti}`,
-                            status_tl: "Menunggu Verifikasi",
-                            waktu_kirim_tl: new Date().toISOString()
-                        })
+                        body: JSON.stringify({ bukti_tl: `Keterangan: ${formValues.penjelasan} | Link Dokumen: ${linkBukti}`, status_tl: "Menunggu Verifikasi", waktu_kirim_tl: new Date().toISOString() })
                     });
-                    
                     if(!res.ok) throw new Error("Gagal update");
-
                     Swal.fire({ icon: 'success', title: 'Berhasil Terkirim!', text: 'Laporan Anda akan segera diverifikasi Auditor.', timer: 2000, showConfirmButton: false, customClass: { popup: 'rounded-3xl' } });
                     refreshData();
                 } catch (e) { Swal.fire('Gagal', 'Terjadi kesalahan pada database.', 'error'); }
