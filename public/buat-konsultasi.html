@@ -13,7 +13,7 @@
     
     <style>
         body { user-select: none; -webkit-user-select: none; display: none; }
-        .profile-ring { padding: 2px; background: linear-gradient(to bottom right, #3b82f6, #1e40af); } }
+        .profile-ring { padding: 2px; background: linear-gradient(to bottom right, #3b82f6, #1e40af); }
 
         /* --- WATERMARK LOGO GLOBAL --- */
         .watermark-fixed {
@@ -35,13 +35,15 @@
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
-    <div class="flex h-screen overflow-hidden relative">
+    <div class="watermark-fixed"></div>
+
+    <div class="flex h-screen overflow-hidden relative z-10">
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#1F2937] text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
             <div class="p-6 border-b border-gray-700 flex flex-col items-center">
                 <img src="../pages/logo_kab.png" alt="Logo" class="w-14 mb-3 drop-shadow-md">
                 <div class="text-center">
                     <h1 class="text-xl font-bold text-white tracking-tight">SiCODI</h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight text-center">Inspektorat Daerah<br>Kabupaten Malang</p>
                 </div>
             </div>
             
@@ -170,7 +172,6 @@
         const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl";
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2l5RHPGfRBDGt4SJUyKycyAfvKBjHl7F9Prr6Oq82AMoGUAKLRticQPf55sKy-AZr/exec";
 
-        // --- PROTEKSI & SETUP ---
         (function() {
             if (sessionStorage.getItem('isLoggedIn') !== 'true') {
                 window.location.href = 'login.html';
@@ -178,14 +179,10 @@
                 document.body.style.display = "block";
                 const name = sessionStorage.getItem('namaOpd') || "";
                 const user = sessionStorage.getItem('userName') || "";
-                
                 document.getElementById('opdName').value = name;
-
-                // LOGIKA SEDERHANA: Deteksi kata "KEC" di username
                 if (user.toUpperCase().includes('KEC')) {
                     document.getElementById('wrap-desa').classList.remove('hidden');
                 }
-                
                 document.getElementById('head-opd-name').innerText = name;
                 document.getElementById('head-username').innerText = '@' + user;
                 document.getElementById('head-initials').innerText = name.substring(0,2).toUpperCase();
@@ -256,7 +253,6 @@
                 } catch (err) { console.error("Gagal upload file."); }
             }
 
-            // GABUNGKAN NAMA INSTANSI
             const namaOpdAsli = sessionStorage.getItem('namaOpd');
             const namaDesa = document.getElementById('namaDesa').value.trim();
             const instansiFinal = namaDesa !== "" ? `${namaOpdAsli} (${namaDesa})` : namaOpdAsli;
