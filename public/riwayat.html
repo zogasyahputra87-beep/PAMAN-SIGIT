@@ -13,6 +13,8 @@
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
@@ -102,6 +104,10 @@
                 </div>
                 
                 <div class="flex items-center space-x-4">
+                    <button onclick="exportToPDF()" class="flex items-center space-x-2 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-xl border border-red-200 transition active:scale-95 shadow-sm">
+                        <span>📄</span>
+                        <span class="hidden md:inline text-[10px] font-bold uppercase tracking-widest font-black">Cetak PDF</span>
+                    </button>
                     <button onclick="refreshData()" class="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-600 px-4 py-2 rounded-xl border border-gray-200 transition active:scale-95 shadow-sm">
                         <span id="refresh-icon">🔄</span>
                         <span class="hidden md:inline text-[10px] font-bold uppercase tracking-widest font-black">Refresh Data</span>
@@ -146,7 +152,7 @@
                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Pencarian Data Saya</label>
                     <div class="relative group">
                         <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">🔍</span>
-                        <input type="text" id="searchInput" onkeyup="filterRiwayat()" placeholder="Cari berdasarkan judul masalah..." class="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-2xl bg-white text-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm">
+                        <input type="text" id="searchInput" onkeyup="filterRiwayat()" placeholder="Cari berdasarkan No Reg atau judul masalah..." class="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-2xl bg-white text-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm">
                     </div>
                 </div>
 
@@ -155,7 +161,7 @@
                         <table class="w-full text-left border-collapse min-w-[950px]">
                             <thead class="bg-gray-50 border-b border-gray-100">
                                 <tr class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
-                                    <th class="p-5" style="width: 150px">Waktu Aju</th>
+                                    <th class="p-5" style="width: 170px">Waktu & No. Reg</th>
                                     <th class="p-5" style="width: 200px">Kategori / Metode</th>
                                     <th class="p-5">Detail Konsultasi & Alur Monitoring</th>
                                     <th class="p-5 text-center" style="width: 150px">Status</th>
@@ -190,6 +196,53 @@
                 document.getElementById('head-initials').innerText = name.substring(0, 2).toUpperCase();
             }
         })();
+
+        // FUNGSI PENOMORAN REGISTRASI
+        function generateRegNum(id, waktuAju) {
+            const date = new Date(waktuAju);
+            const tgl = ("0" + date.getDate()).slice(-2);
+            const bln = ("0" + (date.getMonth() + 1)).slice(-2);
+            const thn = date.getFullYear();
+            const tanggalLengkap = `${tgl}${bln}${thn}`; 
+            const unikID = ("0000" + id).slice(-4); 
+            return `REG/ITDA/${tanggalLengkap}/${unikID}`;
+        }
+
+        // FUNGSI EKSPOR PDF
+        async function exportToPDF() {
+            if(rawRiwayat.length === 0) return Swal.fire('Gagal', 'Tidak ada data untuk dicetak.', 'error');
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            const namaOpd = sessionStorage.getItem('namaOpd');
+
+            doc.setFontSize(14);
+            doc.text("LAPORAN RIWAYAT KONSULTASI DIGITAL (SiCODI)", 14, 15);
+            doc.setFontSize(10);
+            doc.text(`Instansi: ${namaOpd}`, 14, 22);
+            doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 27);
+            doc.line(14, 30, 283, 30);
+
+            const tableData = rawRiwayat.map(item => [
+                generateRegNum(item.id, item.waktu_pengajuan),
+                new Date(item.waktu_pengajuan).toLocaleDateString('id-ID'),
+                item.kategori,
+                item.judul_masalah,
+                item.status_tl === 'Tuntas' ? 'TUNTAS' : (item.jawaban ? 'TERJAWAB' : 'MENUNGGU')
+            ]);
+
+            doc.autoTable({
+                startY: 35,
+                head: [['No. Registrasi', 'Tanggal', 'Kategori', 'Judul Masalah', 'Status Akhir']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [31, 41, 55] },
+                styles: { fontSize: 8, cellPadding: 3 }
+            });
+
+            doc.save(`Riwayat_SiCODI_${namaOpd.replace(/\s+/g, '_')}.pdf`);
+            Swal.fire({ icon: 'success', title: 'PDF Berhasil Dibuat', timer: 1500, showConfirmButton: false, customClass: { popup: 'rounded-3xl' } });
+        }
 
         async function refreshData() {
             const icon = document.getElementById('refresh-icon');
@@ -232,6 +285,7 @@
             loader.classList.add('hidden');
             listTable.innerHTML = dataToRender.map(item => {
                 const isTerjawab = item.jawaban && item.jawaban !== "";
+                const regNum = generateRegNum(item.id, item.waktu_pengajuan);
                 const metodeBadge = item.metode === 'Offline' 
                     ? `<div class="mt-2 inline-flex flex-col space-y-1"><span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-purple-200 w-fit">Offline</span><span class="text-[9px] text-purple-600 font-bold italic">📅 ${item.tanggal_offline || '-'}</span></div>`
                     : `<div class="mt-2"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-blue-200 w-fit">Online</span></div>`;
@@ -249,13 +303,33 @@
                     timelineContent += `<div class="timeline-step ${tlClass}"><p class="text-[9px] font-bold text-gray-400 uppercase">Tahap 2: Monitoring Tindak Lanjut</p><div class="text-xs text-gray-700 mt-1">${tlStatusText}</div></div>`;
                 }
                 let actionBtn = (isTerjawab && (item.status_tl === "Belum TL" || item.status_tl === "Perlu Perbaikan")) ? `<button onclick="formTL(${item.id})" class="mt-2 w-full py-2 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition shadow-sm animate__animated animate__pulse animate__infinite">Kirim Laporan & Bukti TL</button>` : "";
-                return `<tr class="hover:bg-gray-50/50 transition border-b border-gray-50"><td class="p-5 text-[9px] text-gray-400 align-top pt-6">${new Date(item.waktu_pengajuan).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</td><td class="p-5 align-top pt-6"><div class="text-[10px] text-blue-500 font-semibold italic mb-1 uppercase">${item.kategori}</div>${metodeBadge}</td><td class="p-5 align-top pt-6"><div class="text-sm font-bold text-gray-800 mb-4">${item.judul_masalah}</div><div class="mb-4 bg-gray-50 p-4 rounded-xl border border-gray-100">${timelineContent}</div>${actionBtn}</td><td class="p-5 text-center align-top pt-6"><span class="inline-block w-24 py-1.5 ${item.status_tl === 'Tuntas' ? 'bg-teal-100 text-teal-700 border-teal-200' : (isTerjawab ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200')} text-[9px] font-bold rounded-full uppercase border">${item.status_tl === 'Tuntas' ? 'Tuntas' : (isTerjawab ? 'Terjawab' : 'Menunggu')}</span></td></tr>`;
+                
+                return `<tr class="hover:bg-gray-50/50 transition border-b border-gray-50">
+                    <td class="p-5 align-top pt-6">
+                        <div class="text-[11px] font-black text-blue-600 mb-1 tracking-tighter">${regNum}</div>
+                        <div class="text-[9px] text-gray-400 italic">${new Date(item.waktu_pengajuan).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</div>
+                    </td>
+                    <td class="p-5 align-top pt-6">
+                        <div class="text-[10px] text-blue-500 font-semibold italic mb-1 uppercase">${item.kategori}</div>${metodeBadge}
+                    </td>
+                    <td class="p-5 align-top pt-6">
+                        <div class="text-sm font-bold text-gray-800 mb-4">${item.judul_masalah}</div>
+                        <div class="mb-4 bg-gray-50 p-4 rounded-xl border border-gray-100">${timelineContent}</div>${actionBtn}
+                    </td>
+                    <td class="p-5 text-center align-top pt-6">
+                        <span class="inline-block w-24 py-1.5 ${item.status_tl === 'Tuntas' ? 'bg-teal-100 text-teal-700 border-teal-200' : (isTerjawab ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200')} text-[9px] font-bold rounded-full uppercase border">${item.status_tl === 'Tuntas' ? 'Tuntas' : (isTerjawab ? 'Terjawab' : 'Menunggu')}</span>
+                    </td>
+                </tr>`;
             }).join('');
         }
 
         function filterRiwayat() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            renderRiwayat(rawRiwayat.filter(item => item.judul_masalah.toLowerCase().includes(query)));
+            const filtered = rawRiwayat.filter(item => {
+                const regNum = generateRegNum(item.id, item.waktu_pengajuan).toLowerCase();
+                return item.judul_masalah.toLowerCase().includes(query) || regNum.includes(query);
+            });
+            renderRiwayat(filtered);
         }
 
         async function formTL(rowId) {
