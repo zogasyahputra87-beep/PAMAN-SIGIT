@@ -90,15 +90,12 @@
                         <span id="refresh-icon">🔄</span>
                         <span class="hidden md:inline text-[10px] font-black uppercase tracking-widest">Refresh Data</span>
                     </button>
-
-                    <button id="btn-start-print" onclick="togglePrintMode(true)" class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition text-[10px] font-black uppercase shadow-md active:scale-95">
-                        <span>🖨️ Cetak Riwayat</span>
-                    </button>
-
-                    <div id="print-options" class="hidden flex items-center space-x-2 animate__animated animate__fadeInRight">
-                        <button onclick="exportData('pdf')" class="bg-red-600 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-red-700 shadow-sm">PDF</button>
-                        <button onclick="exportData('excel')" class="bg-green-600 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-green-700 shadow-sm">Excel</button>
-                        <button onclick="togglePrintMode(false)" class="bg-gray-200 text-gray-600 px-3 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-gray-300">Batal</button>
+                    <button id="btn-start-print" onclick="togglePrintMode(true)" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase shadow-md">🖨️ Cetak</button>
+                    
+                    <div id="print-options" class="hidden flex items-center space-x-2">
+                        <button onclick="exportData('pdf')" class="bg-red-600 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase shadow-sm">PDF</button>
+                        <button onclick="exportData('excel')" class="bg-green-600 text-white px-3 py-2 rounded-xl text-[10px] font-black uppercase shadow-sm">Excel</button>
+                        <button onclick="togglePrintMode(false)" class="bg-gray-200 text-gray-600 px-3 py-2 rounded-xl text-[10px] font-black uppercase">Batal</button>
                     </div>
 
                     <div class="relative">
@@ -121,16 +118,16 @@
 
             <div class="p-6 md:p-10 relative z-10">
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8" id="stats-container">
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center"><p class="text-[8px] font-bold text-gray-400 uppercase mb-1">Total</p><h3 id="user-stat-total" class="text-xl font-black text-gray-800">...</h3></div>
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center"><p class="text-[8px] font-bold text-gray-400 uppercase mb-1">Menunggu</p><h3 id="user-stat-pending" class="text-xl font-black text-yellow-600">...</h3></div>
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center border-b-4 border-b-blue-400"><p class="text-[8px] font-bold text-gray-400 uppercase mb-1">Proses TL</p><h3 id="user-stat-tl" class="text-xl font-black text-blue-500">...</h3></div>
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center"><p class="text-[8px] font-bold text-gray-400 uppercase mb-1">Verifikasi</p><h3 id="user-stat-verif" class="text-xl font-black text-orange-600">...</h3></div>
-                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center"><p class="text-[8px] font-bold text-gray-400 uppercase mb-1">Tuntas</p><h3 id="user-stat-done" class="text-xl font-black text-teal-600">...</h3></div>
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center"><p class="text-[8px] font-bold text-gray-400 uppercase mb-1 font-black tracking-widest">Total</p><h3 id="user-stat-total" class="text-xl font-black text-gray-800">...</h3></div>
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center"><p class="text-[8px] font-bold text-gray-400 uppercase mb-1 font-black tracking-widest">Menunggu</p><h3 id="user-stat-pending" class="text-xl font-black text-yellow-600">...</h3></div>
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center border-b-4 border-b-blue-400"><p class="text-[8px] font-bold text-gray-400 uppercase mb-1 font-black tracking-widest">Proses TL</p><h3 id="user-stat-tl" class="text-xl font-black text-blue-500">...</h3></div>
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center"><p class="text-[8px] font-bold text-gray-400 uppercase mb-1 font-black tracking-widest">Verifikasi</p><h3 id="user-stat-verif" class="text-xl font-black text-orange-600">...</h3></div>
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center"><p class="text-[8px] font-bold text-gray-400 uppercase mb-1 font-black tracking-widest">Tuntas</p><h3 id="user-stat-done" class="text-xl font-black text-teal-600">...</h3></div>
                 </div>
 
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                        <input type="text" id="searchInput" onkeyup="filterRiwayat()" placeholder="Cari No. Registrasi atau Judul..." class="p-3 border border-gray-200 rounded-xl text-xs w-full max-w-md focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="text" id="searchInput" onkeyup="filterRiwayat()" placeholder="Cari No. Registrasi atau Judul..." class="p-3 border border-gray-200 rounded-xl text-xs w-full max-w-md focus:ring-2 focus:ring-blue-500 outline-none transition">
                         <div class="hidden text-[10px] font-bold text-blue-600 uppercase italic" id="selected-count">0 Data Terpilih</div>
                     </div>
                     <div class="overflow-x-auto custom-scrollbar">
@@ -200,140 +197,139 @@
                 const terjawab = item.jawaban && item.jawaban !== "";
                 const isTuntas = item.status_tl === 'Tuntas';
                 const isVerif = item.status_tl === 'Menunggu Verifikasi';
+                const isPerluPerbaikan = item.status_tl === 'Perlu Perbaikan';
                 
-                let timeline = `<div class="timeline-step timeline-success"><b>Pengajuan:</b> ${item.rincian_masalah}</div>
-                                <div class="timeline-step ${terjawab ? 'timeline-active' : ''}"><b>Tanggapan Auditor:</b> ${item.jawaban || 'Menunggu tanggapan...'}</div>`;
-                
-                // Logika Tombol TL
                 const btnAction = (terjawab && !isTuntas && !isVerif) ? 
-                                  `<button onclick="formTL(${item.id})" class="mt-2 w-full py-2 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition animate__animated animate__pulse animate__infinite shadow-md">Kirim Bukti TL</button>` : "";
+                                  `<div id="btn-tl-container-${item.id}">
+                                    <button onclick="showInlineForm(${item.id})" class="mt-2 w-full py-2 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition animate__animated animate__pulse animate__infinite">Kirim Bukti TL</button>
+                                   </div>` : "";
+
+                const statusColor = isTuntas ? 'bg-teal-50 text-teal-600 border-teal-200' : 
+                                   (isVerif ? 'bg-orange-50 text-orange-600 border-orange-200' : 
+                                   (isPerluPerbaikan ? 'bg-red-50 text-red-600 border-red-200' : 
+                                   (terjawab ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-600 border-yellow-200')));
+
+                const statusText = isTuntas ? 'Tuntas' : (isVerif ? 'Verifikasi' : (isPerluPerbaikan ? 'Perbaikan' : (terjawab ? 'Terjawab' : 'Menunggu')));
 
                 return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition">
-                    <td class="col-check-d hidden p-5 text-center"><input type="checkbox" class="data-check w-4 h-4 cursor-pointer" value="${item.id}" onclick="updateSelectedCount()"></td>
+                    <td class="col-check-d hidden p-5 text-center"><input type="checkbox" class="data-check w-4 h-4" value="${item.id}" onclick="updateSelectedCount()"></td>
                     <td class="p-5 align-top pt-6">
                         <div class="text-[11px] font-black text-blue-600 mb-1 tracking-tighter">${regNum}</div>
                         <div class="text-[9px] text-gray-400">${new Date(item.waktu_pengajuan).toLocaleString('id-ID')}</div>
                     </td>
                     <td class="p-5 align-top pt-6">
-                        <div class="text-[10px] font-bold uppercase text-blue-500 mb-1">${item.kategori}</div>
+                        <div class="text-[10px] font-bold uppercase text-blue-500 mb-1 tracking-tighter">${item.kategori}</div>
                         <span class="text-[8px] bg-gray-100 px-2 py-0.5 rounded font-black border uppercase">${item.metode}</span>
                     </td>
-                    <td class="p-5 align-top pt-6">
+                    <td class="p-5 align-top pt-6" id="detail-cell-${item.id}">
                         <div class="font-bold text-gray-800 mb-2">${item.judul_masalah}</div>
-                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 text-xs">${timeline}</div>
+                        <div id="timeline-box-${item.id}" class="bg-gray-50 p-4 rounded-xl border border-gray-100 text-xs">
+                            <div class="timeline-step timeline-success"><b>Pengajuan:</b> ${item.rincian_masalah}</div>
+                            <div class="timeline-step ${terjawab ? 'timeline-active' : ''}"><b>Tanggapan Auditor:</b> ${item.jawaban || 'Menunggu tanggapan...'}</div>
+                            ${isVerif ? `<div class="mt-2 text-[10px] text-orange-600 font-bold uppercase italic">🛡️ Sedang Diverifikasi Auditor</div>` : ''}
+                        </div>
                         ${btnAction}
                     </td>
                     <td class="p-5 text-center align-top pt-6">
-                        <span class="inline-block w-24 py-1.5 rounded-full text-[9px] font-bold uppercase border ${isTuntas ? 'bg-teal-50 text-teal-600 border-teal-200' : (isVerif ? 'bg-orange-50 text-orange-600 border-orange-200' : (terjawab ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-600 border-yellow-200'))}">
-                            ${isTuntas ? 'Tuntas' : (isVerif ? 'Verifikasi' : (terjawab ? 'Terjawab' : 'Menunggu'))}
+                        <span class="inline-block w-24 py-1.5 rounded-full text-[9px] font-black uppercase border ${statusColor}">
+                            ${statusText}
                         </span>
                     </td>
                 </tr>`;
             }).join('');
         }
 
-        // --- FUNGSI BARU: KIRIM BUKTI TL (FIXED & OPTIMIZED) ---
-        async function formTL(id) {
-            // Step 1: Penjelasan TL
-            const { value: penjelasan } = await Swal.fire({
-                title: 'Tindak Lanjut',
-                input: 'textarea',
-                inputLabel: 'Jelaskan tindakan yang telah dilakukan:',
-                inputPlaceholder: 'Contoh: Sudah dilakukan revisi pada dokumen...',
-                showCancelButton: true,
-                confirmButtonColor: '#3b82f6',
-                customClass: { popup: 'rounded-3xl' }
-            });
+        // --- FUNGSI INLINE FORM (ANTI POP-UP) ---
+        function showInlineForm(id) {
+            const container = document.getElementById(`timeline-box-${id}`);
+            const btnContainer = document.getElementById(`btn-tl-container-${id}`);
+            
+            // Simpan konten asli jika ingin batal
+            const originalTimeline = container.innerHTML;
 
-            if (!penjelasan) return;
+            // Ganti konten dengan form input
+            container.innerHTML = `
+                <div class="animate__animated animate__fadeIn">
+                    <label class="block text-[10px] font-black text-blue-600 uppercase mb-2">Laporan Tindak Lanjut:</label>
+                    <textarea id="input-tl-desc-${id}" class="w-full p-3 text-xs border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none mb-3" rows="3" placeholder="Tuliskan tindakan yang telah dilakukan..."></textarea>
+                    
+                    <label class="block text-[10px] font-black text-blue-600 uppercase mb-2">Dokumen Bukti (PDF/JPG):</label>
+                    <input type="file" id="input-tl-file-${id}" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-4 cursor-pointer">
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="submitTLInline(${id})" class="flex-1 bg-green-600 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-md hover:bg-green-700">Kirim Laporan</button>
+                        <button onclick="cancelTLInline(${id}, \`${originalTimeline.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" class="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-gray-300">Batal</button>
+                    </div>
+                </div>
+            `;
+            btnContainer.classList.add('hidden');
+        }
 
-            // Step 2: Upload File Bukti
-            const { value: file } = await Swal.fire({
-                title: 'Unggah Bukti Dokumen',
-                input: 'file',
-                inputAttributes: { 'accept': '.pdf,.jpg,.jpeg,.png,.doc,.docx', 'aria-label': 'Pilih file bukti' },
-                showCancelButton: true,
-                confirmButtonText: 'Upload & Kirim',
-                confirmButtonColor: '#10b981',
-                customClass: { popup: 'rounded-3xl' }
-            });
+        function cancelTLInline(id, originalContent) {
+            document.getElementById(`timeline-box-${id}`).innerHTML = originalContent;
+            document.getElementById(`btn-tl-container-${id}`).classList.remove('hidden');
+        }
 
-            if (!file) return;
+        async function submitTLInline(id) {
+            const desc = document.getElementById(`input-tl-desc-${id}`).value;
+            const fileInput = document.getElementById(`input-tl-file-${id}`);
+            const file = fileInput.files[0];
 
-            // Step 3: Proses Upload (Show Mascot Loading)
-            Swal.fire({
-                title: 'Sedang Memproses...',
-                html: 'Paman Sigit sedang mengirim dokumen Anda.',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading(),
-                imageUrl: '../assets/paman-verif.webp', // Maskot Sedang Bekerja
-                imageWidth: 150,
-                customClass: { popup: 'rounded-3xl' }
-            });
+            if (!desc.trim()) return Swal.fire('Error', 'Penjelasan TL wajib diisi!', 'warning');
+            if (!file) return Swal.fire('Error', 'Pilih file bukti dokumen!', 'warning');
+
+            // Loading state inline
+            const container = document.getElementById(`timeline-box-${id}`);
+            container.innerHTML = `
+                <div class="flex flex-col items-center py-6 animate__animated animate__pulse animate__infinite">
+                    <span class="text-2xl mb-2 text-blue-600 animate-spin inline-block">🔄</span>
+                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest text-center">Paman Sigit sedang mengirim laporan...</p>
+                </div>
+            `;
 
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = async () => {
                 const base64Data = reader.result.split(",")[1];
                 try {
-                    // Upload ke Google Drive
                     const uploadRes = await fetch(APPS_SCRIPT_URL, {
                         method: 'POST',
-                        body: JSON.stringify({ 
-                            action: "upload_only", 
-                            fileData: base64Data, 
-                            fileName: `BUKTI_TL_ID${id}_${sessionStorage.getItem('userName')}`, 
-                            fileType: file.type 
-                        })
+                        body: JSON.stringify({ action: "upload_only", fileData: base64Data, fileName: `BUKTI_TL_ID${id}_${sessionStorage.getItem('userName')}`, fileType: file.type })
                     });
                     const uploadResult = await uploadRes.json();
 
                     if (uploadResult.status === "success") {
-                        const buktiFinal = `${penjelasan} | Link Dokumen: ${uploadResult.fileLink}`;
-                        
-                        // Update Supabase
+                        const buktiFinal = `${desc} | Link Dokumen: ${uploadResult.fileLink}`;
                         await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, {
                             method: 'PATCH',
                             headers: { ...headers, "Content-Type": "application/json" },
-                            body: JSON.stringify({ 
-                                status_tl: "Menunggu Verifikasi", 
-                                bukti_tl: buktiFinal 
-                            })
+                            body: JSON.stringify({ status_tl: "Menunggu Verifikasi", bukti_tl: buktiFinal })
                         });
 
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil Terkirim!',
-                            text: 'Bukti TL Anda sedang menunggu verifikasi auditor.',
-                            imageUrl: '../assets/paman-happy.webp', // Maskot Kasih Jempol
-                            imageWidth: 150,
-                            timer: 3000,
-                            showConfirmButton: false,
-                            customClass: { popup: 'rounded-3xl' }
-                        });
-                        loadData(); // Refresh data tabel
+                        // Notifikasi sukses (satu-satunya pop up yang tersisa agar user lega)
+                        Swal.fire({ icon: 'success', title: 'TERKIRIM!', text: 'Laporan TL Anda telah masuk sistem.', timer: 2000, showConfirmButton: false });
+                        loadData(); 
                     } else { throw new Error(); }
                 } catch (err) {
-                    Swal.fire({ 
-                        icon: 'error', 
-                        title: 'Oops!', 
-                        text: 'Gagal mengunggah bukti. Coba lagi nanti.',
-                        imageUrl: '../assets/paman-error.webp', // Maskot Bingung
-                        imageWidth: 150,
-                        customClass: { popup: 'rounded-3xl' }
-                    });
+                    Swal.fire('Error', 'Gagal mengirim. Periksa koneksi!', 'error');
+                    loadData();
                 }
             };
         }
 
-        // --- FUNGSI PENUNJANG LAINNYA ---
+        // --- SISTEM PENUNJANG ---
+        function filterRiwayat() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = rawRiwayat.filter(i => i.judul_masalah.toLowerCase().includes(q) || i.id.toString().includes(q));
+            renderRiwayat(filtered);
+        }
+
         function togglePrintMode(isPrinting) {
             const btnStart = document.getElementById('btn-start-print');
             const printOptions = document.getElementById('print-options');
             const colCheckH = document.getElementById('col-check-h');
             const colCheckD = document.querySelectorAll('.col-check-d');
             const selectedCountLabel = document.getElementById('selected-count');
-            const headerSubtitle = document.getElementById('header-subtitle');
 
             if (isPrinting) {
                 btnStart.classList.add('hidden');
@@ -341,17 +337,12 @@
                 colCheckH.classList.remove('hidden');
                 colCheckD.forEach(el => el.classList.remove('hidden'));
                 selectedCountLabel.classList.remove('hidden');
-                headerSubtitle.innerText = "Mode Cetak Aktif: Pilih data";
             } else {
                 btnStart.classList.remove('hidden');
                 printOptions.classList.add('hidden');
                 colCheckH.classList.add('hidden');
                 colCheckD.forEach(el => el.classList.add('hidden'));
                 selectedCountLabel.classList.add('hidden');
-                headerSubtitle.innerText = "Daftar Pengajuan Privat";
-                document.getElementById('selectAll').checked = false;
-                document.querySelectorAll('.data-check').forEach(cb => cb.checked = false);
-                updateSelectedCount();
             }
         }
 
@@ -375,8 +366,8 @@
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('l', 'mm', 'a4');
                 doc.text("RIWAYAT KONSULTASI PAMAN SIGIT", 14, 15);
-                const body = dataToExport.map(i => [generateRegNum(i.id, i.waktu_pengajuan), i.kategori, i.judul_masalah, i.status_tl]);
-                doc.autoTable({ head: [['No. Reg', 'Kategori', 'Judul', 'Status']], body: body, startY: 25 });
+                const body = dataToExport.map(i => [i.id, i.kategori, i.judul_masalah, i.status_tl]);
+                doc.autoTable({ head: [['ID', 'Kategori', 'Judul', 'Status']], body: body, startY: 25 });
                 doc.save('Riwayat_PamanSigit.pdf');
             } else {
                 const worksheet = XLSX.utils.json_to_sheet(dataToExport);
@@ -385,11 +376,6 @@
                 XLSX.utils.writeFile(workbook, "Riwayat_PamanSigit.xlsx");
             }
             togglePrintMode(false);
-        }
-
-        function generateRegNum(id, waktuAju) {
-            const d = new Date(waktuAju);
-            return `REG/ITDA/${("0"+d.getDate()).slice(-2)}${("0"+(d.getMonth()+1)).slice(-2)}${d.getFullYear()}/${("0000" + id).slice(-4)}`;
         }
 
         async function logout() {
