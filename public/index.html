@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="PAMAN SIGIT - Layanan Konsultasi Digital Inspektorat Daerah Kabupaten Malang.">
-
     <meta name="google-site-verification" content="PThX0k0-0mpfE8h8zCusaP9iocfEovlLdAcA1qYBJ80" />
     
     <title>Dashboard | PAMAN SIGIT Inspektorat Daerah Kabupaten Malang</title>
@@ -20,33 +19,21 @@
         .spin { animation: rotate 0.8s linear; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+        /* Solid Color Overrides */
+        .bg-paman-dark { background-color: #1F2937; }
+        .text-paman-blue { color: #3b82f6; }
+
         .watermark-fixed {
-            position: fixed;
-            bottom: -30px;
-            right: -30px;
-            width: 500px;
-            height: 500px;
+            position: fixed; bottom: -30px; right: -30px; width: 500px; height: 500px;
             background-image: url('../pages/inspektorat.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            opacity: 0.5;
-            z-index: 0;
-            pointer-events: none;
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            opacity: 0.5; z-index: 0; pointer-events: none;
         }
 
-        .text-watermark {
-            position: absolute;
-            bottom: 10px;
-            right: 20px;
-            font-size: 60px;
-            font-weight: 900;
-            color: rgba(255, 255, 255, 0.05);
-            letter-spacing: 2px;
-            pointer-events: none;
-            user-select: none;
-            text-transform: uppercase;
-        }
+        /* Dropdown Animation */
+        #profile-menu { transform-origin: top right; transition: all 0.2s ease-out; }
+        .menu-hidden { transform: scale(0.95); opacity: 0; pointer-events: none; }
+        .menu-visible { transform: scale(1); opacity: 1; pointer-events: auto; }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 overflow-hidden">
@@ -54,12 +41,12 @@
     <div class="watermark-fixed"></div>
 
     <div class="flex h-screen overflow-hidden relative z-10">
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-[#1F2937] text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-paman-dark text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
             <div class="p-6 border-b border-gray-700 flex flex-col items-center">
                 <img src="../pages/logo_kab.png" alt="Logo" class="w-14 mb-3 drop-shadow-md">
                 <div class="text-center">
                     <h1 class="text-xl font-bold text-white tracking-tight">PAMAN SIGIT</h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight text-center">Inspektorat Daerah<br>Kabupaten Malang</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
                 </div>
             </div>
             <nav class="flex-1 mt-6 px-4 space-y-1">
@@ -72,14 +59,8 @@
                 </div>
             </nav>
             <div class="p-6 border-t border-gray-700 flex flex-col items-center bg-gray-800/50">
-                <div class="w-16 h-16 rounded-full profile-ring shadow-lg mb-3 overflow-hidden bg-gray-700">
-                    <img src="../pages/zoga.jpg" alt="Zoga" onerror="this.src='https://ui-avatars.com/api/?name=Ananda+Zoga'" class="w-full h-full object-cover">
-                </div>
-                <div class="text-center">
-                    <p class="text-[9px] text-blue-400 uppercase font-black tracking-tighter mb-1">Pengembang Sistem</p>
-                    <p class="text-[11px] font-bold text-gray-100 uppercase text-center leading-tight">Ananda Zoga Syahputra, S.Tr.I.P.</p>
-                </div>
-                <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition active:scale-95">Keluar Sistem</button>
+                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Versi 1.1 Stable</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase text-center leading-tight">Kabupaten Malang</p>
             </div>
         </aside>
 
@@ -102,30 +83,48 @@
                         <span id="icon-refresh">🔄</span>
                         <span class="hidden md:inline text-[10px] font-bold uppercase tracking-widest font-black">Refresh</span>
                     </button>
-                    <div class="flex items-center pl-4 border-l border-gray-200 text-right">
-                        <div class="mr-3 hidden md:block">
-                            <p id="head-opd-name" class="text-[10px] font-black text-gray-800 uppercase leading-none mb-1">NAMA OPD</p>
-                            <p id="head-username" class="text-[9px] text-blue-600 font-bold">@username</p>
-                        </div>
-                        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xs font-bold shadow-lg ring-2 ring-blue-50 ring-offset-2">
-                            <span id="head-initials">--</span>
+
+                    <div class="relative">
+                        <button onclick="toggleProfileMenu()" class="flex items-center pl-4 border-l border-gray-200 text-right group focus:outline-none">
+                            <div class="mr-3 hidden md:block">
+                                <p id="head-opd-name" class="text-[10px] font-black text-gray-800 uppercase leading-none mb-1">NAMA OPD</p>
+                                <p id="head-username" class="text-[9px] text-blue-600 font-bold">@username</p>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl profile-ring shadow-lg ring-2 ring-blue-50 ring-offset-2 overflow-hidden transition group-hover:scale-105">
+                                <img id="head-avatar" src="https://ui-avatars.com/api/?name=User" class="w-full h-full object-cover user-avatar-img">
+                            </div>
+                        </button>
+
+                        <div id="profile-menu" class="menu-hidden absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50">
+                            <div class="px-4 py-3 border-b border-gray-50">
+                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Akses Pengguna</p>
+                                <p id="drop-nama-opd" class="text-xs font-black text-gray-800 truncate">Nama OPD</p>
+                            </div>
+                            <button onclick="gantiProfil()" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-blue-50 hover:text-blue-600 flex items-center transition">
+                                <span class="mr-2">🖼️</span> Ganti Foto Profil
+                            </button>
+                            <button onclick="formGantiPassword()" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-blue-50 hover:text-blue-600 flex items-center transition">
+                                <span class="mr-2">🔑</span> Ganti Password
+                            </button>
+                            <hr class="my-1 border-gray-50">
+                            <button onclick="logout()" class="w-full text-left px-4 py-2 text-xs text-red-500 hover:bg-red-50 flex items-center transition font-bold uppercase tracking-widest">
+                                <span class="mr-2">🚀</span> Keluar Sistem
+                            </button>
                         </div>
                     </div>
                 </div>
             </header>
 
             <div class="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-6">
-                
-                <div class="bg-[#1F2937] text-white p-8 rounded-3xl shadow-xl relative overflow-hidden flex flex-col justify-center min-h-[180px] animate__animated animate__fadeIn">
-                    <div class="text-watermark">ITDA KAB. MLG</div>
+                <div class="bg-paman-dark text-white p-8 rounded-3xl shadow-xl relative overflow-hidden flex flex-col justify-center min-h-[180px]">
                     <div class="relative z-10">
                         <h3 class="text-2xl font-black mb-2 text-blue-400 uppercase tracking-tighter">Portal PAMAN SIGIT Kabupaten Malang</h3>
                         <p class="text-gray-400 text-sm leading-relaxed mb-6 max-w-3xl">
-                            Selamat Datang kembali, <span id="welcome-opd" class="text-white font-bold italic">Instansi</span>. Anda dapat memantau seluruh progres pembinaan, pengawasan, serta tindak lanjut konsultasi digital secara real-time di bawah ini.
+                            Selamat Datang kembali, <span id="welcome-opd" class="text-white font-bold italic">Instansi</span>. Anda dapat memantau seluruh progres pembinaan, pengawasan, serta tindak lanjut konsultasi digital secara real-time.
                         </p>
                         <div class="inline-flex items-center px-4 py-2 bg-gray-700/50 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-300 border border-gray-600">
                             <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span>
-                            Status Sistem: <span class="ml-1 text-green-400">Aktif & Terpantau</span>
+                            Status Sistem: <span class="ml-1 text-green-400 uppercase">Online</span>
                         </div>
                     </div>
                     <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl"></div>
@@ -158,7 +157,7 @@
                 <div class="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm">
                     <div class="flex justify-between items-center mb-6">
                         <div>
-                            <h3 class="text-sm font-black text-gray-800 uppercase tracking-tighter">Analisis Tren Konsultasi</h3>
+                            <h3 class="text-sm font-black text-gray-800 uppercase tracking-tighter text-paman-blue">Analisis Tren Konsultasi</h3>
                             <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Statistik Bulanan Tahun <span id="current-year-label">2026</span></p>
                         </div>
                     </div>
@@ -166,7 +165,6 @@
                         <canvas id="yearlyChart"></canvas>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>
@@ -174,6 +172,7 @@
     <script>
         const SUPABASE_URL = "https://afaiwyfodjllolzwbhmz.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2l5RHPGfRBDGt4SJUyKycyAfvKBjHl7F9Prr6Oq82AMoGUAKLRticQPf55sKy-AZr/exec";
         const headers = { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` };
         
         let myChart;
@@ -187,16 +186,99 @@
                 const user = sessionStorage.getItem('userName');
                 const role = sessionStorage.getItem('userRole');
                 if(role === 'admin') document.getElementById('admin-link').classList.remove('hidden');
+                
                 document.getElementById('head-opd-name').innerText = name;
+                document.getElementById('drop-nama-opd').innerText = name;
                 document.getElementById('head-username').innerText = '@' + user;
-                document.getElementById('head-initials').innerText = name.substring(0,2).toUpperCase();
                 document.getElementById('welcome-opd').innerText = name;
                 document.getElementById('current-year-label').innerText = new Date().getFullYear();
+                
                 startClock();
                 initChart();
+                fetchProfilTerbaru();
             }
         })();
 
+        // --- FUNGSI PROFIL & PASSWORD ---
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profile-menu');
+            menu.classList.toggle('menu-hidden');
+            menu.classList.toggle('menu-visible');
+        }
+
+        async function fetchProfilTerbaru() {
+            const user = sessionStorage.getItem('userName');
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${user}&select=foto_profil`, { headers: headers });
+            const data = await res.json();
+            if (data.length > 0 && data[0].foto_profil) {
+                document.querySelectorAll('.user-avatar-img').forEach(img => img.src = data[0].foto_profil);
+            }
+        }
+
+        async function gantiProfil() {
+            toggleProfileMenu();
+            const { value: file } = await Swal.fire({
+                title: 'Ganti Foto Profil',
+                input: 'file',
+                inputAttributes: { 'accept': 'image/*', 'aria-label': 'Pilih foto profil' },
+                showCancelButton: true, confirmButtonText: 'Upload', confirmButtonColor: '#3b82f6',
+                customClass: { popup: 'rounded-3xl' }
+            });
+
+            if (file) {
+                Swal.fire({ title: 'Mengunggah...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = async () => {
+                    const base64Data = reader.result.split(",")[1];
+                    try {
+                        const uploadRes = await fetch(APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: "upload_only", fileData: base64Data, fileName: `PROFIL_${sessionStorage.getItem('userName')}`, fileType: file.type })
+                        });
+                        const uploadResult = await uploadRes.json();
+                        if (uploadResult.status === "success") {
+                            await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${sessionStorage.getItem('userName')}`, {
+                                method: 'PATCH',
+                                headers: { ...headers, "Content-Type": "application/json" },
+                                body: JSON.stringify({ foto_profil: uploadResult.fileLink })
+                            });
+                            Swal.fire({ icon: 'success', title: 'Berhasil!', timer: 1500, showConfirmButton: false });
+                            fetchProfilTerbaru();
+                        }
+                    } catch (err) { Swal.fire('Error', 'Gagal upload foto', 'error'); }
+                };
+            }
+        }
+
+        async function formGantiPassword() {
+            toggleProfileMenu();
+            const { value: pass } = await Swal.fire({
+                title: 'Ganti Password',
+                html: `<input id="p1" type="password" class="swal2-input" placeholder="Password Baru">
+                       <input id="p2" type="password" class="swal2-input" placeholder="Konfirmasi Password">`,
+                preConfirm: () => {
+                    const p1 = document.getElementById('p1').value;
+                    const p2 = document.getElementById('p2').value;
+                    if (!p1 || p1 !== p2) return Swal.showValidationMessage('Password tidak cocok!');
+                    return p1;
+                },
+                showCancelButton: true, confirmButtonText: 'Update', confirmButtonColor: '#1F2937',
+                customClass: { popup: 'rounded-3xl' }
+            });
+
+            if (pass) {
+                Swal.fire({ title: 'Updating...', didOpen: () => Swal.showLoading() });
+                await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${sessionStorage.getItem('userName')}`, {
+                    method: 'PATCH',
+                    headers: { ...headers, "Content-Type": "application/json" },
+                    body: JSON.stringify({ password: pass })
+                });
+                Swal.fire({ icon: 'success', title: 'Password Diperbarui!', timer: 1500, showConfirmButton: false });
+            }
+        }
+
+        // --- FUNGSI SISTEM ---
         function startClock() {
             setInterval(() => {
                 const now = new Date();
@@ -216,25 +298,11 @@
                         data: Array(12).fill(0),
                         borderColor: '#3b82f6',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 4,
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: '#3b82f6',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7
+                        borderWidth: 4, tension: 0.4, fill: true,
+                        pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 5
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { font: { size: 10 } } },
-                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
@@ -250,37 +318,37 @@
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?select=status_tl,jawaban,waktu_pengajuan`, { headers: headers });
                 const data = await response.json();
                 
-                const total = data.length;
-                const pending = data.filter(item => !item.jawaban || item.jawaban === "").length;
-                const prosesTl = data.filter(item => (item.jawaban && item.jawaban !== "") && (item.status_tl === "Belum TL" || item.status_tl === "Perlu Perbaikan")).length;
-                const verifTl = data.filter(item => item.status_tl === 'Menunggu Verifikasi').length;
-                const tuntas = data.filter(item => item.status_tl === 'Tuntas').length;
-
-                document.getElementById('stat-total').innerText = total;
-                document.getElementById('stat-pending').innerText = pending;
-                document.getElementById('stat-proses-tl').innerText = prosesTl;
-                document.getElementById('stat-verif').innerText = verifTl;
-                document.getElementById('stat-done').innerText = tuntas;
+                document.getElementById('stat-total').innerText = data.length;
+                document.getElementById('stat-pending').innerText = data.filter(item => !item.jawaban).length;
+                document.getElementById('stat-proses-tl').innerText = data.filter(item => item.jawaban && (item.status_tl === "Belum TL" || item.status_tl === "Perlu Perbaikan")).length;
+                const v = data.filter(item => item.status_tl === 'Menunggu Verifikasi').length;
+                document.getElementById('stat-verif').innerText = v;
+                document.getElementById('stat-done').innerText = data.filter(item => item.status_tl === 'Tuntas').length;
 
                 const monthlyData = Array(12).fill(0);
-                const currentYear = new Date().getFullYear();
                 data.forEach(item => {
                     const date = new Date(item.waktu_pengajuan);
-                    if(date.getFullYear() === currentYear) {
-                        monthlyData[date.getMonth()]++;
-                    }
+                    if(date.getFullYear() === new Date().getFullYear()) monthlyData[date.getMonth()]++;
                 });
-                
                 myChart.data.datasets[0].data = monthlyData;
                 myChart.update();
 
-                document.getElementById('ping-tl').classList.toggle('hidden', verifTl === 0);
-            } catch (error) { console.error("Gagal update statistik:", error); }
+                document.getElementById('ping-tl').classList.toggle('hidden', v === 0);
+            } catch (error) { console.error(error); }
         }
 
-        window.onload = updateStats;
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('overlay').classList.toggle('hidden'); }
         function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(e) {
+            const menu = document.getElementById('profile-menu');
+            const btn = document.querySelector('header button[onclick="toggleProfileMenu()"]');
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.add('menu-hidden');
+                menu.classList.remove('menu-visible');
+            }
+        });
     </script>
 </body>
 </html>
