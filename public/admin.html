@@ -37,6 +37,11 @@
         #profile-menu { transform-origin: top right; transition: all 0.2s ease-out; }
         .menu-hidden { transform: scale(0.95); opacity: 0; pointer-events: none; }
         .menu-visible { transform: scale(1); opacity: 1; pointer-events: auto; }
+        
+        /* Preview Lampiran Style */
+        .attachment-preview { border: 2px dashed #e5e7eb; border-radius: 1rem; overflow: hidden; background: #f9fafb; margin-top: 0.75rem; }
+        .img-preview { width: 100%; max-height: 300px; object-fit: contain; background: #eee; cursor: zoom-in; }
+        .pdf-preview { width: 100%; height: 400px; border: none; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 overflow-hidden">
@@ -108,14 +113,12 @@
                             </div>
                         </button>
                         <div id="profile-menu" class="menu-hidden absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50">
-                            <div class="px-4 py-3 border-b border-gray-50 text-right">
-                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Hak Akses Admin</p>
-                                <p id="drop-admin-wilayah" class="text-xs font-black text-gray-800 truncate font-black">Wilayah</p>
+                            <div class="px-4 py-3 border-b border-gray-50 text-right font-black tracking-widest">
+                                <p class="text-[9px] font-bold text-gray-400 uppercase">Hak Akses Admin</p>
+                                <p id="drop-admin-wilayah" class="text-xs font-black text-gray-800 truncate">Wilayah</p>
                             </div>
-                            <button onclick="gantiProfil()" class="w-full text-right px-4 py-2 text-xs text-gray-600 hover:bg-blue-50 flex items-center justify-end transition font-black">Ganti Profil 🖼️</button>
-                            <button onclick="formGantiPassword()" class="w-full text-right px-4 py-2 text-xs text-gray-600 hover:bg-blue-50 flex items-center justify-end transition font-black">Ganti Password 🔑</button>
-                            <hr class="my-1 border-gray-50">
-                            <button onclick="logout()" class="w-full text-right px-4 py-2 text-xs text-red-500 hover:bg-red-50 flex items-center justify-end transition font-bold uppercase tracking-widest font-black">Keluar Sistem 🚀</button>
+                            <button onclick="gantiProfil()" class="w-full text-right px-4 py-2 text-xs text-gray-600 hover:bg-blue-50 font-black">Ganti Profil 🖼️</button>
+                            <button onclick="logout()" class="w-full text-right px-4 py-2 text-xs text-red-500 hover:bg-red-50 font-black uppercase tracking-widest">Keluar Sistem 🚀</button>
                         </div>
                     </div>
                 </div>
@@ -131,8 +134,8 @@
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div id="selected-count-bar" class="hidden p-3 bg-blue-50 border-b border-blue-100 flex justify-between items-center px-6">
-                        <span class="text-[10px] font-bold text-blue-600 uppercase italic font-black" id="selected-count-admin">0 Data Terpilih</span>
+                    <div id="selected-count-bar" class="hidden p-3 bg-blue-50 border-b border-blue-100 flex justify-between items-center px-6 font-black">
+                        <span class="text-[10px] font-bold text-blue-600 uppercase italic" id="selected-count-admin">0 Data Terpilih</span>
                     </div>
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left min-w-[1000px]">
@@ -179,13 +182,6 @@
             }
         })();
 
-        async function refreshAdminData() {
-            const icon = document.getElementById('refresh-icon-admin');
-            icon.classList.add('spin');
-            await fetchAdmin();
-            setTimeout(() => icon.classList.remove('spin'), 800);
-        }
-
         async function fetchAdmin() {
             const loader = document.getElementById('loader');
             const myWilayah = (sessionStorage.getItem('wilayah') || 'semua').trim().toLowerCase();
@@ -199,7 +195,7 @@
                 loader.classList.add('hidden');
                 updateAdminStats(rawData);
                 renderTable(filteredData);
-            } catch (e) { loader.innerHTML = `<span class="text-red-500 font-bold">⚠️ Database Error.</span>`; }
+            } catch (e) { loader.innerHTML = `<span class="text-red-500 font-bold font-black">⚠️ Database Error.</span>`; }
         }
 
         function renderTable(data) {
@@ -216,42 +212,72 @@
                 const tuntas = item.status_tl === "Tuntas";
                 const perbaikan = item.status_tl === "Perlu Perbaikan";
                 
+                // --- PARSING BUKTI TL & LAMPIRAN ---
+                let buktiText = "Belum mengirim bukti.";
+                let lampiranHtml = "";
+                
+                if (item.bukti_tl) {
+                    const parts = item.bukti_tl.split(" | Link: ");
+                    buktiText = parts[0];
+                    const link = parts[1];
+
+                    if (link && link !== "Tidak ada dokumen dilampirkan") {
+                        // Jika link drive, buat direct view
+                        let directLink = link;
+                        if (link.includes('drive.google.com')) {
+                            const fileId = link.split('/d/')[1]?.split('/')[0] || link.split('id=')[1];
+                            directLink = `https://drive.google.com/uc?export=view&id=${fileId}`;
+                        }
+
+                        // Deteksi Gambar atau PDF
+                        if (link.toLowerCase().match(/\.(jpeg|jpg|png|webp)$/) || link.includes('drive.google.com')) {
+                            lampiranHtml = `<div class="attachment-preview"><img src="${directLink}" class="img-preview" onclick="window.open('${link}')" title="Klik untuk perbesar"></div>`;
+                        } else if (link.toLowerCase().endsWith('.pdf')) {
+                            lampiranHtml = `<div class="attachment-preview"><iframe src="${directLink}" class="pdf-preview"></iframe></div>`;
+                        } else {
+                            lampiranHtml = `<div class="mt-2"><a href="${link}" target="_blank" class="text-blue-600 underline text-[10px] font-bold tracking-tighter">📎 LIHAT DOKUMEN LAMPIRAN</a></div>`;
+                        }
+                    }
+                }
+
                 const badge = tuntas ? "bg-teal-50 text-teal-600 border-teal-200" : (verif ? "bg-orange-50 text-orange-600 border-orange-200" : (terjawab ? "bg-green-50 text-green-700 border-green-200" : "bg-yellow-50 text-yellow-600 border-yellow-200"));
                 const txt = tuntas ? "Tuntas" : (verif ? "Verifikasi" : (terjawab ? "Terjawab" : "Menunggu"));
 
-                // Logic Action Buttons Inline
                 let actionHtml = '';
                 if (verif) {
                     actionHtml = `
-                        <button onclick="handleResponse(${id}, 'Tuntas')" class="bg-teal-600 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-sm hover:bg-teal-700 transition">✅ Setujui</button>
-                        <button onclick="handleResponse(${id}, 'Perlu Perbaikan')" class="bg-red-500 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-sm hover:bg-red-600 transition">❌ Tolak TL</button>
+                        <button onclick="handleResponse(${id}, 'Tuntas')" class="bg-teal-600 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-sm hover:bg-teal-700">✅ Setujui</button>
+                        <button onclick="handleResponse(${id}, 'Perlu Perbaikan')" class="bg-red-500 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-sm hover:bg-red-600">❌ Tolak TL</button>
                     `;
                 } else if (!terjawab || perbaikan) {
-                    actionHtml = `<button onclick="handleResponse(${id}, 'Kirim')" class="bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-md hover:bg-blue-700 transition">Kirim Respon</button>`;
+                    actionHtml = `<button onclick="handleResponse(${id}, 'Kirim')" class="bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-md">Kirim Respon</button>`;
                 } else if (tuntas) {
-                    actionHtml = `<span class="text-[10px] text-teal-600 font-black italic uppercase">Terselesaikan</span>`;
+                    actionHtml = `<span class="text-[10px] text-teal-600 font-black italic uppercase">Tuntas</span>`;
                 } else {
-                    actionHtml = `<button onclick="batalSelesai(${id})" class="text-[9px] text-gray-400 underline font-black uppercase">Edit Jawaban</button>`;
+                    actionHtml = `<button onclick="batalSelesai(${id})" class="text-[9px] text-gray-400 underline font-black uppercase">Edit</button>`;
                 }
 
                 return `<tr class="hover:bg-gray-50/50 transition border-b border-gray-100" id="row-${id}">
-                    <td class="col-check-d hidden p-5 text-center"><input type="checkbox" class="admin-data-check w-4 h-4 cursor-pointer" value="${id}" onclick="updateSelectedCountAdmin()"></td>
+                    <td class="col-check-d hidden p-5 text-center"><input type="checkbox" class="admin-data-check w-4 h-4 cursor-pointer" value="${id}"></td>
                     <td class="p-5 align-top">
                         <div class="text-[11px] font-black text-blue-600 mb-1 tracking-tighter">${reg}</div>
                         <div class="text-[10px] text-gray-400 mb-2 italic">${new Date(item.waktu_pengajuan).toLocaleString('id-ID')}</div>
-                        <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-gray-200">${item.kategori}</span>
+                        <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-gray-200 tracking-tighter">${item.kategori}</span>
                     </td>
                     <td class="p-5 align-top">
                         <div class="font-black text-gray-800 uppercase text-[11px] mb-1 tracking-tighter">${item.instansi}</div>
                         <div class="font-bold text-gray-700 mb-3 text-xs leading-tight">${item.judul_masalah}</div>
-                        <div class="text-[11px] text-gray-500 bg-gray-50 p-3 rounded-xl border border-gray-100 italic mb-3">"${item.rincian_masalah}"</div>
                         
-                        ${verif ? `<div class="bg-orange-50 p-3 rounded-xl border border-orange-100 text-[10px] mb-3 text-orange-700 font-black uppercase italic animate__animated animate__flash">📢 OPD telah mengirim bukti TL. Mohon diperiksa!</div>` : ""}
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
+                            <p class="text-[9px] text-blue-500 font-black uppercase mb-1 tracking-widest">Laporan Pengguna:</p>
+                            <p class="text-xs text-gray-700 italic leading-relaxed">"${buktiText}"</p>
+                            ${lampiranHtml}
+                        </div>
 
                         <div id="response-container-${id}">
                             ${(verif || !terjawab || perbaikan) ? 
-                                `<textarea id="reply-${id}" class="w-full p-3 text-xs border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 font-bold" rows="2" placeholder="Tulis instruksi/respon auditor di sini..."></textarea>` : 
-                                `<div class="text-[11px] text-blue-800 bg-blue-50 p-3 rounded-xl border border-blue-100 font-bold italic">Auditor: ${tuntas ? (item.catatan_admin_tl || item.jawaban) : item.jawaban}</div>`
+                                `<textarea id="reply-${id}" class="w-full p-3 text-xs border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 font-bold" rows="2" placeholder="Tulis instruksi auditor..."></textarea>` : 
+                                `<div class="text-[11px] text-blue-800 bg-blue-50 p-3 rounded-xl border border-blue-100 font-bold italic">Respon Auditor: ${tuntas ? (item.catatan_admin_tl || item.jawaban) : item.jawaban}</div>`
                             }
                         </div>
                     </td>
@@ -266,18 +292,13 @@
             }).join('');
         }
 
-        // --- FUNGSI BARU: HANDLE RESPONSE INLINE ---
         async function handleResponse(id, type) {
             const replyBox = document.getElementById(`reply-${id}`);
             const msg = replyBox ? replyBox.value.trim() : '';
 
-            if ((type === 'Kirim' || type === 'Perlu Perbaikan' || type === 'Tuntas') && !msg) {
-                return Swal.fire('Gagal', 'Respon atau catatan wajib diisi!', 'warning');
-            }
+            if (!msg) return Swal.fire('Gagal', 'Respon wajib diisi!', 'warning');
 
-            // Visual Loading Inline
             const actionContainer = document.getElementById(`action-container-${id}`);
-            const originalAction = actionContainer.innerHTML;
             actionContainer.innerHTML = `<div class="text-blue-600 animate-spin text-xl">🔄</div>`;
 
             let updateData = {};
@@ -298,31 +319,26 @@
 
                 if (res.ok) {
                     Swal.fire({ icon: 'success', title: 'Berhasil!', timer: 1000, showConfirmButton: false });
-                    fetchAdmin(); // Refresh tabel
+                    fetchAdmin();
                 } else { throw new Error(); }
             } catch (e) {
-                Swal.fire('Error', 'Gagal update database.', 'error');
-                actionContainer.innerHTML = originalAction;
-            }
-        }
-
-        async function batalSelesai(id) {
-            const { isConfirmed } = await Swal.fire({ title: 'Ubah Data?', text: 'Membatalkan jawaban ini akan mengembalikan status ke Belum Terjawab.', icon: 'warning', showCancelButton: true });
-            if (isConfirmed) {
-                await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, {
-                    method: 'PATCH',
-                    headers: headers,
-                    body: JSON.stringify({ jawaban: null, waktu_jawaban: null, status_tl: "Belum TL" })
-                });
+                Swal.fire('Error', 'Gagal update.', 'error');
                 fetchAdmin();
             }
         }
 
-        // --- SISTEM PENUNJANG ---
+        async function refreshAdminData() {
+            const icon = document.getElementById('refresh-icon-admin');
+            icon.classList.add('spin');
+            await fetchAdmin();
+            setTimeout(() => icon.classList.remove('spin'), 800);
+        }
+
         function generateRegNum(id, waktuAju) {
             const d = new Date(waktuAju);
             return `REG/ITDA/${("0"+d.getDate()).slice(-2)}${("0"+(d.getMonth()+1)).slice(-2)}${d.getFullYear()}/${("0000" + id).slice(-4)}`;
         }
+
         function updateAdminStats(data) {
             document.getElementById('stat-wilayah-total').innerText = data.length;
             document.getElementById('stat-wilayah-pending').innerText = data.filter(i => !i.jawaban).length;
@@ -330,43 +346,16 @@
             document.getElementById('stat-wilayah-verif').innerText = data.filter(i => i.status_tl === "Menunggu Verifikasi").length;
             document.getElementById('stat-wilayah-done').innerText = data.filter(i => i.status_tl === "Tuntas").length;
         }
-        function filterByStatus(s) {
-            if(s === 'all') filteredData = rawData;
-            else if(s === 'pending') filteredData = rawData.filter(i => !i.jawaban);
-            else if(s === 'proses') filteredData = rawData.filter(i => i.jawaban && (i.status_tl === "Belum TL" || i.status_tl === "Perlu Perbaikan"));
-            else if(s === 'verif') filteredData = rawData.filter(i => i.status_tl === "Menunggu Verifikasi");
-            else if(s === 'tuntas') filteredData = rawData.filter(i => i.status_tl === "Tuntas");
-            renderTable(filteredData);
-        }
+
         function filterData() {
             const q = document.getElementById('searchInput').value.toLowerCase();
-            filteredData = rawData.filter(i => i.instansi?.toLowerCase().includes(q) || i.judul_masalah?.toLowerCase().includes(q));
-            renderTable(filteredData);
+            const filtered = rawData.filter(i => i.instansi?.toLowerCase().includes(q) || i.judul_masalah?.toLowerCase().includes(q));
+            renderTable(filtered);
         }
+
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
         function toggleProfileMenu() { const m = document.getElementById('profile-menu'); m.classList.toggle('menu-hidden'); m.classList.toggle('menu-visible'); }
         async function logout() { const res = await Swal.fire({ title: 'Keluar?', icon: 'question', showCancelButton: true }); if(res.isConfirmed) { sessionStorage.clear(); window.location.href = 'login.html'; } }
-
-        function togglePrintMode(isPrinting) {
-            const btnStart = document.getElementById('btn-start-print');
-            const printOptions = document.getElementById('print-options');
-            const colCheckH = document.getElementById('col-check-h');
-            const colCheckD = document.querySelectorAll('.col-check-d');
-            const countBar = document.getElementById('selected-count-bar');
-            if (isPrinting) {
-                btnStart.classList.add('hidden');
-                printOptions.classList.remove('hidden');
-                colCheckH.classList.remove('hidden');
-                colCheckD.forEach(el => el.classList.remove('hidden'));
-                countBar.classList.remove('hidden');
-            } else {
-                btnStart.classList.remove('hidden');
-                printOptions.classList.add('hidden');
-                colCheckH.classList.add('hidden');
-                colCheckD.forEach(el => el.classList.add('hidden'));
-                countBar.classList.add('hidden');
-            }
-        }
 
         async function fetchProfilTerbaru() {
             const user = sessionStorage.getItem('userName');
