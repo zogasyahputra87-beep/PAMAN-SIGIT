@@ -21,7 +21,6 @@
         .custom-scrollbar::-webkit-scrollbar { height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .profile-ring { padding: 2px; background: linear-gradient(to bottom right, #3b82f6, #1e40af); }
-        .admin-stat-card { @apply bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col transition-all hover:shadow-md cursor-pointer hover:-translate-y-1; }
         .bg-paman-dark { background-color: #1F2937; }
 
         .spin { animation: rotate 0.8s linear; }
@@ -37,11 +36,16 @@
         #profile-menu { transform-origin: top right; transition: all 0.2s ease-out; }
         .menu-hidden { transform: scale(0.95); opacity: 0; pointer-events: none; }
         .menu-visible { transform: scale(1); opacity: 1; pointer-events: auto; }
+
+        /* Bubble Style untuk Riwayat */
+        .bubble { padding: 1rem; border-radius: 1rem; margin-bottom: 0.75rem; position: relative; font-size: 0.75rem; line-height: 1.4; border: 1px solid transparent; }
+        .bubble-user { background: #f3f4f6; border-color: #e5e7eb; color: #374151; }
+        .bubble-auditor { background: #eff6ff; border-color: #dbeafe; color: #1e40af; }
+        .bubble-tl { background: #fff7ed; border-color: #ffedd5; color: #9a3412; }
+        .label-bubble { font-size: 9px; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; display: block; letter-spacing: 0.05em; }
         
-        /* Preview Lampiran Style */
-        .attachment-preview { border: 2px dashed #e5e7eb; border-radius: 1rem; overflow: hidden; background: #f9fafb; margin-top: 0.75rem; }
-        .img-preview { width: 100%; max-height: 300px; object-fit: contain; background: #eee; cursor: zoom-in; }
-        .pdf-preview { width: 100%; height: 400px; border: none; }
+        .attachment-box { margin-top: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; max-width: 250px; }
+        .attachment-box img { width: 100%; height: auto; cursor: pointer; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 overflow-hidden">
@@ -49,111 +53,58 @@
     <div class="watermark-fixed"></div>
 
     <div class="flex h-screen overflow-hidden relative z-10">
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-paman-dark text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-paman-dark text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl">
             <div class="p-6 border-b border-gray-700 flex flex-col items-center">
                 <img src="../pages/logo_kab.png" alt="Logo" class="w-14 mb-3 drop-shadow-md">
-                <div class="text-center">
+                <div class="text-center font-black">
                     <h1 class="text-xl font-bold text-white tracking-tight uppercase">Admin Panel</h1>
-                    <p id="admin-wilayah-label" class="text-[10px] text-blue-400 uppercase font-black tracking-widest leading-tight text-center font-black">Memuat...</p>
+                    <p id="admin-wilayah-label" class="text-[10px] text-blue-400 uppercase tracking-widest leading-tight">Memuat...</p>
                 </div>
             </div>
-            <nav class="flex-1 mt-6 px-4 space-y-2">
-                <div class="bg-blue-600/10 text-blue-400 p-3 rounded-lg text-sm font-bold border-l-4 border-blue-500">🛡️ Kelola Konsultasi</div>
-                <a href="index.html" class="block p-3 text-gray-400 hover:text-white text-[10px] uppercase font-bold tracking-tighter transition">← Dashboard User</a>
+            <nav class="flex-1 mt-6 px-4 space-y-2 font-bold uppercase text-[10px]">
+                <div class="bg-blue-600/10 text-blue-400 p-3 rounded-lg border-l-4 border-blue-500">🛡️ Kelola Konsultasi</div>
+                <a href="index.html" class="block p-3 text-gray-400 hover:text-white transition">← Dashboard User</a>
             </nav>
-
-            <div class="p-6 border-t border-gray-700 flex flex-col items-center bg-gray-800/50 relative">
+            <div class="p-6 border-t border-gray-700 flex flex-col items-center bg-gray-800/50">
                 <div class="w-16 h-16 rounded-full profile-ring shadow-lg mb-3 overflow-hidden bg-gray-700">
-                    <img src="../pages/zoga.jpg" alt="Zoga" onerror="this.src='https://ui-avatars.com/api/?name=Ananda+Zoga'" class="w-full h-full object-cover">
+                    <img src="../pages/zoga.jpg" alt="Zoga" class="w-full h-full object-cover">
                 </div>
-                <div class="text-center">
-                    <p class="text-[9px] text-blue-400 uppercase font-black tracking-tighter mb-1 font-bold">Pengembang Sistem</p>
-                    <p class="text-[11px] font-bold text-gray-100 uppercase text-center leading-tight">Ananda Zoga Syahputra, S.Tr.I.P.</p>
-                </div>
-                <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition active:scale-95">Keluar</button>
+                <p class="text-[11px] font-black text-gray-100 uppercase text-center leading-tight">Ananda Zoga Syahputra, S.Tr.I.P.</p>
+                <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg">Keluar</button>
             </div>
         </aside>
-
-        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
 
         <main class="flex-1 flex flex-col overflow-y-auto">
             <header class="bg-white border-b p-4 px-8 h-20 flex justify-between items-center shadow-sm sticky top-0 z-30">
                 <div class="flex items-center flex-1">
-                    <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg text-gray-600">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    </button>
-                    <div class="relative w-full max-w-md hidden md:block">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">🔍</span>
-                        <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Cari Nama OPD, No Reg, atau Masalah..." class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl bg-gray-50 text-xs focus:ring-2 focus:ring-blue-500 outline-none transition font-bold">
-                    </div>
+                    <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
+                    <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Cari OPD atau No Reg..." class="w-full max-w-md px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-xs focus:ring-2 focus:ring-blue-500 outline-none font-bold">
                 </div>
-
-                <div class="flex items-center space-x-4">
-                    <button onclick="refreshAdminData()" class="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-600 px-4 py-2 rounded-lg border border-gray-200 transition active:scale-95 shadow-sm">
-                        <span id="refresh-icon-admin">🔄</span>
-                        <span class="hidden md:inline text-[10px] font-black uppercase tracking-widest font-black">Refresh</span>
-                    </button>
-
-                    <button id="btn-start-print" onclick="togglePrintMode(true)" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-[10px] font-bold border border-red-100 hover:bg-red-100 uppercase shadow-sm transition active:scale-95 font-black">📄 Cetak Rekap</button>
-                    
-                    <div id="print-options" class="hidden flex items-center space-x-2 animate__animated animate__fadeInRight">
-                        <button onclick="exportAdminData('pdf')" class="bg-red-600 text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-red-700 shadow-md">PDF</button>
-                        <button onclick="exportAdminData('excel')" class="bg-green-600 text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-green-700 shadow-md">Excel</button>
-                        <button onclick="togglePrintMode(false)" class="bg-gray-200 text-gray-600 px-3 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-gray-300">Batal</button>
-                    </div>
-
-                    <div class="relative">
-                        <button onclick="toggleProfileMenu()" id="profile-btn" class="flex items-center pl-4 border-l border-gray-200 text-right group focus:outline-none">
-                            <div class="mr-3 hidden md:block text-right">
-                                <p id="admin-name-display" class="text-[10px] font-black text-gray-800 uppercase leading-none mb-1 font-black tracking-tighter">AUDITOR</p>
-                                <p id="admin-role-display" class="text-[9px] text-blue-600 font-bold tracking-tight italic font-black">Inspektorat</p>
-                            </div>
-                            <div class="w-10 h-10 bg-gray-200 rounded-xl profile-ring shadow-lg ring-2 ring-blue-50 overflow-hidden transition group-hover:scale-105">
-                                <img id="head-avatar" src="https://ui-avatars.com/api/?name=Admin" class="w-full h-full object-cover">
-                            </div>
-                        </button>
-                        <div id="profile-menu" class="menu-hidden absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50">
-                            <div class="px-4 py-3 border-b border-gray-50 text-right font-black tracking-widest">
-                                <p class="text-[9px] font-bold text-gray-400 uppercase">Hak Akses Admin</p>
-                                <p id="drop-admin-wilayah" class="text-xs font-black text-gray-800 truncate">Wilayah</p>
-                            </div>
-                            <button onclick="gantiProfil()" class="w-full text-right px-4 py-2 text-xs text-gray-600 hover:bg-blue-50 font-black">Ganti Profil 🖼️</button>
-                            <button onclick="logout()" class="w-full text-right px-4 py-2 text-xs text-red-500 hover:bg-red-50 font-black uppercase tracking-widest">Keluar Sistem 🚀</button>
-                        </div>
-                    </div>
-                </div>
+                <button onclick="refreshAdminData()" class="flex items-center space-x-2 bg-gray-50 text-gray-600 px-4 py-2 rounded-lg border border-gray-200 shadow-sm font-black text-[10px] uppercase"><span id="refresh-icon-admin">🔄</span><span>Refresh</span></button>
             </header>
 
             <div class="p-8 relative z-10">
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-                    <div onclick="filterByStatus('all')" class="admin-stat-card border-l-4 border-l-blue-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Total Masuk</p><h3 id="stat-wilayah-total" class="text-2xl font-black text-gray-800">0</h3></div>
-                    <div onclick="filterByStatus('pending')" class="admin-stat-card border-l-4 border-l-yellow-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Belum Dijawab</p><h3 id="stat-wilayah-pending" class="text-2xl font-black text-yellow-600">0</h3></div>
-                    <div onclick="filterByStatus('proses')" class="admin-stat-card border-l-4 border-l-blue-400 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Proses TL</p><h3 id="stat-wilayah-proses" class="text-2xl font-black text-blue-500">0</h3></div>
-                    <div onclick="filterByStatus('verif')" class="admin-stat-card border-l-4 border-l-orange-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Verifikasi TL</p><h3 id="stat-wilayah-verif" class="text-2xl font-black text-orange-600">0</h3></div>
-                    <div onclick="filterByStatus('tuntas')" class="admin-stat-card border-l-4 border-l-teal-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Tuntas</p><h3 id="stat-wilayah-done" class="text-2xl font-black text-teal-600">0</h3></div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                    <div class="admin-stat-card border-l-4 border-blue-500 p-4 bg-white rounded-2xl"><p class="text-[8px] font-black text-gray-400 uppercase">Total</p><h3 id="stat-wilayah-total" class="text-xl font-black">0</h3></div>
+                    <div class="admin-stat-card border-l-4 border-yellow-500 p-4 bg-white rounded-2xl"><p class="text-[8px] font-black text-gray-400 uppercase">Belum Dijawab</p><h3 id="stat-wilayah-pending" class="text-xl font-black text-yellow-600">0</h3></div>
+                    <div class="admin-stat-card border-l-4 border-orange-500 p-4 bg-white rounded-2xl"><p class="text-[8px] font-black text-gray-400 uppercase">Verifikasi TL</p><h3 id="stat-wilayah-verif" class="text-xl font-black text-orange-600">0</h3></div>
+                    <div class="admin-stat-card border-l-4 border-teal-500 p-4 bg-white rounded-2xl"><p class="text-[8px] font-black text-gray-400 uppercase">Tuntas</p><h3 id="stat-wilayah-done" class="text-xl font-black text-teal-600">0</h3></div>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div id="selected-count-bar" class="hidden p-3 bg-blue-50 border-b border-blue-100 flex justify-between items-center px-6 font-black">
-                        <span class="text-[10px] font-bold text-blue-600 uppercase italic" id="selected-count-admin">0 Data Terpilih</span>
-                    </div>
                     <div class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full text-left min-w-[1000px]">
+                        <table class="w-full text-left min-w-[1100px]">
                             <thead class="bg-gray-50 border-b border-gray-100">
-                                <tr class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                                    <th id="col-check-h" class="hidden p-5 text-center" style="width: 50px">
-                                        <input type="checkbox" id="selectAllAdmin" onclick="toggleAllCheckboxesAdmin()" class="w-4 h-4 cursor-pointer">
-                                    </th>
-                                    <th class="p-5" style="width: 200px">Waktu & No. Reg</th>
-                                    <th class="p-5">Instansi & Detail Masalah</th>
-                                    <th class="p-5 text-center" style="width: 120px">Status</th>
-                                    <th class="p-5 text-center" style="width: 200px">Tindakan</th>
+                                <tr class="text-[10px] text-gray-400 font-black uppercase tracking-widest">
+                                    <th class="p-5" style="width: 200px">Identitas Pengajuan</th>
+                                    <th class="p-5">Alur Riwayat Konsultasi (End-to-End)</th>
+                                    <th class="p-5 text-center" style="width: 150px">Tindakan Auditor</th>
                                 </tr>
                             </thead>
                             <tbody id="adminBody" class="divide-y divide-gray-50 text-sm font-bold"></tbody>
                         </table>
                     </div>
-                    <div id="loader" class="p-10 text-center text-gray-400 italic text-[10px] uppercase animate-pulse font-black">Menghubungkan ke Database Inspektorat...</div>
+                    <div id="loader" class="p-10 text-center text-gray-400 italic text-[10px] uppercase font-black animate-pulse">Menghubungkan ke Database Inspektorat...</div>
                 </div>
             </div>
         </main>
@@ -164,142 +115,130 @@
         const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl"; 
         const headers = { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" };
         let rawData = [];
-        let filteredData = [];
 
         (function() {
             if (sessionStorage.getItem('isLoggedIn') !== 'true' || sessionStorage.getItem('userRole') !== 'admin') {
                 window.location.href = 'login.html';
             } else { 
                 document.body.style.display = "block";
-                const wilayah = (sessionStorage.getItem('wilayah') || 'semua').trim();
-                const nama = sessionStorage.getItem('namaOpd');
-                document.getElementById('admin-wilayah-label').innerText = wilayah.toLowerCase() === 'semua' ? 'Super Admin' : wilayah;
-                document.getElementById('admin-name-display').innerText = nama;
-                document.getElementById('drop-admin-wilayah').innerText = wilayah;
-                document.getElementById('admin-role-display').innerText = wilayah.toLowerCase() === 'semua' ? 'Inspektur / Sekretaris' : 'Auditor Irban';
+                document.getElementById('admin-wilayah-label').innerText = sessionStorage.getItem('wilayah') || 'Admin';
                 fetchAdmin();
-                fetchProfilTerbaru();
             }
         })();
 
         async function fetchAdmin() {
             const loader = document.getElementById('loader');
-            const myWilayah = (sessionStorage.getItem('wilayah') || 'semua').trim().toLowerCase();
             loader.classList.remove('hidden');
             let queryUrl = `${SUPABASE_URL}/rest/v1/konsultasi?select=*&order=waktu_pengajuan.desc`;
+            const myWilayah = (sessionStorage.getItem('wilayah') || 'semua').trim().toLowerCase();
             if (myWilayah !== 'semua') { queryUrl += `&wilayah_opd=eq.${sessionStorage.getItem('wilayah')}`; }
+            
             try {
-                const res = await fetch(queryUrl, { headers: headers });
+                const res = await fetch(queryUrl, { headers });
                 rawData = await res.json();
-                filteredData = rawData;
                 loader.classList.add('hidden');
                 updateAdminStats(rawData);
-                renderTable(filteredData);
-            } catch (e) { loader.innerHTML = `<span class="text-red-500 font-bold font-black">⚠️ Database Error.</span>`; }
+                renderTable(rawData);
+            } catch (e) { console.error(e); }
         }
 
         function renderTable(data) {
             const body = document.getElementById('adminBody');
-            if (!data || data.length === 0) {
-                body.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-gray-400 italic text-[10px] tracking-widest uppercase font-black">Data Kosong.</td></tr>`;
-                return;
-            }
+            if (!data.length) { body.innerHTML = `<tr><td colspan="3" class="p-10 text-center font-black">Data Kosong.</td></tr>`; return; }
+            
             body.innerHTML = data.map(item => {
                 const id = item.id;
-                const reg = generateRegNum(id, item.waktu_pengajuan);
+                const regNum = generateRegNum(id, item.waktu_pengajuan);
+                const statusTl = item.status_tl;
                 const terjawab = item.jawaban && item.jawaban !== "";
-                const verif = item.status_tl === "Menunggu Verifikasi";
-                const tuntas = item.status_tl === "Tuntas";
-                const perbaikan = item.status_tl === "Perlu Perbaikan";
-                
-                // --- PARSING BUKTI TL & LAMPIRAN ---
-                let buktiText = "Belum mengirim bukti.";
-                let lampiranHtml = "";
-                
+                const verif = statusTl === "Menunggu Verifikasi";
+                const tuntas = statusTl === "Tuntas";
+
+                // --- 1. Bubble Pertanyaan ---
+                let userAttachment = "";
+                if (item.file_lampiran && item.file_lampiran.includes('http')) {
+                    userAttachment = `<div class="attachment-box"><img src="${parseDriveLink(item.file_lampiran)}" onclick="window.open('${item.file_lampiran}')"></div>`;
+                }
+                const bubblePertanyaan = `
+                    <div class="bubble bubble-user">
+                        <span class="label-bubble text-blue-600">❓ Masalah dari Pengguna</span>
+                        <div class="font-black text-gray-800 mb-1">${item.judul_masalah}</div>
+                        <div class="italic">"${item.rincian_masalah}"</div>
+                        ${userAttachment}
+                    </div>`;
+
+                // --- 2. Bubble Jawaban Auditor ---
+                const bubbleJawaban = terjawab ? `
+                    <div class="bubble bubble-auditor">
+                        <span class="label-bubble text-blue-700">🧑‍💻 Respon Auditor</span>
+                        <div>${item.jawaban}</div>
+                    </div>` : "";
+
+                // --- 3. Bubble Tindak Lanjut OPD ---
+                let bubbleTl = "";
                 if (item.bukti_tl) {
                     const parts = item.bukti_tl.split(" | Link: ");
-                    buktiText = parts[0];
                     const link = parts[1];
-
-                    if (link && link !== "Tidak ada dokumen dilampirkan") {
-                        // Jika link drive, buat direct view
-                        let directLink = link;
-                        if (link.includes('drive.google.com')) {
-                            const fileId = link.split('/d/')[1]?.split('/')[0] || link.split('id=')[1];
-                            directLink = `https://drive.google.com/uc?export=view&id=${fileId}`;
-                        }
-
-                        // Deteksi Gambar atau PDF
-                        if (link.toLowerCase().match(/\.(jpeg|jpg|png|webp)$/) || link.includes('drive.google.com')) {
-                            lampiranHtml = `<div class="attachment-preview"><img src="${directLink}" class="img-preview" onclick="window.open('${link}')" title="Klik untuk perbesar"></div>`;
-                        } else if (link.toLowerCase().endsWith('.pdf')) {
-                            lampiranHtml = `<div class="attachment-preview"><iframe src="${directLink}" class="pdf-preview"></iframe></div>`;
-                        } else {
-                            lampiranHtml = `<div class="mt-2"><a href="${link}" target="_blank" class="text-blue-600 underline text-[10px] font-bold tracking-tighter">📎 LIHAT DOKUMEN LAMPIRAN</a></div>`;
-                        }
-                    }
+                    let tlAttachment = (link && link.includes('http')) ? `<div class="attachment-box"><img src="${parseDriveLink(link)}" onclick="window.open('${link}')"></div>` : "";
+                    
+                    bubbleTl = `
+                        <div class="bubble bubble-tl animate__animated animate__fadeIn">
+                            <span class="label-bubble text-orange-600">📝 Laporan Tindak Lanjut (OPD)</span>
+                            <div class="font-bold">${parts[0]}</div>
+                            ${tlAttachment}
+                        </div>`;
                 }
 
-                const badge = tuntas ? "bg-teal-50 text-teal-600 border-teal-200" : (verif ? "bg-orange-50 text-orange-600 border-orange-200" : (terjawab ? "bg-green-50 text-green-700 border-green-200" : "bg-yellow-50 text-yellow-600 border-yellow-200"));
-                const txt = tuntas ? "Tuntas" : (verif ? "Verifikasi" : (terjawab ? "Terjawab" : "Menunggu"));
-
-                let actionHtml = '';
-                if (verif) {
-                    actionHtml = `
-                        <button onclick="handleResponse(${id}, 'Tuntas')" class="bg-teal-600 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-sm hover:bg-teal-700">✅ Setujui</button>
-                        <button onclick="handleResponse(${id}, 'Perlu Perbaikan')" class="bg-red-500 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-sm hover:bg-red-600">❌ Tolak TL</button>
-                    `;
-                } else if (!terjawab || perbaikan) {
-                    actionHtml = `<button onclick="handleResponse(${id}, 'Kirim')" class="bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-md">Kirim Respon</button>`;
+                // --- 4. Kolom Tindakan ---
+                let tindakanHtml = "";
+                if (!terjawab) {
+                    tindakanHtml = `
+                        <textarea id="reply-${id}" class="w-full p-2 text-[10px] border rounded-lg mb-2 outline-none focus:ring-1" placeholder="Ketik jawaban..."></textarea>
+                        <button onclick="handleAction(${id}, 'Kirim')" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase">Kirim Respon</button>`;
+                } else if (verif) {
+                    tindakanHtml = `
+                        <textarea id="reply-${id}" class="w-full p-2 text-[10px] border rounded-lg mb-2 outline-none focus:ring-1" placeholder="Catatan verifikasi..."></textarea>
+                        <div class="flex space-x-1">
+                            <button onclick="handleAction(${id}, 'Tuntas')" class="flex-1 bg-teal-600 text-white py-2 rounded-lg text-[9px] font-black uppercase">Setujui</button>
+                            <button onclick="handleAction(${id}, 'Perlu Perbaikan')" class="flex-1 bg-red-500 text-white py-2 rounded-lg text-[9px] font-black uppercase">Tolak</button>
+                        </div>`;
                 } else if (tuntas) {
-                    actionHtml = `<span class="text-[10px] text-teal-600 font-black italic uppercase">Tuntas</span>`;
+                    tindakanHtml = `<div class="text-teal-600 text-[10px] font-black uppercase italic text-center">✅ Sudah Tuntas</div>`;
                 } else {
-                    actionHtml = `<button onclick="batalSelesai(${id})" class="text-[9px] text-gray-400 underline font-black uppercase">Edit</button>`;
+                    tindakanHtml = `<div class="text-blue-500 text-[10px] font-black uppercase italic text-center">⏳ Menunggu TL OPD</div>`;
                 }
 
-                return `<tr class="hover:bg-gray-50/50 transition border-b border-gray-100" id="row-${id}">
-                    <td class="col-check-d hidden p-5 text-center"><input type="checkbox" class="admin-data-check w-4 h-4 cursor-pointer" value="${id}"></td>
+                return `
+                <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
                     <td class="p-5 align-top">
-                        <div class="text-[11px] font-black text-blue-600 mb-1 tracking-tighter">${reg}</div>
-                        <div class="text-[10px] text-gray-400 mb-2 italic">${new Date(item.waktu_pengajuan).toLocaleString('id-ID')}</div>
-                        <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[8px] font-black uppercase border border-gray-200 tracking-tighter">${item.kategori}</span>
+                        <div class="text-[11px] font-black text-blue-600 mb-1">${regNum}</div>
+                        <div class="text-[11px] font-black text-gray-800 uppercase leading-tight mb-2">${item.instansi}</div>
+                        <span class="bg-gray-100 text-[9px] px-2 py-1 rounded-md border uppercase font-black">${item.kategori}</span>
                     </td>
-                    <td class="p-5 align-top">
-                        <div class="font-black text-gray-800 uppercase text-[11px] mb-1 tracking-tighter">${item.instansi}</div>
-                        <div class="font-bold text-gray-700 mb-3 text-xs leading-tight">${item.judul_masalah}</div>
-                        
-                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
-                            <p class="text-[9px] text-blue-500 font-black uppercase mb-1 tracking-widest">Laporan Pengguna:</p>
-                            <p class="text-xs text-gray-700 italic leading-relaxed">"${buktiText}"</p>
-                            ${lampiranHtml}
-                        </div>
-
-                        <div id="response-container-${id}">
-                            ${(verif || !terjawab || perbaikan) ? 
-                                `<textarea id="reply-${id}" class="w-full p-3 text-xs border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 font-bold" rows="2" placeholder="Tulis instruksi auditor..."></textarea>` : 
-                                `<div class="text-[11px] text-blue-800 bg-blue-50 p-3 rounded-xl border border-blue-100 font-bold italic">Respon Auditor: ${tuntas ? (item.catatan_admin_tl || item.jawaban) : item.jawaban}</div>`
-                            }
-                        </div>
+                    <td class="p-5 align-top space-y-2">
+                        ${bubblePertanyaan}
+                        ${bubbleJawaban}
+                        ${bubbleTl}
                     </td>
-                    <td class="p-5 text-center align-top pt-8"><span class="inline-block w-24 py-1.5 text-[9px] font-black rounded-full border uppercase ${badge}">${txt}</span></td>
-                    <td class="p-5 text-center align-top pt-6">
-                        <div class="flex flex-col space-y-2" id="action-container-${id}">
-                            ${actionHtml}
-                            <a href="https://wa.me/${item.nomor_hp}" target="_blank" class="bg-green-500 text-white py-2 rounded-lg text-[10px] font-black uppercase text-center shadow-sm hover:bg-green-600 transition">WhatsApp</a>
+                    <td class="p-5 align-top" id="action-cell-${id}">
+                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                            <p class="text-[9px] font-black text-gray-400 uppercase mb-2 text-center">Verifikasi Auditor</p>
+                            ${tindakanHtml}
                         </div>
                     </td>
                 </tr>`;
             }).join('');
         }
 
-        async function handleResponse(id, type) {
+        async function handleAction(id, type) {
             const replyBox = document.getElementById(`reply-${id}`);
             const msg = replyBox ? replyBox.value.trim() : '';
 
-            if (!msg) return Swal.fire('Gagal', 'Respon wajib diisi!', 'warning');
+            if ((type === 'Kirim' || type === 'Tuntas' || type === 'Perlu Perbaikan') && !msg) {
+                return Swal.fire('Wajib Isi', 'Mohon berikan respon/catatan!', 'warning');
+            }
 
-            const actionContainer = document.getElementById(`action-container-${id}`);
-            actionContainer.innerHTML = `<div class="text-blue-600 animate-spin text-xl">🔄</div>`;
+            Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             let updateData = {};
             if (type === 'Kirim') {
@@ -316,15 +255,32 @@
                     headers: headers,
                     body: JSON.stringify(updateData)
                 });
-
                 if (res.ok) {
-                    Swal.fire({ icon: 'success', title: 'Berhasil!', timer: 1000, showConfirmButton: false });
+                    Swal.fire({ icon: 'success', title: 'Berhasil', timer: 1000, showConfirmButton: false });
                     fetchAdmin();
-                } else { throw new Error(); }
-            } catch (e) {
-                Swal.fire('Error', 'Gagal update.', 'error');
-                fetchAdmin();
+                }
+            } catch (e) { Swal.fire('Error', 'Gagal update data', 'error'); }
+        }
+
+        // Helper Drive Link
+        function parseDriveLink(link) {
+            if (link.includes('drive.google.com')) {
+                const id = link.split('/d/')[1]?.split('/')[0] || link.split('id=')[1];
+                return `https://drive.google.com/uc?export=view&id=${id}`;
             }
+            return link;
+        }
+
+        function generateRegNum(id, waktu) {
+            const d = new Date(waktu);
+            return `REG/ITDA/${("0"+d.getDate()).slice(-2)}${("0"+(d.getMonth()+1)).slice(-2)}${d.getFullYear()}/${("0000" + id).slice(-4)}`;
+        }
+
+        function updateAdminStats(data) {
+            document.getElementById('stat-wilayah-total').innerText = data.length;
+            document.getElementById('stat-wilayah-pending').innerText = data.filter(i => !i.jawaban).length;
+            document.getElementById('stat-wilayah-verif').innerText = data.filter(i => i.status_tl === "Menunggu Verifikasi").length;
+            document.getElementById('stat-wilayah-done').innerText = data.filter(i => i.status_tl === "Tuntas").length;
         }
 
         async function refreshAdminData() {
@@ -334,42 +290,8 @@
             setTimeout(() => icon.classList.remove('spin'), 800);
         }
 
-        function generateRegNum(id, waktuAju) {
-            const d = new Date(waktuAju);
-            return `REG/ITDA/${("0"+d.getDate()).slice(-2)}${("0"+(d.getMonth()+1)).slice(-2)}${d.getFullYear()}/${("0000" + id).slice(-4)}`;
-        }
-
-        function updateAdminStats(data) {
-            document.getElementById('stat-wilayah-total').innerText = data.length;
-            document.getElementById('stat-wilayah-pending').innerText = data.filter(i => !i.jawaban).length;
-            document.getElementById('stat-wilayah-proses').innerText = data.filter(i => i.jawaban && (i.status_tl === "Belum TL" || i.status_tl === "Perlu Perbaikan")).length;
-            document.getElementById('stat-wilayah-verif').innerText = data.filter(i => i.status_tl === "Menunggu Verifikasi").length;
-            document.getElementById('stat-wilayah-done').innerText = data.filter(i => i.status_tl === "Tuntas").length;
-        }
-
-        function filterData() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = rawData.filter(i => i.instansi?.toLowerCase().includes(q) || i.judul_masalah?.toLowerCase().includes(q));
-            renderTable(filtered);
-        }
-
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
-        function toggleProfileMenu() { const m = document.getElementById('profile-menu'); m.classList.toggle('menu-hidden'); m.classList.toggle('menu-visible'); }
-        async function logout() { const res = await Swal.fire({ title: 'Keluar?', icon: 'question', showCancelButton: true }); if(res.isConfirmed) { sessionStorage.clear(); window.location.href = 'login.html'; } }
-
-        async function fetchProfilTerbaru() {
-            const user = sessionStorage.getItem('userName');
-            const res = await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${user}&select=foto_profil`, { headers: headers });
-            const data = await res.json();
-            if (data[0]?.foto_profil) {
-                let url = data[0].foto_profil;
-                if (url.includes('drive.google.com')) {
-                    const id = url.split('/d/')[1]?.split('/')[0] || url.split('id=')[1];
-                    url = `https://drive.google.com/uc?export=view&id=${id}`;
-                }
-                document.getElementById('head-avatar').src = url + '?t=' + Date.now();
-            }
-        }
+        async function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
     </script>
 </body>
 </html>
