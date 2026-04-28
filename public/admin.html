@@ -8,9 +8,11 @@
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
@@ -19,8 +21,6 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .profile-ring { padding: 2px; background: linear-gradient(to bottom right, #3b82f6, #1e40af); }
         .bg-paman-dark { background-color: #1F2937; }
-        .spin { animation: rotate 0.8s linear; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
         .bubble { padding: 1rem; border-radius: 1rem; margin-bottom: 0.75rem; font-size: 0.75rem; line-height: 1.4; border: 1px solid transparent; }
         .bubble-user { background: #f3f4f6; border-color: #e5e7eb; color: #374151; }
@@ -28,9 +28,13 @@
         .bubble-tl { background: #fff7ed; border-color: #ffedd5; color: #9a3412; }
         .bubble-catatan { background: #f0fdf4; border-color: #dcfce7; color: #166534; }
         .label-bubble { font-size: 9px; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; display: block; letter-spacing: 0.05em; }
+        
         .attachment-box { margin-top: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; max-width: 200px; }
         .attachment-box img { width: 100%; height: auto; cursor: zoom-in; }
         .admin-stat-card { @apply bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col transition-all hover:shadow-md cursor-pointer hover:-translate-y-1; }
+        
+        .spin { animation: rotate 0.8s linear; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 overflow-hidden">
@@ -41,7 +45,7 @@
                 <img src="../pages/logo_kab.png" alt="Logo" class="w-14 mb-3 drop-shadow-md">
                 <div class="text-center font-black">
                     <h1 class="text-xl font-bold text-white tracking-tight uppercase">Admin Panel</h1>
-                    <p id="admin-wilayah-label" class="text-[10px] text-blue-400 uppercase tracking-widest leading-tight font-black">Memuat...</p>
+                    <p id="admin-wilayah-label" class="text-[10px] text-blue-400 uppercase tracking-widest font-black leading-tight">Memuat...</p>
                 </div>
             </div>
             <nav class="flex-1 mt-6 px-4 space-y-2 font-bold uppercase text-[10px]">
@@ -65,34 +69,46 @@
                 </div>
                 <div class="flex items-center space-x-3">
                     <button onclick="refreshAdminData()" class="flex items-center space-x-2 bg-gray-50 text-gray-600 px-4 py-2 rounded-lg border border-gray-200 shadow-sm font-black text-[10px] uppercase"><span id="refresh-icon-admin">🔄</span><span>Refresh</span></button>
-                    <button onclick="togglePrintMode(true)" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-[10px] font-black border border-red-100 uppercase shadow-sm">📄 Cetak Rekap</button>
+                    
+                    <button id="btn-start-print" onclick="togglePrintMode(true)" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-[10px] font-black border border-red-100 uppercase shadow-sm">📄 Cetak</button>
+                    <div id="print-options" class="hidden flex items-center space-x-2 animate__animated animate__fadeInRight">
+                        <button onclick="exportData('pdf')" class="bg-red-600 text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase">PDF</button>
+                        <button onclick="exportData('excel')" class="bg-green-600 text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase">Excel</button>
+                        <button onclick="togglePrintMode(false)" class="bg-gray-200 text-gray-600 px-3 py-2 rounded-lg text-[10px] font-black uppercase">Batal</button>
+                    </div>
                 </div>
             </header>
 
             <div class="p-8 relative z-10">
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-                    <div onclick="filterByStatus('all')" class="admin-stat-card border-l-4 border-blue-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Total</p><h3 id="stat-wilayah-total" class="text-2xl font-black text-gray-800">0</h3></div>
-                    <div onclick="filterByStatus('pending')" class="admin-stat-card border-l-4 border-yellow-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Belum Dijawab</p><h3 id="stat-wilayah-pending" class="text-2xl font-black text-yellow-600">0</h3></div>
-                    <div onclick="filterByStatus('proses')" class="admin-stat-card border-l-4 border-blue-400 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Proses TL</p><h3 id="stat-wilayah-proses" class="text-2xl font-black text-blue-500">0</h3></div>
-                    <div onclick="filterByStatus('verif')" class="admin-stat-card border-l-4 border-orange-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Verifikasi</p><h3 id="stat-wilayah-verif" class="text-2xl font-black text-orange-600">0</h3></div>
-                    <div onclick="filterByStatus('tuntas')" class="admin-stat-card border-l-4 border-teal-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Tuntas</p><h3 id="stat-wilayah-done" class="text-2xl font-black text-teal-600">0</h3></div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                    <div onclick="filterByStatus('all')" class="admin-stat-card border-l-4 border-blue-500"><p class="text-[8px] font-black text-gray-400 uppercase">Total</p><h3 id="stat-wilayah-total" class="text-xl font-black">0</h3></div>
+                    <div onclick="filterByStatus('pending')" class="admin-stat-card border-l-4 border-yellow-500"><p class="text-[8px] font-black text-gray-400 uppercase">Belum Dijawab</p><h3 id="stat-wilayah-pending" class="text-xl font-black text-yellow-600">0</h3></div>
+                    <div onclick="filterByStatus('proses')" class="admin-stat-card border-l-4 border-blue-400"><p class="text-[8px] font-black text-gray-400 uppercase">Proses TL</p><h3 id="stat-wilayah-proses" class="text-xl font-black text-blue-500">0</h3></div>
+                    <div onclick="filterByStatus('verif')" class="admin-stat-card border-l-4 border-orange-500"><p class="text-[8px] font-black text-gray-400 uppercase">Verifikasi</p><h3 id="stat-wilayah-verif" class="text-xl font-black text-orange-600">0</h3></div>
+                    <div onclick="filterByStatus('tuntas')" class="admin-stat-card border-l-4 border-teal-500"><p class="text-[8px] font-black text-gray-400 uppercase">Tuntas</p><h3 id="stat-wilayah-done" class="text-xl font-black text-teal-600">0</h3></div>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div id="selected-count-bar" class="hidden p-3 bg-blue-50 border-b border-blue-100 flex justify-between items-center px-6">
+                        <span class="text-[10px] font-black text-blue-600 uppercase italic" id="selected-count-admin">0 Data Terpilih</span>
+                    </div>
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left min-w-[1200px]">
                             <thead class="bg-gray-50 border-b border-gray-100">
                                 <tr class="text-[10px] text-gray-400 font-black uppercase tracking-widest">
+                                    <th id="col-check-h" class="hidden p-5 text-center" style="width: 50px">
+                                        <input type="checkbox" id="selectAllAdmin" onclick="toggleAllCheckboxesAdmin()" class="w-4 h-4 cursor-pointer">
+                                    </th>
                                     <th class="p-5" style="width: 220px">Informasi OPD</th>
-                                    <th class="p-5">Alur Riwayat Konsultasi</th>
+                                    <th class="p-5">Riwayat & Catatan Auditor</th>
                                     <th class="p-5 text-center" style="width: 120px">Status</th>
-                                    <th class="p-5 text-center" style="width: 220px">Tindakan Auditor</th>
+                                    <th class="p-5 text-center" style="width: 180px">Tindakan</th>
                                 </tr>
                             </thead>
                             <tbody id="adminBody" class="divide-y divide-gray-50 text-sm font-bold"></tbody>
                         </table>
                     </div>
-                    <div id="loader" class="p-10 text-center text-gray-400 italic text-[10px] uppercase font-black">Menghubungkan Database...</div>
+                    <div id="loader" class="p-10 text-center text-gray-400 italic text-[10px] uppercase font-black animate-pulse">Menghubungkan ke Database Inspektorat...</div>
                 </div>
             </div>
         </main>
@@ -103,13 +119,14 @@
         const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl"; 
         const headers = { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" };
         let rawData = [];
+        let filteredData = [];
 
         (function() {
             if (sessionStorage.getItem('isLoggedIn') !== 'true' || sessionStorage.getItem('userRole') !== 'admin') {
                 window.location.href = 'login.html';
             } else { 
                 document.body.style.display = "block";
-                document.getElementById('admin-wilayah-label').innerText = sessionStorage.getItem('wilayah') || 'Wilayah';
+                document.getElementById('admin-wilayah-label').innerText = sessionStorage.getItem('wilayah') || 'Admin';
                 fetchAdmin();
             }
         })();
@@ -122,9 +139,10 @@
             try {
                 const res = await fetch(queryUrl, { headers });
                 rawData = await res.json();
+                filteredData = rawData;
                 document.getElementById('loader').classList.add('hidden');
                 updateAdminStats(rawData);
-                renderTable(rawData);
+                renderTable(filteredData);
             } catch (e) { console.error(e); }
         }
 
@@ -132,74 +150,127 @@
             const body = document.getElementById('adminBody');
             body.innerHTML = data.map(item => {
                 const id = item.id;
-                const regNum = generateRegNum(id, item.waktu_pengajuan);
                 const isTerjawab = item.jawaban && item.jawaban !== "";
                 const isVerif = item.status_tl === "Menunggu Verifikasi";
                 const isTuntas = item.status_tl === "Tuntas";
                 const isPerbaikan = item.status_tl === "Perlu Perbaikan";
 
-                // --- 1. Bubble Alur ---
+                // --- BUBBLE ALUR ---
                 let userFile = (item.file_lampiran && item.file_lampiran.includes('http')) ? `<div class="attachment-box"><img src="${parseDriveLink(item.file_lampiran)}" onclick="window.open('${item.file_lampiran}')"></div>` : "";
                 let tlBubble = "";
                 if (item.bukti_tl) {
                     const parts = item.bukti_tl.split(" | Link: ");
                     let tlFile = (parts[1] && parts[1].includes('http')) ? `<div class="attachment-box"><img src="${parseDriveLink(parts[1])}" onclick="window.open('${parts[1]}')"></div>` : "";
-                    tlBubble = `<div class="bubble bubble-tl"><span class="label-bubble text-orange-600">📝 Laporan TL OPD</span><div>${parts[0]}</div>${tlFile}</div>`;
+                    tlBubble = `<div class="bubble bubble-tl animate__animated animate__fadeIn"><span class="label-bubble text-orange-600">📝 Progres Tindak Lanjut OPD</span><div>${parts[0]}</div>${tlFile}</div>`;
                 }
                 
-                let catatanBubble = (isTuntas || isPerbaikan) && item.catatan_admin_tl ? `<div class="bubble bubble-catatan"><span class="label-bubble text-green-700">📌 Catatan Akhir Auditor</span><div>${item.catatan_admin_tl}</div></div>` : "";
+                // --- INPUT CATATAN DI ALUR ---
+                let inputArea = "";
+                if (!isTerjawab || isPerbaikan) {
+                    inputArea = `<textarea id="reply-${id}" class="w-full p-3 text-[11px] border border-blue-200 bg-blue-50/30 rounded-xl outline-none font-bold mt-2" rows="2" placeholder="Tulis jawaban/instruksi auditor di sini..."></textarea>`;
+                } else if (isVerif) {
+                    inputArea = `<textarea id="reply-${id}" class="w-full p-3 text-[11px] border border-orange-200 bg-orange-50/30 rounded-xl outline-none font-bold mt-2" rows="2" placeholder="Berikan catatan verifikasi hasil TL..."></textarea>`;
+                }
+                
+                let catatanAkhir = (isTuntas || isPerbaikan) && item.catatan_admin_tl ? `<div class="bubble bubble-catatan"><span class="label-bubble text-green-700">📌 Hasil Verifikasi Akhir</span><div>${item.catatan_admin_tl}</div></div>` : "";
 
-                // --- 2. Kolom Status ---
                 const badge = isTuntas ? "bg-teal-50 text-teal-600 border-teal-200" : (isVerif ? "bg-orange-50 text-orange-600 border-orange-200" : (isTerjawab ? "bg-green-50 text-green-700 border-green-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"));
                 const txt = isTuntas ? "Tuntas" : (isVerif ? "Verifikasi" : (isTerjawab ? "Terjawab" : "Menunggu"));
 
-                // --- 3. Kolom Tindakan ---
-                let actionHtml = "";
+                // --- TOMBOL TINDAKAN ---
+                let tindakanHtml = "";
                 if (!isTerjawab || isPerbaikan) {
-                    actionHtml = `<textarea id="reply-${id}" class="w-full p-2 text-[10px] border rounded-lg mb-2 outline-none font-bold" rows="2" placeholder="Input jawaban/catatan perbaikan..."></textarea>
-                                  <button onclick="handleAction(${id}, 'Kirim')" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-md">Kirim Respon</button>`;
+                    tindakanHtml = `<button onclick="handleAction(${id}, 'Kirim')" class="w-full bg-blue-600 text-white py-2.5 rounded-lg text-[10px] font-black uppercase shadow-md active:scale-95">Kirim Jawaban</button>`;
                 } else if (isVerif) {
-                    actionHtml = `<textarea id="reply-${id}" class="w-full p-2 text-[10px] border rounded-lg mb-2 outline-none font-bold" rows="2" placeholder="Catatan verifikasi..."></textarea>
-                                  <div class="flex space-x-1">
-                                    <button onclick="handleAction(${id}, 'Tuntas')" class="flex-1 bg-teal-600 text-white py-2 rounded-lg text-[9px] font-black uppercase">Selesai</button>
-                                    <button onclick="handleAction(${id}, 'Perlu Perbaikan')" class="flex-1 bg-red-500 text-white py-2 rounded-lg text-[9px] font-black uppercase">Tolak</button>
-                                  </div>`;
+                    tindakanHtml = `<div class="flex flex-col space-y-2">
+                                        <button onclick="handleAction(${id}, 'Tuntas')" class="bg-teal-600 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-sm">✅ Setujui TL</button>
+                                        <button onclick="handleAction(${id}, 'Perlu Perbaikan')" class="bg-red-500 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-sm">❌ Tolak TL</button>
+                                    </div>`;
                 } else {
-                    actionHtml = `<span class="text-[10px] text-gray-400 italic">Data telah diproses.</span>`;
+                    tindakanHtml = `<span class="text-[10px] text-teal-600 font-black italic uppercase">Terselesaikan</span>`;
                 }
 
-                return `<tr>
+                return `<tr class="hover:bg-gray-50/50 transition border-b border-gray-100">
+                    <td class="col-check-d hidden p-5 text-center"><input type="checkbox" class="admin-data-check w-4 h-4 cursor-pointer" value="${id}" onclick="updateSelectedCountAdmin()"></td>
                     <td class="p-5 align-top">
-                        <div class="text-[11px] font-black text-blue-600 mb-1">${regNum}</div>
+                        <div class="text-[11px] font-black text-blue-600 mb-1 tracking-tighter">${generateRegNum(id, item.waktu_pengajuan)}</div>
                         <div class="text-[11px] font-black text-gray-800 uppercase leading-tight mb-2">${item.instansi}</div>
-                        <span class="bg-gray-100 text-[9px] px-2 py-1 rounded-md border uppercase font-black">${item.kategori}</span>
-                    </td>
-                    <td class="p-5 align-top">
-                        <div class="bubble bubble-user"><span class="label-bubble text-gray-500">❓ Konsultasi Masuk</span><div class="font-black mb-1">${item.judul_masalah}</div><div>${item.rincian_masalah}</div>${userFile}</div>
-                        ${isTerjawab ? `<div class="bubble bubble-auditor"><span class="label-bubble text-blue-600">🧑‍💻 Jawaban Auditor</span><div>${item.jawaban}</div></div>` : ""}
-                        ${tlBubble}
-                        ${catatanBubble}
-                    </td>
-                    <td class="p-5 text-center align-top pt-8"><span class="inline-block w-24 py-1.5 text-[9px] font-black rounded-full border uppercase ${badge}">${txt}</span></td>
-                    <td class="p-5 align-top">
-                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                            ${actionHtml}
-                            <div class="grid grid-cols-2 gap-2 mt-2">
-                                <a href="https://wa.me/${item.nomor_hp}" target="_blank" class="bg-green-500 text-white py-1.5 rounded-lg text-[9px] font-black uppercase text-center">WA</a>
-                                <a href="mailto:${item.email}" class="bg-gray-700 text-white py-1.5 rounded-lg text-[9px] font-black uppercase text-center">Email</a>
-                            </div>
+                        <span class="bg-gray-100 text-[8px] px-2 py-0.5 rounded border uppercase font-black">${item.kategori}</span>
+                        <div class="mt-4 flex space-x-2">
+                            <a href="https://wa.me/${item.nomor_hp}" target="_blank" class="p-2 bg-green-100 text-green-700 rounded-lg text-[10px]">📞 WA</a>
+                            <a href="mailto:${item.email}" class="p-2 bg-gray-100 text-gray-700 rounded-lg text-[10px]">📧 Email</a>
                         </div>
                     </td>
+                    <td class="p-5 align-top">
+                        <div class="bubble bubble-user"><span class="label-bubble text-gray-500">❓ Pertanyaan Masuk</span><div class="font-black mb-1">${item.judul_masalah}</div><div>${item.rincian_masalah}</div>${userFile}</div>
+                        ${isTerjawab ? `<div class="bubble bubble-auditor"><span class="label-bubble text-blue-600">🧑‍💻 Jawaban Auditor</span><div>${item.jawaban}</div></div>` : ""}
+                        ${tlBubble}
+                        ${catatanAkhir}
+                        ${inputArea}
+                    </td>
+                    <td class="p-5 text-center align-top pt-8"><span class="inline-block w-24 py-1.5 text-[9px] font-black rounded-full border uppercase ${badge}">${txt}</span></td>
+                    <td class="p-5 align-top pt-8">${tindakanHtml}</td>
                 </tr>`;
             }).join('');
         }
 
+        // --- FUNGSI CETAK ---
+        function togglePrintMode(isPrinting) {
+            const btnStart = document.getElementById('btn-start-print');
+            const printOptions = document.getElementById('print-options');
+            const colCheckH = document.getElementById('col-check-h');
+            const colCheckD = document.querySelectorAll('.col-check-d');
+            const countBar = document.getElementById('selected-count-bar');
+            if (isPrinting) {
+                btnStart.classList.add('hidden');
+                printOptions.classList.remove('hidden');
+                colCheckH.classList.remove('hidden');
+                colCheckD.forEach(el => el.classList.remove('hidden'));
+                countBar.classList.remove('hidden');
+            } else {
+                btnStart.classList.remove('hidden');
+                printOptions.classList.add('hidden');
+                colCheckH.classList.add('hidden');
+                colCheckD.forEach(el => el.classList.add('hidden'));
+                countBar.classList.add('hidden');
+            }
+        }
+        function toggleAllCheckboxesAdmin() {
+            const isChecked = document.getElementById('selectAllAdmin').checked;
+            document.querySelectorAll('.admin-data-check').forEach(cb => cb.checked = isChecked);
+            updateSelectedCountAdmin();
+        }
+        function updateSelectedCountAdmin() {
+            const count = document.querySelectorAll('.admin-data-check:checked').length;
+            document.getElementById('selected-count-admin').innerText = `${count} Data Terpilih`;
+        }
+
+        async function exportData(type) {
+            const selectedIds = Array.from(document.querySelectorAll('.admin-data-check:checked')).map(cb => cb.value);
+            const dataToExport = rawData.filter(item => selectedIds.includes(item.id.toString()));
+            if (!dataToExport.length) return Swal.fire('Pilih Data', 'Centang data yang ingin dicetak!', 'warning');
+
+            if (type === 'pdf') {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('l', 'mm', 'a4');
+                doc.text("REKAP KONSULTASI PAMAN SIGIT", 14, 15);
+                const tableBody = dataToExport.map(i => [i.instansi, i.judul_masalah, i.status_tl || 'Menunggu']);
+                doc.autoTable({ head: [['Instansi', 'Masalah', 'Status']], body: tableBody, startY: 25 });
+                doc.save('Rekap_Admin_PamanSigit.pdf');
+            } else {
+                const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap");
+                XLSX.utils.writeFile(workbook, "Rekap_Admin_PamanSigit.xlsx");
+            }
+            togglePrintMode(false);
+        }
+
         async function handleAction(id, type) {
             const msg = document.getElementById(`reply-${id}`).value.trim();
-            if (!msg) return Swal.fire('Wajib Isi', 'Mohon isi respon/catatan!', 'warning');
+            if (!msg) return Swal.fire('Wajib Isi', 'Mohon berikan catatan!', 'warning');
             
             Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            
             let updateData = {};
             if (type === 'Kirim') updateData = { jawaban: msg, waktu_jawaban: new Date().toISOString(), status_tl: "Belum TL" };
             else if (type === 'Tuntas') updateData = { status_tl: "Tuntas", catatan_admin_tl: msg };
@@ -211,14 +282,6 @@
             } catch (e) { Swal.fire('Error', 'Gagal update data', 'error'); }
         }
 
-        function updateAdminStats(data) {
-            document.getElementById('stat-wilayah-total').innerText = data.length;
-            document.getElementById('stat-wilayah-pending').innerText = data.filter(i => !i.jawaban).length;
-            document.getElementById('stat-wilayah-proses').innerText = data.filter(i => i.jawaban && (i.status_tl === "Belum TL" || i.status_tl === "Perlu Perbaikan")).length;
-            document.getElementById('stat-wilayah-verif').innerText = data.filter(i => i.status_tl === "Menunggu Verifikasi").length;
-            document.getElementById('stat-wilayah-done').innerText = data.filter(i => i.status_tl === "Tuntas").length;
-        }
-
         function parseDriveLink(link) {
             if (link && link.includes('drive.google.com')) {
                 const id = link.split('/d/')[1]?.split('/')[0] || link.split('id=')[1];
@@ -227,6 +290,18 @@
             return link;
         }
         function generateRegNum(id, waktu) { const d = new Date(waktu); return `REG/ITDA/${("0"+d.getDate()).slice(-2)}${("0"+(d.getMonth()+1)).slice(-2)}${d.getFullYear()}/${("0000" + id).slice(-4)}`; }
+        function updateAdminStats(data) {
+            document.getElementById('stat-wilayah-total').innerText = data.length;
+            document.getElementById('stat-wilayah-pending').innerText = data.filter(i => !i.jawaban).length;
+            document.getElementById('stat-wilayah-proses').innerText = data.filter(i => i.jawaban && (i.status_tl === "Belum TL" || i.status_tl === "Perlu Perbaikan")).length;
+            document.getElementById('stat-wilayah-verif').innerText = data.filter(i => i.status_tl === "Menunggu Verifikasi").length;
+            document.getElementById('stat-wilayah-done').innerText = data.filter(i => i.status_tl === "Tuntas").length;
+        }
+        function filterData() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            filteredData = rawData.filter(i => i.instansi?.toLowerCase().includes(q) || i.id.toString().includes(q));
+            renderTable(filteredData);
+        }
         async function refreshAdminData() { const i = document.getElementById('refresh-icon-admin'); i.classList.add('spin'); await fetchAdmin(); setTimeout(()=>i.classList.remove('spin'), 800); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
         async function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
