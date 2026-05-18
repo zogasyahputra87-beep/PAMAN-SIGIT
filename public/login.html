@@ -85,7 +85,6 @@
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // PERUBAHAN: Menambahkan .trim() untuk menghapus spasi kosong tidak sengaja di awal/akhir input
             const userIn = document.getElementById('username').value.trim();
             const passIn = document.getElementById('password').value.trim();
             
@@ -96,19 +95,23 @@
             btn.disabled = true;
 
             try {
-                // TIPS: Jika username di database Anda menggunakan huruf kecil semua tetapi pengguna sering memakai huruf kapital, 
-                // Anda bisa mengubah kueri url dari 'username=eq.' menjadi 'username=ilike.' untuk mengabaikan kapitalisasi.
-                const urlKueri = `${SUPABASE_URL}/rest/v1/users_opd?username=eq.${encodeURIComponent(userIn)}&password=eq.${encodeURIComponent(passIn)}&select=*`;
+                // PERUBAHAN: Menggunakan 'ilike' pada username agar tidak sensitif kapital (anti-error huruf besar/kecil)
+                const urlKueri = `${SUPABASE_URL}/rest/v1/users_opd?username=ilike.${encodeURIComponent(userIn)}&password=eq.${encodeURIComponent(passIn)}&select=*`;
 
                 const response = await fetch(urlKueri, {
+                    method: "GET",
                     headers: {
                         "apikey": SUPABASE_KEY,
-                        "Authorization": `Bearer ${SUPABASE_KEY}`
+                        "Authorization": `Bearer ${SUPABASE_KEY}`,
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
                     }
                 });
 
+                // PERUBAHAN: Menangkap detail jika ada proteksi RLS atau error internal API
                 if (!response.ok) {
-                    throw new Error(`Koneksi database bermasalah (Status: ${response.status})`);
+                    const errDetail = await response.text();
+                    throw new Error(`Gagal terhubung ke database. Info Teknis: ${errDetail || response.statusText}`);
                 }
 
                 const data = await response.json();
@@ -137,7 +140,8 @@
                         }
                     });
                 } else {
-                    throw new Error("Username atau Password salah! Periksa kembali kesesuaian huruf besar dan kecil.");
+                    // JIKA DATA [] KOSONG: Berarti RLS aktif atau data ketikan memang salah
+                    throw new Error("Kredensial salah atau Akun Anda belum diizinkan oleh sistem RLS Supabase.");
                 }
 
             } catch (error) {
@@ -146,7 +150,6 @@
                 
                 card.classList.remove('animate__fadeInDown', 'animate__headShake');
                 void card.offsetWidth; 
-                card.shadowOffset = card.offsetWidth;
                 card.classList.add('animate__headShake');
 
                 Swal.fire({
