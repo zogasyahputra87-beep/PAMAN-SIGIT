@@ -23,48 +23,50 @@
             user-select: none;
             -webkit-user-select: none;
         }
+        /* PERUBAHAN: Mengubah latar belakang putih menjadi gradasi semi-transparan yang elegan */
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(17, 24, 39, 0.95));
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 <body class="h-screen flex items-center justify-center p-6">
 
     <div id="loginCard" class="glass-card w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden animate__animated animate__fadeInDown">
-        <div class="p-8 text-center bg-white/50 border-b border-gray-100">
-            <div class="mb-4 flex justify-center">
-                <img src="../pages/logo_kab.png" alt="Logo Kabupaten Malang" class="h-20 w-auto drop-shadow-md">
+        <div class="p-10 text-center border-b border-white/10">
+            <div class="mb-6 flex justify-center">
+                <img src="../pages/logo_kab.png" alt="Logo Kabupaten Malang" class="h-24 w-auto drop-shadow-md">
             </div>
-            <h1 class="text-2xl font-black text-gray-800 uppercase tracking-tighter">PAMAN SIGIT</h1>
-            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Layanan Konsultasi Digital Kabupaten Malang</p>
-            <p class="text-[9px] text-blue-500 uppercase tracking-tight font-extrabold mt-1">Inspektorat Daerah Kabupaten Malang</p>
+            <h1 class="text-5xl font-black text-white uppercase tracking-tighter mb-2">PAMAN SIGIT</h1>
+            <p class="text-sm text-gray-300 uppercase tracking-widest font-black">Layanan Konsultasi Digital Kabupaten Malang</p>
+            <p class="text-xs text-blue-400 uppercase tracking-wider font-extrabold mt-2">Inspektorat Daerah Kabupaten Malang</p>
         </div>
 
-        <div class="p-8 space-y-5">
-            <button type="button" id="startGateBtn" onclick="revealLoginForm()" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-blue-700 transition-all active:scale-95 uppercase tracking-widest text-sm animate__animated animate__pulse animate__infinite">
+        <div class="p-10 space-y-5">
+            <button type="button" id="startGateBtn" onclick="revealLoginForm()" class="w-full bg-blue-600 text-white font-black py-5 rounded-xl shadow-lg hover:bg-blue-700 transition-all active:scale-95 uppercase tracking-widest text-sm animate__animated animate__pulse animate__infinite">
                 LOGIN
             </button>
 
-            <form id="loginForm" class="hidden space-y-5 animate__animated animate__fadeInUp">
+            <form id="loginForm" class="hidden space-y-6 animate__animated animate__fadeInUp">
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Username</label>
-                    <input type="text" id="username" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition font-bold text-sm" placeholder="Masukkan username" required autocomplete="off">
+                    <label class="block text-xs font-black text-gray-300 uppercase mb-2 tracking-wider">Username</label>
+                    <input type="text" id="username" class="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-white transition font-bold text-sm placeholder-gray-500" placeholder="Masukkan username" required autocomplete="off">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Password</label>
-                    <input type="password" id="password" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition font-bold text-sm" placeholder="••••••••" required>
+                    <label class="block text-xs font-black text-gray-300 uppercase mb-2 tracking-wider">Password</label>
+                    <input type="password" id="password" class="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-white transition font-bold text-sm placeholder-gray-500" placeholder="••••••••" required>
                 </div>
                 
-                <button type="submit" id="loginBtn" class="w-full bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95 uppercase tracking-widest text-sm">
+                <button type="submit" id="loginBtn" class="w-full bg-amber-500 text-gray-900 font-black py-4 rounded-xl shadow-lg hover:bg-amber-600 transition-all active:scale-95 uppercase tracking-widest text-sm">
                     Masuk ke Sistem
                 </button>
             </form>
         </div>
         
-        <div class="p-6 bg-gray-50/50 text-center border-t border-gray-100">
+        <div class="p-6 text-center border-t border-white/10">
             <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Versi 1.1 - Database Driven</p>
-            <p class="text-[8px] text-gray-300 uppercase mt-1">Ananda Zoga Syahputra, S.Tr.I.P.</p>
+            <p class="text-[8px] text-gray-500 uppercase mt-1">Ananda Zoga Syahputra, S.Tr.I.P.</p>
         </div>
     </div>
 
@@ -72,17 +74,15 @@
         const SUPABASE_URL = "https://afaiwyfodjllolzwbhmz.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl"; 
 
-        // Fungsi Membuka Kotak Formulir Login
         function revealLoginForm() {
             const startBtn = document.getElementById('startGateBtn');
             const loginForm = document.getElementById('loginForm');
             
-            startBtn.classList.add('hidden'); // Sembunyikan tombol gerbang masuk awal
-            loginForm.classList.remove('hidden'); // Tampilkan form login dengan animasi fadeInUp
-            document.getElementById('username').focus(); // Otomatis fokus ke field username
+            startBtn.classList.add('hidden'); 
+            loginForm.classList.remove('hidden'); 
+            document.getElementById('username').focus(); 
         }
 
-        // Handler Proses Login Form
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -132,6 +132,7 @@
                 }
 
             } catch (error) {
+                // PERUBAHAN: Menyesuaikan teks tombol kembali jika gagal
                 btn.innerHTML = "Masuk ke Sistem";
                 btn.disabled = false;
                 
@@ -150,7 +151,6 @@
             }
         });
 
-        // Proteksi Klik Kanan
         document.addEventListener('contextmenu', e => e.preventDefault());
     </script>
 </body>
