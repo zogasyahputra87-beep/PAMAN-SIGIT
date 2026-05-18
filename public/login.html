@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="PAMAN SIGIT - Layanan Konsultasi Digital Inspektorat Daerah Kabupaten Malang.">
-
     <meta name="google-site-verification" content="PThX0k0-0mpfE8h8zCusaP9iocfEovlLdAcA1qYBJ80" />
     
     <title>Login | PAMAN SIGIT Inspektorat Daerah Kabupaten Malang</title>
@@ -37,23 +37,30 @@
                 <img src="../pages/logo_kab.png" alt="Logo Kabupaten Malang" class="h-20 w-auto drop-shadow-md">
             </div>
             <h1 class="text-2xl font-black text-gray-800 uppercase tracking-tighter">PAMAN SIGIT</h1>
-            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Inspektorat Daerah Kabupaten Malang</p>
+            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Pelayanan Konsultasi & Monitoring Hasil Audit</p>
+            <p class="text-[9px] text-blue-500 uppercase tracking-tight font-extrabold mt-1">Inspektorat Daerah Kabupaten Malang</p>
         </div>
 
-        <form id="loginForm" class="p-8 space-y-5">
-            <div>
-                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Username</label>
-                <input type="text" id="username" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Masukkan username" required autocomplete="off">
-            </div>
-            <div>
-                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Password</label>
-                <input type="password" id="password" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="••••••••" required>
-            </div>
-            
-            <button type="submit" id="loginBtn" class="w-full bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95 uppercase tracking-widest text-sm">
-                Masuk ke Sistem
+        <div class="p-8 space-y-5">
+            <button type="button" id="startGateBtn" onclick="revealLoginForm()" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg hover:bg-blue-700 transition-all active:scale-95 uppercase tracking-widest text-sm animate__animated animate__pulse animate__infinite">
+                Mulai Akses Sistem
             </button>
-        </form>
+
+            <form id="loginForm" class="hidden space-y-5 animate__animated animate__fadeInUp">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Username</label>
+                    <input type="text" id="username" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition font-bold text-sm" placeholder="Masukkan username" required autocomplete="off">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Password</label>
+                    <input type="password" id="password" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition font-bold text-sm" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" id="loginBtn" class="w-full bg-gray-800 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95 uppercase tracking-widest text-sm">
+                    Masuk ke Sistem
+                </button>
+            </form>
+        </div>
         
         <div class="p-6 bg-gray-50/50 text-center border-t border-gray-100">
             <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Versi 1.1 - Database Driven</p>
@@ -62,10 +69,20 @@
     </div>
 
     <script>
-        // --- KONFIGURASI SUPABASE ---
         const SUPABASE_URL = "https://afaiwyfodjllolzwbhmz.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl"; 
 
+        // Fungsi Membuka Kotak Formulir Login
+        function revealLoginForm() {
+            const startBtn = document.getElementById('startGateBtn');
+            const loginForm = document.getElementById('loginForm');
+            
+            startBtn.classList.add('hidden'); // Sembunyikan tombol gerbang masuk awal
+            loginForm.classList.remove('hidden'); // Tampilkan form login dengan animasi fadeInUp
+            document.getElementById('username').focus(); // Otomatis fokus ke field username
+        }
+
+        // Handler Proses Login Form
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -78,7 +95,6 @@
             btn.disabled = true;
 
             try {
-                // Mencocokkan username dan password ke tabel 'users_opd'
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${userIn}&password=eq.${passIn}&select=*`, {
                     headers: {
                         "apikey": SUPABASE_KEY,
@@ -91,14 +107,10 @@
                 if (data.length > 0) {
                     const user = data[0];
                     
-                    // Simpan data login ke Session Storage
                     sessionStorage.setItem('isLoggedIn', 'true');
                     sessionStorage.setItem('userName', user.username);
                     sessionStorage.setItem('namaOpd', user.nama_opd);
                     sessionStorage.setItem('userRole', user.role);
-                    
-                    // --- PENYESUAIAN WILAYAH ---
-                    // Mengambil nilai kolom 'wilayah' dari database (Contoh: "semua" atau "Irban I")
                     sessionStorage.setItem('wilayah', user.wilayah || 'semua');
 
                     Swal.fire({
@@ -109,7 +121,6 @@
                         timer: 1500,
                         customClass: { popup: 'rounded-3xl' }
                     }).then(() => {
-                        // Arahkan berdasarkan Role
                         if (user.role === 'admin') {
                             window.location.href = 'admin.html';
                         } else {
@@ -124,9 +135,9 @@
                 btn.innerHTML = "Masuk ke Sistem";
                 btn.disabled = false;
                 
-                // Animasi getar jika gagal
                 card.classList.remove('animate__fadeInDown', 'animate__headShake');
                 void card.offsetWidth; 
+                card.shadowOffset = card.offsetWidth;
                 card.classList.add('animate__headShake');
 
                 Swal.fire({
