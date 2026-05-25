@@ -64,7 +64,7 @@
         </div>
         
         <div class="p-6 text-center border-t border-white/10">
-            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Versi 1.1 - Database Driven</p>
+            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Versi 1.1</p>
             <p class="text-[8px] text-gray-500 uppercase mt-1">Ananda Zoga Syahputra, S.Tr.I.P.</p>
         </div>
     </div>
@@ -141,7 +141,7 @@
                     });
                 } else {
                     // JIKA DATA [] KOSONG: Berarti RLS aktif atau data ketikan memang salah
-                    throw new Error("Kredensial salah atau Akun Anda belum diizinkan oleh sistem RLS Supabase.");
+                    throw new Error("Username atau Passwrod salah");
                 }
 
             } catch (error) {
