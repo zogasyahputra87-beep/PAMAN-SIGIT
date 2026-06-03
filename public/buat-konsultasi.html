@@ -3,183 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PAMAN SIGIT - Layanan Konsultasi Digital Inspektorat Daerah Kabupaten Malang.">
-    
-    <title>Buat Konsultasi | PAMAN SIGIT Inspektorat Daerah Kabupaten Malang</title>
+    <title>Buat Konsultasi | PAMAN SIGIT</title>
 
     <link rel="icon" type="image/png" href="../pages/logo_kab.png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
-        body { user-select: none; -webkit-user-select: none; display: none; }
+        body { 
+            user-select: none; 
+            -webkit-user-select: none; 
+            display: none; 
+            background-color: #0F172A;
+        }
+        .bg-paman-dark { background-color: #111827; }
         .profile-ring { padding: 2px; background: linear-gradient(to bottom right, #3b82f6, #1e40af); }
-        .bg-paman-dark { background-color: #1F2937; }
-
-        /* --- WATERMARK LOGO GLOBAL --- */
-        .watermark-fixed {
-            position: fixed; bottom: -30px; right: -30px; width: 500px; height: 500px;
-            background-image: url('../pages/inspektorat.png');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            opacity: 0.5; z-index: 0; pointer-events: none;
+        
+        /* PERTAJAM: Efek Glassmorphic HD untuk Panel Formulir */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* Dropdown Animation */
+        /* PERTAJAM: Efek bersinar pada input form saat aktif */
+        .hd-input {
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #F1F5F9;
+            transition: all 0.2s ease-in-out;
+        }
+        .hd-input:focus {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.35);
+            border-color: rgba(59, 130, 246, 0.6);
+            background-color: rgba(15, 23, 42, 0.8);
+        }
+
         #profile-menu { transform-origin: top right; transition: all 0.2s ease-out; }
         .menu-hidden { transform: scale(0.95); opacity: 0; pointer-events: none; }
         .menu-visible { transform: scale(1); opacity: 1; pointer-events: auto; }
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800">
-
-    <div class="watermark-fixed"></div>
+<body class="font-sans text-slate-200 overflow-hidden">
 
     <div class="flex h-screen overflow-hidden relative z-10">
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-paman-dark text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
-            <div class="p-6 border-b border-gray-700 flex flex-col items-center">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-paman-dark text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl border-r border-white/5">
+            <div class="p-6 border-b border-white/5 flex flex-col items-center">
                 <img src="../pages/logo_kab.png" alt="Logo" class="w-14 mb-3 drop-shadow-md">
-                <div class="text-center">
-                    <h1 class="text-xl font-bold text-white tracking-tight">PAMAN SIGIT</h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight text-center font-bold">Inspektorat Daerah<br>Kabupaten Malang</p>
+                <div class="text-center font-black">
+                    <h1 class="text-xl font-bold text-white tracking-tight uppercase">PAMAN SIGIT</h1>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
                 </div>
             </div>
-            
-            <nav class="flex-1 mt-6 px-4 space-y-1">
-                <a href="index.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm"><span class="mr-3">📊</span> Dashboard</a>
-                <a href="buat-konsultasi.html" class="bg-gray-700 text-white w-full flex items-center p-3 rounded-lg text-sm font-bold border-r-4 border-blue-500 shadow-lg"><span class="mr-3">➕</span> Buat Konsultasi</a>
-                <a href="riwayat.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm"><span class="mr-3">📂</span> Riwayat Konsultasi</a>
+            <nav class="flex-1 mt-6 px-4 space-y-1 font-bold">
+                <a href="index.html" class="w-full flex items-center p-3 rounded-lg hover:bg-slate-800/50 transition text-sm">📊 Dashboard</a>
+                <a href="buat-konsultasi.html" class="bg-slate-800 text-white w-full flex items-center p-3 rounded-lg text-sm font-bold border-r-4 border-blue-500 shadow-lg">➕ Buat Konsultasi</a>
+                <a href="riwayat.html" class="w-full flex items-center p-3 rounded-lg hover:bg-slate-800/50 transition text-sm">📂 Riwayat Konsultasi</a>
             </nav>
 
-            <div class="p-6 border-t border-gray-700 flex flex-col items-center bg-gray-800/50 relative">
+            <div class="p-6 border-t border-white/5 flex flex-col items-center bg-black/20">
                 <div class="w-16 h-16 rounded-full profile-ring shadow-lg mb-3 overflow-hidden bg-gray-700">
-                    <img src="../pages/zoga.jpg" alt="Zoga" onerror="this.src='https://ui-avatars.com/api/?name=Ananda+Zoga'" class="w-full h-full object-cover">
+                    <img id="side-avatar" src="../pages/zoga.jpg" onerror="this.src='https://ui-avatars.com/api/?name=User'" class="w-full h-full object-cover">
                 </div>
-                <div class="text-center">
-                    <p class="text-[9px] text-blue-400 uppercase font-black tracking-tighter mb-1">Pengembang Sistem</p>
-                    <p class="text-[11px] font-bold text-gray-100 uppercase text-center leading-tight">Ananda Zoga Syahputra, S.Tr.I.P.</p>
+                <div class="text-center font-black">
+                    <p class="text-[9px] text-blue-400 uppercase mb-1">Pengembang Sistem</p>
+                    <p id="side-nama-user" class="text-[11px] font-bold text-gray-100 uppercase leading-tight">User</p>
                 </div>
-                <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition active:scale-95">Keluar Sistem</button>
+                <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg hover:bg-red-500/20 transition">Keluar Sistem</button>
             </div>
         </aside>
 
-        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
-
-        <main class="flex-1 flex flex-col overflow-y-auto">
-            <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-8 h-20 flex-shrink-0 sticky top-0 z-30 shadow-sm">
-                <div class="flex items-center">
-                    <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg text-gray-600">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+        <main class="flex-1 flex flex-col overflow-y-auto bg-slate-900">
+            <header class="bg-slate-900/80 border-b border-white/5 p-4 flex justify-between items-center px-4 md:px-8 h-20 sticky top-0 z-30 shadow-sm backdrop-blur-md">
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleSidebar()" class="md:hidden p-2 bg-slate-800 border border-white/5 rounded-xl text-white">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                     </button>
-                    <h2 class="text-sm md:text-lg font-black text-gray-800 uppercase tracking-widest">Buat Konsultasi Baru</h2>
+                    <div>
+                        <h2 class="text-base md:text-lg font-black text-white uppercase leading-tight">Pengajuan Baru</h2>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Formulir Konsultasi Privat</p>
+                    </div>
                 </div>
                 
-                <div class="flex items-center">
+                <div class="flex items-center space-x-3">
                     <div class="relative">
-                        <button onclick="toggleProfileMenu()" id="profile-btn" class="flex items-center pl-4 border-l border-gray-200 text-right group focus:outline-none">
-                            <div class="mr-3 hidden md:block text-right">
-                                <p id="head-opd-name" class="text-[10px] font-black text-gray-800 uppercase leading-none mb-1">NAMA OPD</p>
-                                <p id="head-username" class="text-[9px] text-blue-600 font-bold tracking-tight">@username</p>
-                            </div>
-                            <div class="w-10 h-10 bg-gray-100 rounded-xl profile-ring shadow-lg ring-2 ring-blue-50 ring-offset-2 overflow-hidden transition group-hover:scale-105">
-                                <img id="head-avatar" src="https://ui-avatars.com/api/?name=User" class="w-full h-full object-cover">
-                            </div>
+                        <button onclick="toggleProfileMenu()" class="w-10 h-10 rounded-xl profile-ring overflow-hidden">
+                            <img id="head-avatar" src="https://ui-avatars.com/api/?name=User" class="w-full h-full object-cover">
                         </button>
-
-                        <div id="profile-menu" class="menu-hidden absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50">
-                            <div class="px-4 py-3 border-b border-gray-50">
-                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Akses Pengguna</p>
-                                <p id="drop-nama-opd" class="text-xs font-black text-gray-800 truncate">Nama OPD</p>
+                        <div id="profile-menu" class="menu-hidden absolute right-0 mt-3 w-56 bg-slate-800 rounded-2xl shadow-2xl border border-white/5 py-2 z-50">
+                            <div class="px-4 py-3 border-b border-white/5 font-black">
+                                <p id="drop-nama-opd" class="text-xs text-white truncate">Nama OPD</p>
                             </div>
-                            <button onclick="gantiProfil()" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-blue-50 hover:text-blue-600 flex items-center transition">
-                                <span class="mr-2">🖼️</span> Ganti Foto Profil
-                            </button>
-                            <button onclick="formGantiPassword()" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-blue-50 hover:text-blue-600 flex items-center transition">
-                                <span class="mr-2">🔑</span> Ganti Password
-                            </button>
-                            <hr class="my-1 border-gray-50">
-                            <button onclick="logout()" class="w-full text-left px-4 py-2 text-xs text-red-500 hover:bg-red-50 flex items-center transition font-bold uppercase tracking-widest">
-                                <span class="mr-2">🚀</span> Keluar Sistem
-                            </button>
+                            <button onclick="logout()" class="w-full text-left px-4 py-2 text-xs text-red-400 font-bold uppercase">🚀 Keluar</button>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <div class="p-8 max-w-3xl mx-auto w-full">
-                <div class="bg-white p-6 md:p-10 rounded-3xl shadow-sm border border-gray-200 animate__animated animate__fadeInUp">
-                    <form id="consultForm" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-4 md:p-10 relative z-10 max-w-5xl mx-auto w-full animate__animated animate__fadeIn">
+                <div class="glass-panel rounded-3xl shadow-2xl overflow-hidden">
+                    <div class="p-5 md:p-8 border-b border-white/5 bg-black/20">
+                        <h3 class="text-sm md:text-base font-black text-white uppercase tracking-wider">Lengkapi Formulir Konsultasi</h3>
+                        <p class="text-[10px] text-slate-400 font-medium mt-0.5">Seluruh data laporan dikirim secara privat dan aman langsung ke Irban Wilayah.</p>
+                    </div>
+
+                    <form id="consultationForm" class="p-5 md:p-8 space-y-6">
+                        <div>
+                            <label class="block text-[11px] font-black text-gray-300 uppercase mb-2 tracking-wider">Judul Pokok Masalah</label>
+                            <input type="text" id="judul_masalah" class="hd-input w-full p-4 rounded-xl outline-none text-sm font-bold placeholder-gray-600" placeholder="Tuliskan ringkasan inti masalah..." required autocomplete="off">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Instansi Utama</label>
-                                <input type="text" id="opdName" class="w-full p-3 bg-gray-100 border border-gray-200 rounded-xl outline-none text-gray-500 font-bold cursor-not-allowed" readonly>
+                                <label class="block text-[11px] font-black text-gray-300 uppercase mb-2 tracking-wider">Kategori Pengawasan</label>
+                                <select id="kategori" class="hd-input w-full p-4 rounded-xl outline-none text-sm font-bold cursor-pointer" required>
+                                    <option value="" disabled selected class="bg-slate-900 text-gray-500">Pilih Kategori...</option>
+                                    <option value="Pengelolaan Keuangan" class="bg-slate-900 text-white">Pengelolaan Keuangan</option>
+                                    <option value="Aset & Barang Milik Daerah" class="bg-slate-900 text-white">Aset & Barang Milik Daerah</option>
+                                    <option value="Sistem Akuntabilitas (SAKIP)" class="bg-slate-900 text-white">Sistem Akuntabilitas (SAKIP)</option>
+                                    <option value="Pengadaan Barang & Jasa" class="bg-slate-900 text-white">Pengadaan Barang & Jasa</option>
+                                    <option value="Kepegawaian & Disiplin ASN" class="bg-slate-900 text-white">Kepegawaian & Disiplin ASN</option>
+                                </select>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Kategori Masalah</label>
-                                <select id="consultType" onchange="toggleOtherInput()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" required>
-                                    <option value="">-- Pilih Kategori --</option>
-                                    <option value="Pengelolaan Keuangan">Pengelolaan Keuangan</option>
-                                    <option value="Administrasi Pemerintahan">Administrasi Pemerintahan</option>
-                                    <option value="Pengadaan Barang/Jasa">Pengadaan Barang/Jasa</option>
-                                    <option value="Pelaksanaan Program/Kegiatan">Pelaksanaan Program/Kegiatan</option>
-                                    <option value="Lainnya">Lainnya</option>
+                                <label class="block text-[11px] font-black text-gray-300 uppercase mb-2 tracking-wider">Metode Respon Diharapkan</label>
+                                <select id="metode" class="hd-input w-full p-4 rounded-xl outline-none text-sm font-bold cursor-pointer" required>
+                                    <option value="Aplikasi Web Only" class="bg-slate-900 text-white">Cukup Balas Lewat Web PAMAN SIGIT</option>
+                                    <option value="Pendampingan Tatap Muka" class="bg-slate-900 text-white">Butuh Pendampingan Tatap Muka (Offline)</option>
+                                    <option value="Koordinasi Zoom Meeting" class="bg-slate-900 text-white">Butuh Koordinasi via Zoom Meeting</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div id="wrap-desa" class="hidden animate__animated animate__fadeIn">
-                            <label class="block text-[11px] font-bold text-blue-600 uppercase mb-2 italic">Detail Nama Desa / Kelurahan / Unit</label>
-                            <input type="text" id="namaDesa" class="w-full p-3 bg-blue-50 border border-blue-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" placeholder="Masukkan nama Desa atau Kelurahan...">
-                        </div>
-
-                        <div id="otherTypeContainer" class="hidden">
-                            <label class="block text-[11px] font-bold text-blue-600 uppercase mb-2 italic">Sebutkan Kategori Lainnya</label>
-                            <input type="text" id="otherConsultType" class="w-full p-3 bg-white border border-blue-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-400">
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Metode Konsultasi</label>
-                                <select id="metode" onchange="toggleTanggal()" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" required>
-                                    <option value="Online">Online (Melalui Aplikasi)</option>
-                                    <option value="Offline">Offline (Tatap Muka)</option>
-                                </select>
-                            </div>
-                            <div id="wrap-tanggal" class="hidden">
-                                <label class="block text-[11px] font-bold text-blue-600 uppercase mb-2">Rencana Tanggal Pertemuan</label>
-                                <input type="date" id="tgl_offline" class="w-full p-3 bg-blue-50 border border-blue-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 transition">
-                            </div>
+                        <div>
+                            <label class="block text-[11px] font-black text-gray-300 uppercase mb-2 tracking-wider">Rincian Kronologi & Permasalahan</label>
+                            <textarea id="rincian_masalah" rows="6" class="hd-input w-full p-4 rounded-xl outline-none text-sm font-bold placeholder-gray-600 leading-relaxed" placeholder="Tuliskan secara lengkap detail urusan atau permasalahan yang ingin dikonsultasikan..." required></textarea>
                         </div>
 
                         <div>
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Judul Masalah</label>
-                            <input type="text" id="subject" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" placeholder="Ringkasan topik konsultasi" required>
-                        </div>
-
-                        <div>
-                            <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Rincian Permasalahan</label>
-                            <textarea id="issue" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" rows="4" placeholder="Jelaskan detail kendala..." required></textarea>
-                        </div>
-
-                        <div class="p-4 bg-blue-50/50 border-2 border-dashed border-blue-200 rounded-2xl text-center">
-                            <label class="block text-[10px] font-bold text-blue-600 uppercase mb-2 tracking-widest">Lampiran Dokumen (Opsional)</label>
-                            <input type="file" id="fileInput" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Nomor WhatsApp</label>
-                                <input type="tel" id="whatsapp" placeholder="0812xxxx" class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" required>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-gray-400 uppercase mb-2">Email Instansi</label>
-                                <input type="email" id="email" placeholder="nama@malangkab.go.id" class="w-full p-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 transition" required>
+                            <label class="block text-[11px] font-black text-gray-300 uppercase mb-2 tracking-wider">Dokumen Lampiran Pendukung (Opsional)</label>
+                            <div class="relative group border-2 border-dashed border-white/10 hover:border-blue-500/50 rounded-2xl bg-black/10 transition-all p-6 text-center cursor-pointer">
+                                <input type="file" id="file_lampiran" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <div class="space-y-1">
+                                    <span class="text-2xl block">📁</span>
+                                    <p id="fileNameLabel" class="text-xs font-black text-slate-300 uppercase tracking-wide">Pilih atau Seret File Dokumen</p>
+                                    <p class="text-[9px] text-slate-500">Format: PDF, JPG, PNG, atau XLSX (Maksimal 10MB)</p>
+                                </div>
                             </div>
                         </div>
 
-                        <button id="btnSubmit" type="submit" class="w-full bg-paman-dark text-white font-bold py-4 rounded-xl shadow-lg hover:bg-gray-900 transition-all active:scale-95 uppercase tracking-widest disabled:bg-gray-400">
-                            Kirim Pengajuan
-                        </button>
+                        <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-white/5">
+                            <button type="submit" id="submitBtn" class="w-full sm:flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-4 rounded-xl shadow-lg hover:from-blue-700 hover:to-indigo-700 transition active:scale-[0.98] uppercase tracking-widest text-xs md:text-sm">
+                                Kirim Pengajuan Konsultasi
+                            </button>
+                            <a href="riwayat.html" class="w-full sm:w-auto text-center bg-slate-800 text-slate-300 font-black px-6 py-4 rounded-xl hover:bg-slate-700 transition active:scale-[0.98] uppercase tracking-widest text-xs md:text-sm border border-white/5">
+                                Batal
+                            </a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -188,244 +171,132 @@
 
     <script>
         const SUPABASE_URL = "https://afaiwyfodjllolzwbhmz.supabase.co"; 
-        const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl";
+        const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl"; 
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2l5RHPGfRBDGt4SJUyKycyAfvKBjHl7F9Prr6Oq82AMoGUAKLRticQPf55sKy-AZr/exec";
-        const headers = { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` };
+        const headers = { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" };
 
-        // --- INISIALISASI ---
         (function() {
-            if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-                window.location.href = 'login.html';
-            } else {
-                document.body.style.display = "block";
-                const name = sessionStorage.getItem('namaOpd') || "";
-                const user = sessionStorage.getItem('userName') || "";
-                
-                document.getElementById('opdName').value = name;
-                document.getElementById('drop-nama-opd').innerText = name;
-                document.getElementById('head-opd-name').innerText = name;
-                document.getElementById('head-username').innerText = '@' + user;
-                
-                if (user.toUpperCase().includes('KEC')) {
-                    document.getElementById('wrap-desa').classList.remove('hidden');
-                }
-
-                // Initial Avatar
-                document.getElementById('head-avatar').src = `https://ui-avatars.com/api/?name=${name.replace(/\s+/g, '+')}&background=0D8ABC&color=fff`;
-
-                fetchProfilTerbaru();
+            if (sessionStorage.getItem('isLoggedIn') !== 'true') { 
+                window.location.href = 'login.html'; 
+            } else { 
+                document.body.style.display = "block"; 
+                document.getElementById('drop-nama-opd').innerText = sessionStorage.getItem('namaOpd') || 'OPD'; 
+                document.getElementById('side-nama-user').innerText = sessionStorage.getItem('userName') || 'User';
+                fetchProfilTerbaru(); 
             }
         })();
 
-        // --- FUNGSI PROFIL & LOGOUT ---
-        function toggleProfileMenu() {
-            const menu = document.getElementById('profile-menu');
-            menu.classList.toggle('menu-hidden');
-            menu.classList.toggle('menu-visible');
-        }
-
-        async function logout() {
-            const result = await Swal.fire({
-                title: 'Konfirmasi Keluar',
-                text: "Apakah Anda yakin ingin keluar?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#1F2937',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Keluar',
-                cancelButtonText: 'Batal',
-                customClass: { popup: 'rounded-3xl' }
-            });
-
-            if (result.isConfirmed) {
-                sessionStorage.clear();
-                window.location.href = 'login.html';
+        // Listener dinamis menampilkan nama file saat diunggah
+        document.getElementById('file_lampiran').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const label = document.getElementById('fileNameLabel');
+            if(file) {
+                label.innerText = `✔️ TERPILIH: ${file.name.toUpperCase()}`;
+                label.classList.add('text-green-400');
+            } else {
+                label.innerText = "Pilih atau Seret File Dokumen";
+                label.classList.remove('text-green-400');
             }
-        }
-
-        async function fetchProfilTerbaru() {
-            const user = sessionStorage.getItem('userName');
-            try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${user}&select=foto_profil`, { headers: headers });
-                const data = await res.json();
-                if (data.length > 0 && data[0].foto_profil) {
-                    let finalUrl = data[0].foto_profil;
-                    if (finalUrl.includes('drive.google.com')) {
-                        let fileId = finalUrl.split('/d/')[1]?.split('/')[0] || finalUrl.split('id=')[1];
-                        if(fileId) finalUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
-                    }
-                    document.getElementById('head-avatar').src = finalUrl + '?t=' + Date.now();
-                }
-            } catch (error) { console.error("Gagal load profil."); }
-        }
-
-        async function gantiProfil() {
-            toggleProfileMenu();
-            const { value: file } = await Swal.fire({
-                title: 'Ganti Foto Profil',
-                input: 'file',
-                inputAttributes: { 'accept': 'image/*', 'aria-label': 'Pilih foto profil' },
-                showCancelButton: true, confirmButtonText: 'Upload', confirmButtonColor: '#3b82f6',
-                customClass: { popup: 'rounded-3xl' }
-            });
-
-            if (file) {
-                if(file.size > 2 * 1024 * 1024) return Swal.fire('Error', 'Maks 2MB', 'error');
-                Swal.fire({ title: 'Mengunggah...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = async () => {
-                    const base64Data = reader.result.split(",")[1];
-                    try {
-                        const uploadRes = await fetch(APPS_SCRIPT_URL, {
-                            method: 'POST',
-                            body: JSON.stringify({ action: "upload_only", fileData: base64Data, fileName: `PROFIL_${sessionStorage.getItem('userName')}`, fileType: file.type })
-                        });
-                        const uploadResult = await uploadRes.json();
-                        if (uploadResult.status === "success") {
-                            await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${sessionStorage.getItem('userName')}`, {
-                                method: 'PATCH',
-                                headers: { ...headers, "Content-Type": "application/json" },
-                                body: JSON.stringify({ foto_profil: uploadResult.fileLink })
-                            });
-                            Swal.fire({ icon: 'success', title: 'Berhasil!', timer: 1500, showConfirmButton: false });
-                            setTimeout(fetchProfilTerbaru, 1000);
-                        }
-                    } catch (err) { Swal.fire('Error', 'Gagal update.', 'error'); }
-                };
-            }
-        }
-
-        async function formGantiPassword() {
-            toggleProfileMenu();
-            const { value: pass } = await Swal.fire({
-                title: 'Ganti Password',
-                html: `<input id="p1" type="password" class="swal2-input" placeholder="Password Baru">
-                       <input id="p2" type="password" class="swal2-input" placeholder="Konfirmasi Password">`,
-                preConfirm: () => {
-                    const p1 = document.getElementById('p1').value;
-                    const p2 = document.getElementById('p2').value;
-                    if (!p1 || p1.length < 6) return Swal.showValidationMessage('Minimal 6 karakter!');
-                    if (p1 !== p2) return Swal.showValidationMessage('Password tidak cocok!');
-                    return p1;
-                },
-                showCancelButton: true, confirmButtonText: 'Update', confirmButtonColor: '#1F2937',
-                customClass: { popup: 'rounded-3xl' }
-            });
-
-            if (pass) {
-                Swal.fire({ title: 'Memproses...', didOpen: () => Swal.showLoading() });
-                try {
-                    await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${sessionStorage.getItem('userName')}`, {
-                        method: 'PATCH',
-                        headers: { ...headers, "Content-Type": "application/json" },
-                        body: JSON.stringify({ password: pass })
-                    });
-                    Swal.fire({ icon: 'success', title: 'Berhasil!', timer: 1500, showConfirmButton: false });
-                } catch (error) { Swal.fire('Error', 'Gagal update.', 'error'); }
-            }
-        }
-
-        // --- FUNGSI PENYIMPANAN DATA ---
-        function generateRegNum(id, waktuAju) {
-            const date = new Date(waktuAju);
-            const tgl = ("0" + date.getDate()).slice(-2);
-            const bln = ("0" + (date.getMonth() + 1)).slice(-2);
-            const thn = date.getFullYear();
-            return `REG/ITDA/${tgl}${bln}${thn}/${("0000" + id).slice(-4)}`;
-        }
-
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('overlay').classList.toggle('hidden'); }
-        function toggleOtherInput() { document.getElementById('otherTypeContainer').classList.toggle('hidden', document.getElementById('consultType').value !== 'Lainnya'); }
-        function toggleTanggal() {
-            const metode = document.getElementById('metode').value;
-            document.getElementById('wrap-tanggal').classList.toggle('hidden', metode !== 'Offline');
-            document.getElementById('tgl_offline').required = (metode === 'Offline');
-        }
-
-        document.getElementById('consultForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Kirim Konsultasi?',
-                text: "Pastikan data sudah benar.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#1F2937',
-                confirmButtonText: 'Ya, Kirim!',
-                customClass: { popup: 'rounded-3xl' }
-            }).then((result) => { if (result.isConfirmed) prosesSimpan(); });
         });
 
-        async function prosesSimpan() {
-            const btn = document.getElementById('btnSubmit');
-            const fileInput = document.getElementById('fileInput');
+        // Handler pengiriman data formulir
+        document.getElementById('consultationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const user = sessionStorage.getItem('userName');
+            const namaOpd = sessionStorage.getItem('namaOpd');
+            
+            const judul = document.getElementById('judul_masalah').value.trim();
+            const kategori = document.getElementById('kategori').value;
+            const metode = document.getElementById('metode').value;
+            const rincian = document.getElementById('rincian_masalah').value.trim();
+            const file = document.getElementById('file_lampiran').files[0];
+
+            btn.innerHTML = `<span class="inline-block animate-spin mr-2">🔄</span> MEMPROSES DATA...`;
             btn.disabled = true;
-            btn.innerHTML = `⏳ SEDANG MENGIRIM...`;
-
-            let gDriveLink = "-";
-
-            if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const base64 = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result.split(",")[1]);
-                    reader.readAsDataURL(file);
-                });
-
-                try {
-                    const uploadRes = await fetch(APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: "upload_only", fileData: base64, fileName: file.name, fileType: file.type })
-                    });
-                    const uploadResult = await uploadRes.json();
-                    if (uploadResult.status === "success") gDriveLink = uploadResult.fileLink;
-                } catch (err) { console.error("Gagal upload file."); }
-            }
-
-            const payload = {
-                instansi: document.getElementById('namaDesa').value.trim() ? `${sessionStorage.getItem('namaOpd')} (${document.getElementById('namaDesa').value.trim()})` : sessionStorage.getItem('namaOpd'),
-                kategori: (document.getElementById('consultType').value === 'Lainnya') ? document.getElementById('otherConsultType').value : document.getElementById('consultType').value,
-                metode: document.getElementById('metode').value,
-                tanggal_offline: document.getElementById('tgl_offline').value || "-",
-                judul_masalah: document.getElementById('subject').value,
-                rincian_masalah: document.getElementById('issue').value,
-                nomor_hp: document.getElementById('whatsapp').value,
-                email: document.getElementById('email').value,
-                lampiran: gDriveLink,
-                username: sessionStorage.getItem('userName'),
-                wilayah_opd: sessionStorage.getItem('wilayah'),
-                status_tl: "Belum TL"
-            };
 
             try {
+                let fileLink = "Tidak ada lampiran dokumen";
+                
+                // Proses unggah file via Google Apps Script jika ada file terpilih
+                if (file) {
+                    if (file.size > 10 * 1024 * 1024) throw new Error("Ukuran file maksimal adalah 10MB!");
+                    
+                    const reader = new FileReader();
+                    const filePromise = new Promise((res, rej) => {
+                        reader.readAsDataURL(file);
+                        reader.onload = async () => {
+                            try {
+                                const b64 = reader.result.split(",")[1];
+                                const upRes = await fetch(APPS_SCRIPT_URL, { 
+                                    method: 'POST', 
+                                    body: JSON.stringify({ action: "upload_only", fileData: b64, fileName: `KONSULTASI_${user.toUpperCase()}`, fileType: file.type }) 
+                                });
+                                res(await upRes.json());
+                            } catch (err) { rej(err); }
+                        };
+                    });
+                    const upload = await filePromise;
+                    if (upload.status === "success") fileLink = upload.fileLink;
+                }
+
+                // Simpan baris data baru ke tabel 'konsultasi' Supabase
+                const payload = {
+                    username: user,
+                    nama_opd: namaOpd,
+                    judul_masalah: judul,
+                    kategori: kategori,
+                    metode: metode,
+                    rincian_masalah: rincian,
+                    file_lampiran: fileLink,
+                    status_tl: "Belum TL",
+                    waktu_pengajuan: new Date().toISOString()
+                };
+
                 const res = await fetch(`${SUPABASE_URL}/rest/v1/konsultasi`, {
                     method: 'POST',
-                    headers: { ...headers, "Content-Type": "application/json", "Prefer": "return=representation" },
+                    headers,
                     body: JSON.stringify(payload)
                 });
 
-                if (res.ok) {
-                    const dataBaru = await res.json();
-                    const nomorReg = generateRegNum(dataBaru[0].id, dataBaru[0].waktu_pengajuan);
-                    Swal.fire({
-                        icon: 'success', title: 'BERHASIL!',
-                        html: `No Registrasi: <span class="font-bold text-blue-600">${nomorReg}</span>`,
-                        confirmButtonColor: '#1F2937', customClass: { popup: 'rounded-3xl' }
-                    }).then(() => window.location.href = "riwayat.html");
-                } else { throw new Error(); }
-            } catch (err) {
-                Swal.fire('Error', 'Gagal simpan.', 'error');
-                btn.disabled = false; btn.innerHTML = "Kirim Pengajuan";
-            }
-        }
+                if (!res.ok) throw new Error("Gagal menyimpan data pengajuan ke Supabase.");
 
-        window.addEventListener('click', function(e) {
-            const menu = document.getElementById('profile-menu');
-            const btn = document.getElementById('profile-btn');
-            if (menu && !menu.classList.contains('menu-hidden') && !btn.contains(e.target) && !menu.contains(e.target)) {
-                 menu.classList.add('menu-hidden'); menu.classList.remove('menu-visible');
+                Swal.fire({
+                    title: 'BERHASIL DIKIRIM',
+                    text: 'Konsultasi Anda telah terdaftar di sistem PAMAN SIGIT.',
+                    icon: 'success',
+                    confirmButtonColor: '#2563EB',
+                    customClass: { popup: 'rounded-2xl' }
+                }).then(() => {
+                    window.location.href = 'riwayat.html';
+                });
+
+            } catch (error) {
+                btn.innerHTML = "Kirim Pengajuan Konsultasi";
+                btn.disabled = false;
+                Swal.fire({ title: 'PROSES GAGAL', text: error.message, icon: 'error', confirmButtonColor: '#EF4444' });
             }
         });
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
+        function toggleProfileMenu() { const m = document.getElementById('profile-menu'); m.classList.toggle('menu-hidden'); m.classList.toggle('menu-visible'); }
+        async function logout() { const res = await Swal.fire({ title: 'Keluar?', icon: 'question', showCancelButton: true }); if (res.isConfirmed) { sessionStorage.clear(); window.location.href = 'login.html'; } }
+
+        async function fetchProfilTerbaru() {
+            const user = sessionStorage.getItem('userName');
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${user}&select=foto_profil`, { headers });
+            const data = await res.json();
+            if (data[0]?.foto_profil) {
+                let url = data[0].foto_profil;
+                if (url.includes('drive.google.com')) {
+                    const id = url.split('/d/')[1]?.split('/')[0] || url.split('id=')[1];
+                    url = `https://drive.google.com/uc?export=view&id=${id}`;
+                }
+                document.getElementById('head-avatar').src = url + '?t=' + Date.now();
+                document.getElementById('side-avatar').src = url + '?t=' + Date.now();
+            }
+        }
     </script>
 </body>
 </html>
