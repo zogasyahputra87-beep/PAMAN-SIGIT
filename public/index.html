@@ -2,97 +2,168 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel | PAMAN SIGIT</title>
+    <meta name="description" content="PAMAN SIGIT - Layanan Konsultasi Digital Inspektorat Daerah Kabupaten Malang.">
+    <meta name="google-site-verification" content="PThX0k0-0mpfE8h8zCusaP9iocfEovlLdAcA1qYBJ80" />
+    
+    <title>Dashboard | PAMAN SIGIT Inspektorat Daerah Kabupaten Malang</title>
     <link rel="icon" type="image/png" href="../pages/logo_kab.png">
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         body { user-select: none; -webkit-user-select: none; display: none; }
-        .custom-scrollbar::-webkit-scrollbar { height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .profile-ring { padding: 2px; background: linear-gradient(to bottom right, #3b82f6, #1e40af); }
-        .bg-paman-dark { background-color: #1F2937; }
+        .stat-card { @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-md bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center; }
         .spin { animation: rotate 0.8s linear; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
-        .bubble { padding: 1rem; border-radius: 1rem; margin-bottom: 0.75rem; font-size: 0.75rem; line-height: 1.4; border: 1px solid transparent; }
-        .bubble-user { background: #f3f4f6; border-color: #e5e7eb; color: #374151; }
-        .bubble-auditor { background: #eff6ff; border-color: #dbeafe; color: #1e40af; }
-        .bubble-tl { background: #fff7ed; border-color: #ffedd5; color: #9a3412; }
-        .bubble-catatan { background: #f0fdf4; border-color: #dcfce7; color: #166534; }
-        .label-bubble { font-size: 9px; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; display: block; letter-spacing: 0.05em; }
-        .attachment-box { margin-top: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #ddd; max-width: 200px; }
-        .attachment-box img { width: 100%; height: auto; cursor: zoom-in; }
-        .admin-stat-card { @apply bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col transition-all hover:shadow-md cursor-pointer hover:-translate-y-1; }
+
+        /* Solid Color Overrides */
+        .bg-paman-dark { background-color: #1F2937; }
+        .text-paman-blue { color: #3b82f6; }
+
+        .watermark-fixed {
+            position: fixed; bottom: -30px; right: -30px; width: 500px; height: 500px;
+            background-image: url('../pages/inspektorat.png');
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            opacity: 0.05; z-index: 0; pointer-events: none;
+        }
+
+        /* Dropdown Animation */
+        #profile-menu { transform-origin: top right; transition: all 0.2s ease-out; }
+        .menu-hidden { transform: scale(0.95); opacity: 0; pointer-events: none; }
+        .menu-visible { transform: scale(1); opacity: 1; pointer-events: auto; }
     </style>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800 overflow-hidden">
+<body class="bg-gray-50 font-sans text-gray-800 overflow-hidden">
+
+    <div class="watermark-fixed"></div>
 
     <div class="flex h-screen overflow-hidden relative z-10">
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-paman-dark text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-paman-dark text-gray-300 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none">
             <div class="p-6 border-b border-gray-700 flex flex-col items-center">
                 <img src="../pages/logo_kab.png" alt="Logo" class="w-14 mb-3 drop-shadow-md">
-                <div class="text-center font-black">
-                    <h1 class="text-xl font-bold text-white tracking-tight uppercase">Admin Panel</h1>
-                    <p id="admin-wilayah-label" class="text-[10px] text-blue-400 uppercase tracking-widest leading-tight font-black">Memuat...</p>
+                <div class="text-center">
+                    <h1 class="text-xl font-bold text-white tracking-tight">PAMAN SIGIT</h1>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-tight">Inspektorat Daerah<br>Kabupaten Malang</p>
                 </div>
             </div>
-            <nav class="flex-1 mt-6 px-4 space-y-2 font-bold uppercase text-[10px]">
-                <div class="bg-blue-600/10 text-blue-400 p-3 rounded-lg border-l-4 border-blue-500">🛡️ Kelola Konsultasi</div>
-                <a href="index.html" class="block p-3 text-gray-400 hover:text-white transition">← Dashboard User</a>
+            <nav class="flex-1 mt-6 px-4 space-y-1">
+                <a href="index.html" class="bg-gray-700 text-white w-full flex items-center p-3 rounded-lg text-sm font-bold border-r-4 border-blue-500">📊 Dashboard</a>
+                <a href="buat-konsultasi.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">➕ Buat Konsultasi</a>
+                <a href="riwayat.html" class="w-full flex items-center p-3 rounded-lg hover:bg-gray-800 transition text-sm">📂 Riwayat Konsultasi</a>
+                <div id="admin-link" class="hidden">
+                    <hr class="my-4 border-gray-700">
+                    <a href="admin.html" class="w-full flex items-center p-3 rounded-lg hover:bg-red-900/30 text-red-400 transition text-[10px] font-bold uppercase tracking-widest">🛡️ Admin Panel</a>
+                </div>
             </nav>
             <div class="p-6 border-t border-gray-700 flex flex-col items-center bg-gray-800/50">
-                <div class="w-16 h-16 rounded-full profile-ring shadow-lg mb-3 overflow-hidden bg-gray-700">
-                    <img src="../pages/zoga.jpg" alt="Zoga" class="w-full h-full object-cover">
-                </div>
-                <p class="text-[11px] font-black text-gray-100 uppercase text-center leading-tight">Ananda Zoga Syahputra, S.Tr.I.P.</p>
-                <button onclick="logout()" class="mt-4 w-full px-4 py-2 text-[10px] font-bold uppercase text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg">Keluar</button>
+                <p class="text-[9px] text-gray-500 uppercase font-black mb-1">Versi 1.1 Stable</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase text-center leading-tight">Kabupaten Malang</p>
             </div>
         </aside>
 
+        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+        
         <main class="flex-1 flex flex-col overflow-y-auto">
-            <header class="bg-white border-b p-4 px-8 h-20 flex justify-between items-center shadow-sm sticky top-0 z-30">
-                <div class="flex items-center flex-1">
-                    <button onclick="toggleSidebar()" class="md:hidden mr-4 p-2 bg-gray-100 rounded-lg"><svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
-                    <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Cari Nama OPD atau No Reg..." class="w-full max-w-md px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-xs focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+            <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-6 h-20 flex-shrink-0 sticky top-0 z-30">
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleSidebar()" class="md:hidden p-2 bg-gray-100 rounded-lg text-gray-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    </button>
+                    <div class="hidden lg:flex flex-col border-r border-gray-200 pr-4">
+                        <p id="realtime-clock" class="text-sm font-black text-gray-800 leading-none mb-1">00:00:00</p>
+                        <p id="realtime-date" class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Memuat...</p>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <button onclick="refreshAdminData()" class="flex items-center space-x-2 bg-gray-50 text-gray-600 px-4 py-2 rounded-lg border border-gray-200 shadow-sm font-black text-[10px] uppercase"><span id="refresh-icon-admin">🔄</span><span>Refresh</span></button>
-                    <button onclick="togglePrintMode(true)" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-[10px] font-black border border-red-100 uppercase shadow-sm">📄 Cetak Rekap</button>
+                
+                <div class="flex items-center space-x-4">
+                    <button onclick="manualRefresh()" id="btn-refresh" class="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 py-2 rounded-xl border border-gray-200 transition active:scale-95">
+                        <span id="icon-refresh">🔄</span>
+                        <span class="hidden md:inline text-[10px] font-bold uppercase tracking-widest font-black">Refresh</span>
+                    </button>
+
+                    <div class="relative">
+                        <button onclick="toggleProfileMenu()" class="flex items-center pl-4 border-l border-gray-200 text-right group focus:outline-none">
+                            <div class="mr-3 hidden md:block">
+                                <p id="head-opd-name" class="text-[10px] font-black text-gray-800 uppercase leading-none mb-1">NAMA OPD</p>
+                                <p id="head-username" class="text-[9px] text-blue-600 font-bold">@username</p>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-600 rounded-xl profile-ring shadow-lg ring-2 ring-blue-50 ring-offset-2 overflow-hidden transition group-hover:scale-105">
+                                <img id="head-avatar" src="https://ui-avatars.com/api/?name=User" class="w-full h-full object-cover user-avatar-img">
+                            </div>
+                        </button>
+
+                        <div id="profile-menu" class="menu-hidden absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50">
+                            <div class="px-4 py-3 border-b border-gray-50">
+                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Akses Pengguna</p>
+                                <p id="drop-nama-opd" class="text-xs font-black text-gray-800 truncate">Nama OPD</p>
+                            </div>
+                            <button onclick="gantiProfil()" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-blue-50 hover:text-blue-600 flex items-center transition">
+                                <span class="mr-2">🖼️</span> Ganti Foto Profil
+                            </button>
+                            <button onclick="formGantiPassword()" class="w-full text-left px-4 py-2 text-xs text-gray-600 hover:bg-blue-50 hover:text-blue-600 flex items-center transition">
+                                <span class="mr-2">🔑</span> Ganti Password
+                            </button>
+                            <hr class="my-1 border-gray-50">
+                            <button onclick="logout()" class="w-full text-left px-4 py-2 text-xs text-red-500 hover:bg-red-50 flex items-center transition font-bold uppercase tracking-widest">
+                                <span class="mr-2">🚀</span> Keluar Sistem
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </header>
 
-            <div class="p-8 relative z-10">
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-                    <div onclick="filterByStatus('all')" class="admin-stat-card border-l-4 border-blue-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Total</p><h3 id="stat-wilayah-total" class="text-2xl font-black text-gray-800">0</h3></div>
-                    <div onclick="filterByStatus('pending')" class="admin-stat-card border-l-4 border-yellow-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Belum Dijawab</p><h3 id="stat-wilayah-pending" class="text-2xl font-black text-yellow-600">0</h3></div>
-                    <div onclick="filterByStatus('proses')" class="admin-stat-card border-l-4 border-blue-400 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Proses TL</p><h3 id="stat-wilayah-proses" class="text-2xl font-black text-blue-500">0</h3></div>
-                    <div onclick="filterByStatus('verif')" class="admin-stat-card border-l-4 border-orange-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Verifikasi</p><h3 id="stat-wilayah-verif" class="text-2xl font-black text-orange-600">0</h3></div>
-                    <div onclick="filterByStatus('tuntas')" class="admin-stat-card border-l-4 border-teal-500 font-black"><p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest font-black">Tuntas</p><h3 id="stat-wilayah-done" class="text-2xl font-black text-teal-600">0</h3></div>
+            <div class="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-6">
+                <div class="bg-paman-dark text-white p-8 rounded-3xl shadow-xl relative overflow-hidden flex flex-col justify-center min-h-[180px]">
+                    <div class="relative z-10">
+                        <h3 class="text-2xl font-black mb-2 text-blue-400 uppercase tracking-tighter">Portal PAMAN SIGIT Kabupaten Malang</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-6 max-w-3xl">
+                            Selamat Datang kembali, <span id="welcome-opd" class="text-white font-bold italic">Instansi</span>. Anda dapat memantau seluruh progres pembinaan, pengawasan, serta tindak lanjut konsultasi digital secara real-time.
+                        </p>
+                        <div class="inline-flex items-center px-4 py-2 bg-gray-700/50 rounded-full text-[10px] font-bold uppercase tracking-widest text-gray-300 border border-gray-600">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span>
+                            Status Sistem: <span class="ml-1 text-green-400 uppercase">Online</span>
+                        </div>
+                    </div>
+                    <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl"></div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="overflow-x-auto custom-scrollbar">
-                        <table class="w-full text-left min-w-[1200px]">
-                            <thead class="bg-gray-50 border-b border-gray-100">
-                                <tr class="text-[10px] text-gray-400 font-black uppercase tracking-widest">
-                                    <th class="p-5" style="width: 220px">Informasi OPD</th>
-                                    <th class="p-5">Alur Riwayat Konsultasi</th>
-                                    <th class="p-5 text-center" style="width: 120px">Status</th>
-                                    <th class="p-5 text-center" style="width: 220px">Tindakan Auditor</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminBody" class="divide-y divide-gray-50 text-sm font-bold"></tbody>
-                        </table>
+                <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="stat-card border-b-4 border-b-blue-500">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Konsultasi</p>
+                        <h3 id="stat-total" class="text-2xl font-black text-gray-800">...</h3>
                     </div>
-                    <div id="loader" class="p-10 text-center text-gray-400 italic text-[10px] uppercase font-black">Menghubungkan Database...</div>
+                    <div class="stat-card border-b-4 border-b-yellow-500">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Menunggu Jawaban</p>
+                        <h3 id="stat-pending" class="text-2xl font-black text-yellow-600">...</h3>
+                    </div>
+                    <div class="stat-card border-b-4 border-b-blue-400">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Proses TL</p>
+                        <h3 id="stat-proses-tl" class="text-2xl font-black text-blue-500">...</h3>
+                    </div>
+                    <div class="stat-card border-b-4 border-b-orange-500 relative">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Verifikasi TL</p>
+                        <h3 id="stat-verif" class="text-2xl font-black text-orange-600">...</h3>
+                        <div id="ping-tl" class="hidden absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                    </div>
+                    <div class="stat-card border-b-4 border-b-teal-500">
+                        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Tuntas (Selesai)</p>
+                        <h3 id="stat-done" class="text-2xl font-black text-teal-600">...</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-sm font-black text-gray-800 uppercase tracking-tighter text-paman-blue">Analisis Tren Konsultasi</h3>
+                            <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Statistik Bulanan Tahun <span id="current-year-label">2026</span></p>
+                        </div>
+                    </div>
+                    <div class="h-72">
+                        <canvas id="yearlyChart"></canvas>
+                    </div>
                 </div>
             </div>
         </main>
@@ -100,136 +171,184 @@
 
     <script>
         const SUPABASE_URL = "https://afaiwyfodjllolzwbhmz.supabase.co"; 
-        const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl"; 
-        const headers = { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" };
-        let rawData = [];
+        const SUPABASE_KEY = "sb_publishable_0Jj5RTBAL3gewJvwOsvAxA_aPu370Bl";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2l5RHPGfRBDGt4SJUyKycyAfvKBjHl7F9Prr6Oq82AMoGUAKLRticQPf55sKy-AZr/exec";
+        const headers = { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` };
+        
+        let myChart;
 
         (function() {
-            if (sessionStorage.getItem('isLoggedIn') !== 'true' || sessionStorage.getItem('userRole') !== 'admin') {
+            if (sessionStorage.getItem('isLoggedIn') !== 'true') {
                 window.location.href = 'login.html';
-            } else { 
+            } else {
                 document.body.style.display = "block";
-                document.getElementById('admin-wilayah-label').innerText = sessionStorage.getItem('wilayah') || 'Wilayah';
-                fetchAdmin();
+                const name = sessionStorage.getItem('namaOpd');
+                const user = sessionStorage.getItem('userName');
+                const role = sessionStorage.getItem('userRole');
+                if(role === 'admin') document.getElementById('admin-link').classList.remove('hidden');
+                
+                document.getElementById('head-opd-name').innerText = name;
+                document.getElementById('drop-nama-opd').innerText = name;
+                document.getElementById('head-username').innerText = '@' + user;
+                document.getElementById('welcome-opd').innerText = name;
+                document.getElementById('current-year-label').innerText = new Date().getFullYear();
+                
+                startClock();
+                initChart();
+                fetchProfilTerbaru();
             }
         })();
 
-        async function fetchAdmin() {
-            let queryUrl = `${SUPABASE_URL}/rest/v1/konsultasi?select=*&order=waktu_pengajuan.desc`;
-            const wilayah = (sessionStorage.getItem('wilayah') || 'semua').toLowerCase();
-            if (wilayah !== 'semua') queryUrl += `&wilayah_opd=eq.${sessionStorage.getItem('wilayah')}`;
-            
-            try {
-                const res = await fetch(queryUrl, { headers });
-                rawData = await res.json();
-                document.getElementById('loader').classList.add('hidden');
-                updateAdminStats(rawData);
-                renderTable(rawData);
-            } catch (e) { console.error(e); }
+        // --- FUNGSI PROFIL & PASSWORD ---
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profile-menu');
+            menu.classList.toggle('menu-hidden');
+            menu.classList.toggle('menu-visible');
         }
 
-        function renderTable(data) {
-            const body = document.getElementById('adminBody');
-            body.innerHTML = data.map(item => {
-                const id = item.id;
-                const regNum = generateRegNum(id, item.waktu_pengajuan);
-                const isTerjawab = item.jawaban && item.jawaban !== "";
-                const isVerif = item.status_tl === "Menunggu Verifikasi";
-                const isTuntas = item.status_tl === "Tuntas";
-                const isPerbaikan = item.status_tl === "Perlu Perbaikan";
-
-                // --- 1. Bubble Alur ---
-                let userFile = (item.file_lampiran && item.file_lampiran.includes('http')) ? `<div class="attachment-box"><img src="${parseDriveLink(item.file_lampiran)}" onclick="window.open('${item.file_lampiran}')"></div>` : "";
-                let tlBubble = "";
-                if (item.bukti_tl) {
-                    const parts = item.bukti_tl.split(" | Link: ");
-                    let tlFile = (parts[1] && parts[1].includes('http')) ? `<div class="attachment-box"><img src="${parseDriveLink(parts[1])}" onclick="window.open('${parts[1]}')"></div>` : "";
-                    tlBubble = `<div class="bubble bubble-tl"><span class="label-bubble text-orange-600">📝 Laporan TL OPD</span><div>${parts[0]}</div>${tlFile}</div>`;
-                }
-                
-                let catatanBubble = (isTuntas || isPerbaikan) && item.catatan_admin_tl ? `<div class="bubble bubble-catatan"><span class="label-bubble text-green-700">📌 Catatan Akhir Auditor</span><div>${item.catatan_admin_tl}</div></div>` : "";
-
-                // --- 2. Kolom Status ---
-                const badge = isTuntas ? "bg-teal-50 text-teal-600 border-teal-200" : (isVerif ? "bg-orange-50 text-orange-600 border-orange-200" : (isTerjawab ? "bg-green-50 text-green-700 border-green-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"));
-                const txt = isTuntas ? "Tuntas" : (isVerif ? "Verifikasi" : (isTerjawab ? "Terjawab" : "Menunggu"));
-
-                // --- 3. Kolom Tindakan ---
-                let actionHtml = "";
-                if (!isTerjawab || isPerbaikan) {
-                    actionHtml = `<textarea id="reply-${id}" class="w-full p-2 text-[10px] border rounded-lg mb-2 outline-none font-bold" rows="2" placeholder="Input jawaban/catatan perbaikan..."></textarea>
-                                  <button onclick="handleAction(${id}, 'Kirim')" class="w-full bg-blue-600 text-white py-2 rounded-lg text-[10px] font-black uppercase shadow-md">Kirim Respon</button>`;
-                } else if (isVerif) {
-                    actionHtml = `<textarea id="reply-${id}" class="w-full p-2 text-[10px] border rounded-lg mb-2 outline-none font-bold" rows="2" placeholder="Catatan verifikasi..."></textarea>
-                                  <div class="flex space-x-1">
-                                    <button onclick="handleAction(${id}, 'Tuntas')" class="flex-1 bg-teal-600 text-white py-2 rounded-lg text-[9px] font-black uppercase">Selesai</button>
-                                    <button onclick="handleAction(${id}, 'Perlu Perbaikan')" class="flex-1 bg-red-500 text-white py-2 rounded-lg text-[9px] font-black uppercase">Tolak</button>
-                                  </div>`;
-                } else {
-                    actionHtml = `<span class="text-[10px] text-gray-400 italic">Data telah diproses.</span>`;
-                }
-
-                return `<tr>
-                    <td class="p-5 align-top">
-                        <div class="text-[11px] font-black text-blue-600 mb-1">${regNum}</div>
-                        <div class="text-[11px] font-black text-gray-800 uppercase leading-tight mb-2">${item.instansi}</div>
-                        <span class="bg-gray-100 text-[9px] px-2 py-1 rounded-md border uppercase font-black">${item.kategori}</span>
-                    </td>
-                    <td class="p-5 align-top">
-                        <div class="bubble bubble-user"><span class="label-bubble text-gray-500">❓ Konsultasi Masuk</span><div class="font-black mb-1">${item.judul_masalah}</div><div>${item.rincian_masalah}</div>${userFile}</div>
-                        ${isTerjawab ? `<div class="bubble bubble-auditor"><span class="label-bubble text-blue-600">🧑‍💻 Jawaban Auditor</span><div>${item.jawaban}</div></div>` : ""}
-                        ${tlBubble}
-                        ${catatanBubble}
-                    </td>
-                    <td class="p-5 text-center align-top pt-8"><span class="inline-block w-24 py-1.5 text-[9px] font-black rounded-full border uppercase ${badge}">${txt}</span></td>
-                    <td class="p-5 align-top">
-                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                            ${actionHtml}
-                            <div class="grid grid-cols-2 gap-2 mt-2">
-                                <a href="https://wa.me/${item.nomor_hp}" target="_blank" class="bg-green-500 text-white py-1.5 rounded-lg text-[9px] font-black uppercase text-center">WA</a>
-                                <a href="mailto:${item.email}" class="bg-gray-700 text-white py-1.5 rounded-lg text-[9px] font-black uppercase text-center">Email</a>
-                            </div>
-                        </div>
-                    </td>
-                </tr>`;
-            }).join('');
-        }
-
-        async function handleAction(id, type) {
-            const msg = document.getElementById(`reply-${id}`).value.trim();
-            if (!msg) return Swal.fire('Wajib Isi', 'Mohon isi respon/catatan!', 'warning');
-            
-            Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            
-            let updateData = {};
-            if (type === 'Kirim') updateData = { jawaban: msg, waktu_jawaban: new Date().toISOString(), status_tl: "Belum TL" };
-            else if (type === 'Tuntas') updateData = { status_tl: "Tuntas", catatan_admin_tl: msg };
-            else if (type === 'Perlu Perbaikan') updateData = { status_tl: "Perlu Perbaikan", catatan_admin_tl: msg };
-
-            try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?id=eq.${id}`, { method: 'PATCH', headers, body: JSON.stringify(updateData) });
-                if (res.ok) { Swal.fire({ icon: 'success', title: 'Berhasil', timer: 1000, showConfirmButton: false }); fetchAdmin(); }
-            } catch (e) { Swal.fire('Error', 'Gagal update data', 'error'); }
-        }
-
-        function updateAdminStats(data) {
-            document.getElementById('stat-wilayah-total').innerText = data.length;
-            document.getElementById('stat-wilayah-pending').innerText = data.filter(i => !i.jawaban).length;
-            document.getElementById('stat-wilayah-proses').innerText = data.filter(i => i.jawaban && (i.status_tl === "Belum TL" || i.status_tl === "Perlu Perbaikan")).length;
-            document.getElementById('stat-wilayah-verif').innerText = data.filter(i => i.status_tl === "Menunggu Verifikasi").length;
-            document.getElementById('stat-wilayah-done').innerText = data.filter(i => i.status_tl === "Tuntas").length;
-        }
-
-        function parseDriveLink(link) {
-            if (link && link.includes('drive.google.com')) {
-                const id = link.split('/d/')[1]?.split('/')[0] || link.split('id=')[1];
-                return `https://drive.google.com/uc?export=view&id=${id}`;
+        async function fetchProfilTerbaru() {
+            const user = sessionStorage.getItem('userName');
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${user}&select=foto_profil`, { headers: headers });
+            const data = await res.json();
+            if (data.length > 0 && data[0].foto_profil) {
+                document.querySelectorAll('.user-avatar-img').forEach(img => img.src = data[0].foto_profil);
             }
-            return link;
         }
-        function generateRegNum(id, waktu) { const d = new Date(waktu); return `REG/ITDA/${("0"+d.getDate()).slice(-2)}${("0"+(d.getMonth()+1)).slice(-2)}${d.getFullYear()}/${("0000" + id).slice(-4)}`; }
-        async function refreshAdminData() { const i = document.getElementById('refresh-icon-admin'); i.classList.add('spin'); await fetchAdmin(); setTimeout(()=>i.classList.remove('spin'), 800); }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
-        async function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
+
+        async function gantiProfil() {
+            toggleProfileMenu();
+            const { value: file } = await Swal.fire({
+                title: 'Ganti Foto Profil',
+                input: 'file',
+                inputAttributes: { 'accept': 'image/*', 'aria-label': 'Pilih foto profil' },
+                showCancelButton: true, confirmButtonText: 'Upload', confirmButtonColor: '#3b82f6',
+                customClass: { popup: 'rounded-3xl' }
+            });
+
+            if (file) {
+                Swal.fire({ title: 'Mengunggah...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = async () => {
+                    const base64Data = reader.result.split(",")[1];
+                    try {
+                        const uploadRes = await fetch(APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: "upload_only", fileData: base64Data, fileName: `PROFIL_${sessionStorage.getItem('userName')}`, fileType: file.type })
+                        });
+                        const uploadResult = await uploadRes.json();
+                        if (uploadResult.status === "success") {
+                            await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${sessionStorage.getItem('userName')}`, {
+                                method: 'PATCH',
+                                headers: { ...headers, "Content-Type": "application/json" },
+                                body: JSON.stringify({ foto_profil: uploadResult.fileLink })
+                            });
+                            Swal.fire({ icon: 'success', title: 'Berhasil!', timer: 1500, showConfirmButton: false });
+                            fetchProfilTerbaru();
+                        }
+                    } catch (err) { Swal.fire('Error', 'Gagal upload foto', 'error'); }
+                };
+            }
+        }
+
+        async function formGantiPassword() {
+            toggleProfileMenu();
+            const { value: pass } = await Swal.fire({
+                title: 'Ganti Password',
+                html: `<input id="p1" type="password" class="swal2-input" placeholder="Password Baru">
+                       <input id="p2" type="password" class="swal2-input" placeholder="Konfirmasi Password">`,
+                preConfirm: () => {
+                    const p1 = document.getElementById('p1').value;
+                    const p2 = document.getElementById('p2').value;
+                    if (!p1 || p1 !== p2) return Swal.showValidationMessage('Password tidak cocok!');
+                    return p1;
+                },
+                showCancelButton: true, confirmButtonText: 'Update', confirmButtonColor: '#1F2937',
+                customClass: { popup: 'rounded-3xl' }
+            });
+
+            if (pass) {
+                Swal.fire({ title: 'Updating...', didOpen: () => Swal.showLoading() });
+                await fetch(`${SUPABASE_URL}/rest/v1/users_opd?username=eq.${sessionStorage.getItem('userName')}`, {
+                    method: 'PATCH',
+                    headers: { ...headers, "Content-Type": "application/json" },
+                    body: JSON.stringify({ password: pass })
+                });
+                Swal.fire({ icon: 'success', title: 'Password Diperbarui!', timer: 1500, showConfirmButton: false });
+            }
+        }
+
+        // --- FUNGSI SISTEM ---
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('realtime-clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+                document.getElementById('realtime-date').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            }, 1000);
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('yearlyChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                    datasets: [{
+                        label: 'Laporan Masuk',
+                        data: Array(12).fill(0),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 4, tension: 0.4, fill: true,
+                        pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointRadius: 5
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        async function manualRefresh() {
+            const icon = document.getElementById('icon-refresh');
+            icon.classList.add('spin'); 
+            await updateStats();
+            setTimeout(() => icon.classList.remove('spin'), 800);
+        }
+
+        async function updateStats() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/konsultasi?select=status_tl,jawaban,waktu_pengajuan`, { headers: headers });
+                const data = await response.json();
+                
+                document.getElementById('stat-total').innerText = data.length;
+                document.getElementById('stat-pending').innerText = data.filter(item => !item.jawaban).length;
+                document.getElementById('stat-proses-tl').innerText = data.filter(item => item.jawaban && (item.status_tl === "Belum TL" || item.status_tl === "Perlu Perbaikan")).length;
+                const v = data.filter(item => item.status_tl === 'Menunggu Verifikasi').length;
+                document.getElementById('stat-verif').innerText = v;
+                document.getElementById('stat-done').innerText = data.filter(item => item.status_tl === 'Tuntas').length;
+
+                const monthlyData = Array(12).fill(0);
+                data.forEach(item => {
+                    const date = new Date(item.waktu_pengajuan);
+                    if(date.getFullYear() === new Date().getFullYear()) monthlyData[date.getMonth()]++;
+                });
+                myChart.data.datasets[0].data = monthlyData;
+                myChart.update();
+
+                document.getElementById('ping-tl').classList.toggle('hidden', v === 0);
+            } catch (error) { console.error(error); }
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); document.getElementById('overlay').classList.toggle('hidden'); }
+        function logout() { sessionStorage.clear(); window.location.href = 'login.html'; }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(e) {
+            const menu = document.getElementById('profile-menu');
+            const btn = document.querySelector('header button[onclick="toggleProfileMenu()"]');
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.add('menu-hidden');
+                menu.classList.remove('menu-visible');
+            }
+        });
     </script>
 </body>
 </html>
