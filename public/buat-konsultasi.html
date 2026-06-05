@@ -21,7 +21,6 @@
         .bg-paman-dark { background-color: #111827; }
         .profile-ring { padding: 2px; background: linear-gradient(to bottom right, #3b82f6, #1e40af); }
         
-        /* PERTAJAM: Efek Glassmorphic HD untuk Panel Formulir */
         .glass-panel {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8));
             backdrop-filter: blur(12px);
@@ -29,7 +28,6 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* PERTAJAM: Efek bersinar pada input form saat aktif */
         .hd-input {
             background-color: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -117,7 +115,6 @@
                     </div>
 
                     <form id="consultationForm" class="p-5 md:p-8 space-y-6">
-                        
                         <div>
                             <label class="block text-[11px] font-black text-gray-300 uppercase mb-2 tracking-wider">Asal Perangkat Daerah (OPD) / Instansi Pengaju</label>
                             <input type="text" id="nama_opd_input" class="hd-input w-full p-4 rounded-xl outline-none text-sm font-bold" placeholder="Memuat nama instansi..." required>
@@ -132,13 +129,14 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-[11px] font-black text-gray-300 uppercase mb-2 tracking-wider">Kategori Pengawasan</label>
-                                <select id="kategori" class="hd-input w-full p-4 rounded-xl outline-none text-sm font-bold cursor-pointer" required>
+                                <select id="kategori" onchange="handleKategoriChange()" class="hd-input w-full p-4 rounded-xl outline-none text-sm font-bold cursor-pointer" required>
                                     <option value="" disabled selected class="bg-slate-900 text-gray-500">Pilih Kategori...</option>
                                     <option value="Pengelolaan Keuangan" class="bg-slate-900 text-white">Pengelolaan Keuangan</option>
                                     <option value="Aset & Barang Milik Daerah" class="bg-slate-900 text-white">Aset & Barang Milik Daerah</option>
                                     <option value="Sistem Akuntabilitas (SAKIP)" class="bg-slate-900 text-white">Sistem Akuntabilitas (SAKIP)</option>
                                     <option value="Pengadaan Barang & Jasa" class="bg-slate-900 text-white">Pengadaan Barang & Jasa</option>
                                     <option value="Kepegawaian & Disiplin ASN" class="bg-slate-900 text-white">Kepegawaian & Disiplin ASN</option>
+                                    <option value="Lainnya" class="bg-slate-900 text-yellow-400 font-bold">Lainnya (Isi Manual)</option>
                                 </select>
                             </div>
                             <div>
@@ -149,6 +147,11 @@
                                     <option value="Koordinasi Zoom Meeting" class="bg-slate-900 text-white">Butuh Koordinasi via Zoom Meeting</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <div id="kategoriLainnyaContainer" class="hidden animate__animated animate__fadeIn">
+                            <label class="block text-[11px] font-black text-yellow-400 uppercase mb-2 tracking-wider">Sebutkan Nama Kategori Pengawasan Lainnya</label>
+                            <input type="text" id="kategori_lainnya" class="hd-input w-full p-4 rounded-xl outline-none text-sm font-bold placeholder-gray-500" placeholder="Ketik jenis urusan/kategori di sini...">
                         </div>
 
                         <div id="datePickerContainer" class="hidden animate__animated animate__fadeIn">
@@ -201,12 +204,11 @@
                 document.getElementById('drop-nama-opd').innerText = sessionStorage.getItem('namaOpd') || 'OPD'; 
                 document.getElementById('side-nama-user').innerText = sessionStorage.getItem('userName') || 'User';
                 
-                setupOpdField(); // Pengecekan otentikasi penulisan OPD Kecamatan
+                setupOpdField(); 
                 fetchProfilTerbaru(); 
             }
         })();
 
-        // LOGIKA BARU: Pengkondisian Isian OPD Manual khusus Kecamatan
         function setupOpdField() {
             const currentUsername = (sessionStorage.getItem('userName') || '').toLowerCase();
             const currentNamaOpd = sessionStorage.getItem('namaOpd') || '';
@@ -214,19 +216,33 @@
             const helpText = document.getElementById('opdHelpText');
 
             if (currentUsername.includes('kecamatan')) {
-                // Jika user adalah kecamatan, input diaktifkan dan bisa diedit manual untuk Desa/Kelurahan
                 opdInput.value = currentNamaOpd + " - ";
                 opdInput.disabled = false;
                 helpText.innerText = "💡 AKUN KECAMATAN: Anda dapat mengedit manual nama Desa/Kelurahan perantara di ujung teks.";
                 helpText.classList.replace('text-slate-500', 'text-yellow-400');
             } else {
-                // Selain kecamatan, dikunci solid otomatis
                 opdInput.value = currentNamaOpd;
                 opdInput.disabled = true;
             }
         }
 
-        // LOGIKA BARU: Tampilkan Date Picker jika memilih Offline atau Zoom
+        // LOGIKA BARU: Tampilkan/Sembunyikan Kolom Teks Kategori Lainnya secara Dinamis
+        function handleKategoriChange() {
+            const kategoriSelect = document.getElementById('kategori').value;
+            const containerLainnya = document.getElementById('kategoriLainnyaContainer');
+            const inputLainnya = document.getElementById('kategori_lainnya');
+
+            if (kategoriSelect === 'Lainnya') {
+                containerLainnya.classList.remove('hidden');
+                inputLainnya.required = true;
+                inputLainnya.focus();
+            } else {
+                containerLainnya.classList.add('hidden');
+                inputLainnya.required = false;
+                inputLainnya.value = ""; // Bersihkan teks jika batal memilih
+            }
+        }
+
         function handleMetodeChange() {
             const metodeValue = document.getElementById('metode').value;
             const dateContainer = document.getElementById('datePickerContainer');
@@ -238,7 +254,7 @@
             } else {
                 dateContainer.classList.add('hidden');
                 dateInput.required = false;
-                dateInput.value = ""; // Bersihkan nilai jika kembali ke Online
+                dateInput.value = ""; 
             }
         }
 
@@ -262,11 +278,15 @@
             
             const opdFinalValue = document.getElementById('nama_opd_input').value.trim();
             const judul = document.getElementById('judul_masalah').value.trim();
-            const kategori = document.getElementById('kategori').value;
+            const kategoriSelect = document.getElementById('kategori').value;
+            const kategoriLainnya = document.getElementById('kategori_lainnya').value.trim();
             const metode = document.getElementById('metode').value;
             const tanggalPertemuan = document.getElementById('tanggal_pertemuan').value;
             const rincian = document.getElementById('rincian_masalah').value.trim();
             const file = document.getElementById('file_lampiran').files[0];
+
+            // LOGIKA BARU: Tentukan kategori yang akan disimpan ke database
+            const kategoriFinal = (kategoriSelect === 'Lainnya') ? kategoriLainnya : kategoriSelect;
 
             btn.innerHTML = `<span class="inline-block animate-spin mr-2">🔄</span> MEMPROSES DATA...`;
             btn.disabled = true;
@@ -295,14 +315,13 @@
                     if (upload.status === "success") fileLink = upload.fileLink;
                 }
 
-                // Pengkondisian deskripsi metode jika menyertakan tanggal booking offline/zoom
                 const metodeFinalTxt = tanggalPertemuan ? `${metode} (Rencana: ${new Date(tanggalPertemuan).toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})})` : metode;
 
                 const payload = {
                     username: user,
-                    nama_opd: opdFinalValue, // Menyimpan nama OPD final hasil penyesuaian manual/otomatis
+                    nama_opd: opdFinalValue, 
                     judul_masalah: judul,
-                    kategori: kategori,
+                    kategori: kategoriFinal, // Mengirim teks kategori murni hasil input manual/opsional select
                     metode: metodeFinalTxt,
                     rincian_masalah: rincian,
                     file_lampiran: fileLink,
